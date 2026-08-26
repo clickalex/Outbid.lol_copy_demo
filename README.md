@@ -15,3 +15,16 @@ python3 -m http.server 4173 --bind 0.0.0.0
 ```
 
 The written snapshot is dated **26 August 2026**. Live inventory data is attributed to [outoutbid.lol](https://outoutbid.lol/) under CC BY 4.0. Public traffic and revenue numbers are source-reported and not independently audited.
+
+## GitHub Pages
+
+The report is ready for branch-based GitHub Pages hosting: `index.html` is in the repository root and needs no build step.
+
+To activate it, a repository administrator must:
+
+1. Merge the report branch into `main`.
+2. Open **Settings → Pages**.
+3. Set **Build and deployment → Source** to **Deploy from a branch**.
+4. Select **main**, choose **/(root)**, and click **Save**.
+
+GitHub Pages for a private repository requires a GitHub plan that supports private-repository Pages. Pages site visibility and access control depend on the account or organization plan.
