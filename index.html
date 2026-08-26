@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A dated, source-linked analysis of outbid.lol and the pay-to-rank website market, with a live inventory of every verified board.">
+  <meta name="description" content="A dated, source-linked analysis of outbid.lol and the pay-to-rank website market, with a live inventory of every verified board and a daily bot-refreshed CSV snapshot.">
   <title>Outbid Market Audit — 26 August 2026</title>
   <style>
     :root {
@@ -525,8 +525,8 @@
 </head>
 <body>
   <header class="topline">
-    <span class="live-label"><span class="live-dot"></span> Field audit / 26 Aug 2026 / UTC</span>
-    <span>Primary site + 414 verified pay-to-rank boards</span>
+    <span class="live-label"><span class="live-dot"></span> Field audit / 26 Aug 2026 / UTC · bot-refreshed daily</span>
+    <span>Primary site + <span data-stat="boards-total">414</span> verified pay-to-rank boards</span>
   </header>
 
   <div class="shell">
@@ -548,8 +548,8 @@
       <p class="nav-title">Live source</p>
       <div class="side-note">
         <div id="sideApiState" class="source-state">Waiting for directory API</div>
-        <p>The inventory refreshes from the CC BY 4.0 outoutbid.lol dataset when this HTML has internet access.</p>
-        <strong id="sideUpdated">Snapshot: 11:26 UTC</strong>
+        <p>The inventory refreshes from the CC BY 4.0 outoutbid.lol dataset when this HTML has internet access. A scheduled bot refreshes the CSV snapshot and the report figures daily.</p>
+        <strong id="sideUpdated" data-stat="side-updated">Snapshot: 11:26 UTC</strong>
       </div>
     </aside>
 
@@ -572,20 +572,22 @@
             <span class="pill up">Live now</span>
           </div>
           <ul class="route-list">
-            <li><span>/ — all-time board</span><b>LIVE</b></li>
-            <li><span>/today — rolling 24h</span><b>LIVE</b></li>
-            <li><span>/about · /rules</span><b>LIVE</b></li>
-            <li><span>/terms · /privacy</span><b>LIVE</b></li>
-            <li><span>/category/* · /product/*</span><b>LIVE</b></li>
-            <li><span>/stats — internal route</span><b class="bad">404</b></li>
+            <li><span>/ — all-time board</span><b data-stat="route-root">LIVE</b></li>
+            <li><span>/today — rolling 24h</span><b data-stat="route-today">LIVE</b></li>
+            <li><span>/about</span><b data-stat="route-about">LIVE</b></li>
+            <li><span>/rules</span><b data-stat="route-rules">LIVE</b></li>
+            <li><span>/terms</span><b data-stat="route-terms">LIVE</b></li>
+            <li><span>/privacy</span><b data-stat="route-privacy">LIVE</b></li>
+            <li><span>/category/* · /product/*</span><b data-stat="route-category-product">LIVE</b></li>
+            <li><span>/stats — internal route</span><b class="bad" data-stat="route-stats">404</b></li>
           </ul>
-          <p class="micro">Checked through rendered page retrieval on 26 Aug 2026. The “see stats” control points to an external DataFast page, so the internal /stats 404 is not the linked user journey.</p>
+          <p class="micro">Routes re-checked automatically by the daily bot (<span data-stat="routes-checked-date">26 Aug 2026</span>) with plain HTTP requests — an anti-bot wall can mask a live site. The “see stats” control points to an external DataFast page, so the internal /stats 404 is not the linked user journey.</p>
         </aside>
       </section>
 
       <div class="finding-bar" role="note">
         <strong>Headline finding</strong>
-        <p>Originality captured the audience. <b>414 boards</b> copied the format; the median measurable clone reports only <b>$18.90</b>.</p>
+        <p>Originality captured the audience. <b data-live-total data-stat="boards-total">414</b> boards copied the format; the median measurable clone reports only <b data-stat="clone-median">$18.90</b>.</p>
         <span>Evidence: outoutbid research snapshot</span>
       </div>
 
@@ -594,24 +596,24 @@
           <div class="section-head">
             <span class="section-no">01 / 07</span>
             <h2 id="brief-title">Executive brief</h2>
-            <p class="section-intro">A point-in-time read. Money and traffic values are the sites’ own public claims, not audited financial statements.</p>
+            <p class="section-intro">A point-in-time read, with counters refreshed daily by the update bot. Money and traffic values are the sites’ own public claims, not audited financial statements.</p>
           </div>
 
           <div class="metrics">
             <article class="metric accent">
               <div class="label">Verified boards</div>
-              <div class="value" data-live-total>414</div>
+              <div class="value" data-live-total data-stat="boards-total">414</div>
               <div class="note">A floor, not a complete census</div>
             </article>
             <article class="metric">
               <div class="label">Claimed across readable boards</div>
-              <div class="value">$188.2k</div>
-              <div class="note">294 boards measured at source</div>
+              <div class="value" data-stat="claimed-total-short">$188.2k</div>
+              <div class="note" data-stat="measured-count-note">294 boards measured at source</div>
             </article>
             <article class="metric">
               <div class="label">Original’s measured share</div>
-              <div class="value">67.0%</div>
-              <div class="note">$126,157 in the research snapshot</div>
+              <div class="value" data-stat="original-share">67.0%</div>
+              <div class="note" data-stat="original-share-note">$126,157 in the latest directory read</div>
             </article>
             <article class="metric">
               <div class="label">Re-check result</div>
@@ -620,23 +622,23 @@
             </article>
             <article class="metric">
               <div class="label">Current #1 bid</div>
-              <div class="value">$17,000</div>
-              <div class="note">see.io on the direct homepage check</div>
+              <div class="value" data-stat="top-bid">$17,000</div>
+              <div class="note" data-stat="top-bid-note">see.io · highest bid so far (About page)</div>
             </article>
             <article class="metric">
               <div class="label">Original’s self-reported revenue</div>
-              <div class="value">$221,360</div>
+              <div class="value" data-stat="about-revenue">$221,615</div>
               <div class="note">About page; definition differs from directory</div>
             </article>
             <article class="metric">
               <div class="label">Visitors shown</div>
-              <div class="value">1.36m</div>
+              <div class="value" data-stat="about-visitors">1.36m</div>
               <div class="note">Live header counter, not independently audited</div>
             </article>
             <article class="metric">
               <div class="label">Clone median</div>
-              <div class="value">$18.90</div>
-              <div class="note">293 measurable clones, original excluded</div>
+              <div class="value" data-stat="clone-median">$18.90</div>
+              <div class="note" data-stat="clone-median-note">293 measurable clones, original excluded</div>
             </article>
           </div>
 
@@ -712,6 +714,7 @@
               <h3>Where the boards went</h3>
               <p>Most copies kept the generic website-directory shape. The more credible differentiation appears in vertical focus or a changed mechanic.</p>
               <div id="categoryBars" class="bars" aria-label="Board count by category">
+                <!-- bot:category-bars -->
                 <div class="bar-row"><label>Websites & products</label><div class="track"><div class="fill" style="--w:100%"></div></div><output>230</output></div>
                 <div class="bar-row"><label>X accounts</label><div class="track"><div class="fill" style="--w:22.2%"></div></div><output>51</output></div>
                 <div class="bar-row"><label>Ads & billboards</label><div class="track"><div class="fill" style="--w:13.5%"></div></div><output>31</output></div>
@@ -720,21 +723,22 @@
                 <div class="bar-row"><label>Games & clips</label><div class="track"><div class="fill" style="--w:9.1%"></div></div><output>21</output></div>
                 <div class="bar-row"><label>Regional</label><div class="track"><div class="fill" style="--w:7.8%"></div></div><output>18</output></div>
                 <div class="bar-row"><label>Bid directories</label><div class="track"><div class="fill" style="--w:5.2%"></div></div><output>12</output></div>
+                <!-- /bot:category-bars -->
               </div>
             </article>
 
             <article class="panel">
               <h3>Economics: a power-law market</h3>
-              <p>The original held 67% of reported value in the research snapshot. Among clones, the richest ten held 68.8% of clone money. The typical result is much closer to zero than to the average.</p>
+              <p>The original held <span data-stat="original-share-round">67%</span> of reported value at the latest directory read. Among clones, the richest ten held <span data-stat="top10-clones-share">68.8%</span> of clone money. The typical result is much closer to zero than to the average.</p>
               <div class="concentration" aria-label="Claimed revenue concentration">
-                <div class="original"><b>67%</b><span>Original</span></div>
-                <div class="top-clones"><b>23%</b><span>Approx. top clones</span></div>
-                <div class="tail"><b>10%</b><span>Long tail</span></div>
+                <div class="original"><b data-stat="original-share-round">67%</b><span>Original</span></div>
+                <div class="top-clones"><b data-stat="top-clones-share">23%</b><span>Approx. top clones</span></div>
+                <div class="tail"><b data-stat="tail-share">10%</b><span>Long tail</span></div>
               </div>
               <div class="fact-list">
-                <div class="fact"><b>27</b><div><strong>Reported $0</strong><span>9.2% of measurable clones.</span></div></div>
-                <div class="fact"><b>107</b><div><strong>Under $10</strong><span>36.5% of measurable clones.</span></div></div>
-                <div class="fact"><b>242</b><div><strong>Under $100</strong><span>82.6% of measurable clones.</span></div></div>
+                <div class="fact"><b data-stat="zeros-count">27</b><div><strong>Reported $0</strong><span data-stat="zeros-pct-note">9.2% of measurable clones.</span></div></div>
+                <div class="fact"><b data-stat="under10-count">107</b><div><strong>Under $10</strong><span data-stat="under10-pct-note">36.5% of measurable clones.</span></div></div>
+                <div class="fact"><b data-stat="under100-count">242</b><div><strong>Under $100</strong><span data-stat="under100-pct-note">82.6% of measurable clones.</span></div></div>
               </div>
             </article>
           </div>
@@ -756,10 +760,11 @@
             </article>
           </div>
 
-          <h3 style="margin:32px 0 0">Largest public totals at the research snapshot</h3>
+          <h3 style="margin:32px 0 0">Largest public totals at the latest directory read</h3>
           <div class="table-wrap">
             <table>
               <thead><tr><th>#</th><th>Board</th><th>Category</th><th>Claimed taken</th><th>Observed status*</th></tr></thead>
+              <!-- bot:top-table -->
               <tbody>
                 <tr><td class="num">01</td><td><strong>outbid.lol</strong><span class="domain">outbid.lol</span></td><td>Websites & products</td><td class="num">$126,157</td><td><span class="pill warn">Directly live now</span></td></tr>
                 <tr><td class="num">02</td><td><strong>lamborghini.lol</strong><span class="domain">lamborghini.lol</span></td><td>Ads & billboards</td><td class="num">$25,000</td><td><span class="pill warn">Failed re-check</span></td></tr>
@@ -772,9 +777,10 @@
                 <tr><td class="num">09</td><td><strong>Lugarcito</strong><span class="domain">lugarcito.online</span></td><td>Regional</td><td class="num">$1,505.14</td><td><span class="pill up">Valid</span></td></tr>
                 <tr><td class="num">10</td><td><strong>melhor lance</strong><span class="domain">melhorlance.dev</span></td><td>Regional</td><td class="num">$1,411.38</td><td><span class="pill up">Valid</span></td></tr>
               </tbody>
+              <!-- /bot:top-table -->
             </table>
           </div>
-          <p class="micro">*Directory re-check status at 26 Aug 2026 11:26 UTC. The direct original-site check occurred later in this analysis.</p>
+          <p class="micro">*Status labels: outbid.lol from the bot’s live route check; other labels carried over from the 26 Aug 2026 research re-check (“Pending” = not re-checked since). Amounts and ranking refreshed <span data-stat="table-refreshed">26 Aug 2026 · 11:26 UTC</span>.</p>
         </section>
 
         <section id="new-sites" aria-labelledby="new-title">
@@ -820,7 +826,7 @@
 
           <div class="inventory-head">
             <div>
-              <h3><span id="inventoryTotal">414</span> verified boards</h3>
+              <h3><span id="inventoryTotal" data-stat="boards-total">414</span> verified boards</h3>
               <p id="inventorySummary">Loading the latest catalog…</p>
             </div>
             <div id="apiState" class="source-state">Connecting to live data</div>
@@ -853,7 +859,7 @@
                 <option value="name">Name A–Z</option>
               </select>
             </div>
-            <div class="filter-action"><button id="exportCsv" class="btn small" type="button">Export CSV</button></div>
+            <div class="filter-action"><button id="exportCsv" class="btn small" type="button">Export CSV</button><a class="btn small" href="data/outbid-market-inventory.csv" download title="Full bot-maintained snapshot committed with this report">Full CSV ↧</a></div>
           </div>
 
           <div class="table-status-note">
@@ -895,7 +901,7 @@
             <article class="rec"><b>03 / RETENTION</b><h3>Build return reasons beyond novelty</h3><p>Keep the 24-hour board, add category alerts and bidder performance history, and let buyers compare spend, clicks and effective CPC without promising outcomes.</p></article>
             <article class="rec"><b>04 / RELIABILITY</b><h3>Separate “down” from “invalid”</h3><p>Monitor DNS, TLS, server response, rendered board and checkout independently. A stale or bot-blocked render should not be reported as site downtime.</p></article>
             <article class="rec"><b>05 / MODERATION</b><h3>Operationalize review</h3><p>Move category corrections and takedowns from an X DM into a ticket flow with ownership proof, status, reason codes and appeal handling.</p></article>
-            <article class="rec"><b>06 / NEW ENTRANTS</b><h3>Do not ship clone #415</h3><p>Win a vertical audience first. Use expiring rounds, a meaningful prize, local payment rails or a new visual mechanic—then prove repeat attention before charging.</p></article>
+            <article class="rec"><b>06 / NEW ENTRANTS</b><h3>Do not ship clone <span data-stat="next-clone-index">#415</span></h3><p>Win a vertical audience first. Use expiring rounds, a meaningful prize, local payment rails or a new visual mechanic—then prove repeat attention before charging.</p></article>
           </div>
 
           <h3 style="margin:34px 0 0">Risk register</h3>
@@ -923,7 +929,8 @@
 
           <div class="method-grid">
             <article><h3>Direct site analysis</h3><p>Rendered text retrieval covered the homepage, today board, one category, one category-today board, About, Rules, Terms and Privacy. It confirmed content availability, routing and current public counters—but not checkout completion, browser accessibility, DOM link attributes or authenticated administration.</p></article>
-            <article><h3>Market dataset</h3><p>The census, category counts, registration timing, claimed totals and re-check rollup come from outoutbid.lol’s 26 Aug 2026 research snapshot. Its directory is CC BY 4.0. This report’s inventory reads its public API with pageSize=500 so newly verified sites appear automatically.</p></article>
+            <article><h3>Market dataset</h3><p>The census, category counts, registration timing, claimed totals and re-check rollup come from outoutbid.lol’s 26 Aug 2026 research snapshot. Its directory is CC BY 4.0. This report’s inventory reads its public API with pageSize=500 so newly verified sites appear automatically, and every bot run re-commits the full inventory as <a href="data/outbid-market-inventory.csv">data/outbid-market-inventory.csv</a>.</p></article>
+            <article><h3>Daily update bot</h3><p>A scheduled bot (<a href="https://github.com/clickalex/Outbid.lol_copy_demo/blob/main/scripts/update_report.py" target="_blank" rel="noopener">scripts/update_report.py</a>, GitHub Actions) runs daily: it re-reads the directory API, re-checks outbid.lol’s routes and About counters, rewrites the CSV and every figure in this report marked <code>data-stat</code>. Qualitative analysis and the research-page re-check rollup stay as written. Failures keep the previous value rather than blanking a figure.</p></article>
             <article><h3>Important limitations</h3><p>Revenue and traffic are self-reported. A null figure is unknown, not zero. A failed ladder check is not necessarily server downtime. The census misses undiscovered boards and free subdomains. Foreign-currency sorting in the live table is approximate and display-only.</p></article>
           </div>
 
@@ -934,11 +941,14 @@
             <a class="source-link" href="https://outbid.lol/terms" target="_blank" rel="noopener"><b>04</b><strong>Terms and Privacy / operator, Polar, data handling</strong><span>Primary source ↗</span></a>
             <a class="source-link" href="https://outoutbid.lol/research" target="_blank" rel="noopener"><b>05</b><strong>The outbid.lol clone wave, counted</strong><span>Research dataset ↗</span></a>
             <a class="source-link" href="https://outoutbid.lol/api" target="_blank" rel="noopener"><b>06</b><strong>Public directory API documentation</strong><span>CC BY 4.0 ↗</span></a>
+            <a class="source-link" href="data/outbid-market-inventory.csv"><b>07</b><strong>CSV inventory snapshot</strong><span>Bot-maintained artifact ↧</span></a>
+            <a class="source-link" href="https://github.com/clickalex/Outbid.lol_copy_demo/blob/main/.github/workflows/daily-update.yml" target="_blank" rel="noopener"><b>08</b><strong>Daily refresh workflow</strong><span>Automation ↗</span></a>
           </div>
         </section>
 
         <footer class="footer">
           <span>Outbid market audit · prepared 26 August 2026 · snapshot values are dated and source-linked.</span>
+          <span data-stat="bot-updated">Inventory auto-refreshed 26 Aug 2026 by the daily bot.</span>
           <span>Directory data attribution: outoutbid.lol (CC BY 4.0).</span>
         </footer>
       </div>
@@ -952,6 +962,7 @@
       const API_URL = 'https://outoutbid.lol/api/directory.json?pageSize=500&sort=new';
       const PAGE_SIZE = 20;
       const fallbackBoards = [
+      // bot:fallback-boards
         { name:'Outbid Lol', url:'https://outbid-lol.lol/', host:'outbid-lol.lol', tagline:'Public pay-to-rank leaderboard for startups and products.', category:{slug:'websites',name:'Websites & products'}, minBid:'$5', payRail:null, listedAt:'2026-08-26T06:15:58.676Z', clicks:0, figures:{collected:'$0',readAt:'2026-08-26T06:19:02.095Z'} },
         { name:'SongBid', url:'https://theoutbid.space/', host:'theoutbid.space', tagline:'A pay-to-rank leaderboard for AI-generated songs.', category:{slug:'ai',name:'AI tools & agents'}, minBid:null, payRail:null, listedAt:'2026-08-25T18:45:19.830Z', clicks:0, figures:{collected:'$10',readAt:'2026-08-25T18:49:39.996Z'} },
         { name:'outfake.lol', url:'https://outfake.lol/', host:'outfake.lol', tagline:'Creates shareable Outbid-style leaderboard images.', category:{slug:'ai',name:'AI tools & agents'}, minBid:'$5', payRail:null, listedAt:'2026-08-25T16:15:16.366Z', clicks:0, figures:{collected:null,readAt:'2026-08-26T11:24:41.078Z'} },
@@ -960,6 +971,7 @@
         { name:'clipwar.lol', url:'https://clipwar.lol/', host:'clipwar.lol', tagline:'Clips compete for the top of the board.', category:{slug:'games-media',name:'Games & clips'}, minBid:null, payRail:null, listedAt:'2026-08-25T12:15:16.166Z', clicks:2, figures:{collected:null,readAt:null} },
         { name:'TopBill', url:'https://topbill.lol/', host:'topbill.lol', tagline:'Whoever pays more stands above.', category:{slug:'websites',name:'Websites & products'}, minBid:'$1', payRail:null, listedAt:'2026-08-25T05:15:16.165Z', clicks:2, figures:{collected:'$125',readAt:'2026-08-25T15:14:24.251Z'} },
         { name:'Product Leaderboard', url:'https://worldorder.lol/', host:'worldorder.lol', tagline:'A live product leaderboard where rank is bought, not voted.', category:{slug:'ai',name:'AI tools & agents'}, minBid:'$1', payRail:null, listedAt:'2026-08-25T03:15:17.568Z', clicks:0, figures:{collected:null,readAt:null} }
+      // /bot:fallback-boards
       ];
 
       const state = { boards: [], filtered: [], page: 1, meta: null, usingFallback: false, printPageSize: null };
@@ -1091,7 +1103,7 @@
         document.querySelectorAll('[data-live-total]').forEach(el => el.textContent = total.toLocaleString());
         $('inventoryTotal').textContent = total.toLocaleString();
         $('inventorySummary').textContent = state.usingFallback
-          ? `Live API unavailable. Showing ${state.boards.length} embedded recent records; written analysis still covers the 414-board snapshot.`
+          ? `Live API unavailable. Showing ${state.boards.length} embedded recent records; the written figures reflect the bot’s last successful refresh.`
           : `${measured} with a public total in the API · ${zero} explicitly at zero · newest: ${newest?.host || '—'}`;
         if (state.meta?.generatedAt) {
           const text = `API updated ${exactTime(state.meta.generatedAt)}`;
