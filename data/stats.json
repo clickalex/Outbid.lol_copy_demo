@@ -1,19 +1,19 @@
 {
-  "runAt": "2026-08-26T14:01:16+00:00",
+  "runAt": "2026-08-26T17:51:47+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-08-26T11:58:43.525Z",
-  "boardsTotal": 414,
+  "apiGeneratedAt": "2026-08-26T17:51:47.314Z",
+  "boardsTotal": 415,
   "boardsMeasured": 294,
   "cloneMeasured": 293,
-  "claimedTotalUsd": 188306.2,
-  "cloneTotalUsd": 62149.2,
+  "claimedTotalUsd": 188970.41,
+  "cloneTotalUsd": 62813.41,
   "originalCollectedUsd": 126157.0,
-  "originalShare": 0.67,
+  "originalShare": 0.6676,
   "cloneMedianUsd": 18.9,
-  "top10CloneShareOfCloneMoney": 0.6873,
+  "top10CloneShareOfCloneMoney": 0.68,
   "categories": {
     "Websites & products": 230,
-    "X accounts": 51,
+    "X accounts": 52,
     "Ads & billboards": 31,
     "Crypto & tokens": 27,
     "AI tools & agents": 24,
@@ -75,19 +75,19 @@
   ],
   "primarySite": {
     "routes": {
-      "route-root": "LIVE",
-      "route-today": "LIVE",
-      "route-about": "LIVE",
-      "route-rules": "LIVE",
-      "route-terms": "LIVE",
-      "route-privacy": "LIVE",
-      "route-category-product": "LIVE",
-      "route-stats": "404"
+      "route-root": "429",
+      "route-today": "429",
+      "route-about": "429",
+      "route-rules": "429",
+      "route-terms": "429",
+      "route-privacy": "429",
+      "route-category-product": "429/429",
+      "route-stats": "429"
     },
-    "aboutRevenue": 221615.0,
-    "aboutVisitors": 1364309,
-    "highestBid": 17000.0,
-    "highestBidHost": "see.io"
+    "aboutRevenue": null,
+    "aboutVisitors": null,
+    "highestBid": null,
+    "highestBidHost": null
   },
   "unpatchedMarkers": []
 }
