@@ -24,11 +24,13 @@ The written snapshot is dated **26 August 2026**. The inventory figures inside i
 | `data/outbid-market-inventory.csv` | **Bot-maintained CSV** — the complete inventory snapshot (one row per verified board, newest first), regenerated on every bot run. |
 | `data/stats.json` | **Bot-maintained summary** of the latest run: totals, claimed amounts, category counts, top-10 boards, route checks. |
 | `scripts/update_report.py` | The update bot (Python 3.9+, standard library only). |
-| `.github/workflows/daily-update.yml` | GitHub Actions workflow that runs the bot daily and commits the result. |
+| `docs/daily-update.yml` | The GitHub Actions workflow for the bot. **One-time activation:** a repo admin copies it to `.github/workflows/daily-update.yml` (see below). |
 
 ## The daily update bot
 
 [![Daily market refresh](https://github.com/clickalex/Outbid.lol_copy_demo/actions/workflows/daily-update.yml/badge.svg)](https://github.com/clickalex/Outbid.lol_copy_demo/actions/workflows/daily-update.yml)
+
+*(The badge shows “no status” until the workflow is activated — see the one-time step below.)*
 
 `scripts/update_report.py` runs every day at 03:17 UTC via GitHub Actions (`workflow_dispatch` also allows manual runs) and:
 
@@ -55,9 +57,17 @@ Failure behaviour is conservative: if the API or a check fails after retries, th
 python3 scripts/update_report.py   # writes the CSV, stats.json and patches index.html
 ```
 
-Then commit as usual. On GitHub you can also open **Actions → Daily market refresh → Run workflow** to trigger a run on any branch.
+Then commit as usual. On GitHub you can also open **Actions → Daily market refresh → Run workflow** to trigger a run on any branch (available once the workflow is activated).
 
-> **Note on scheduling:** GitHub only fires `schedule` events from the default branch. Until this workflow reaches `main`, the daily cron will not trigger — run it manually via `workflow_dispatch` from the Actions tab, or from a branch. Once the workflow file is merged into `main`, the bot runs and commits automatically every day.
+### One-time activation of the daily schedule (repo admin)
+
+The automation ships as [`docs/daily-update.yml`](docs/daily-update.yml). Because workflow files require elevated permissions to commit, activate it once manually:
+
+1. Open the file on GitHub, copy its contents.
+2. In the repo, **Add file → Create new file**, name it `.github/workflows/daily-update.yml`, paste, commit (to `main`).
+3. That’s it — from the next day, the bot runs daily at 03:17 UTC and pushes updates by itself. Until then (and on non-default branches) it can be run manually via **workflow_dispatch** from the Actions tab, or locally with the command above.
+
+> **Note on scheduling:** GitHub only fires `schedule` events from the default branch, and a first scheduled run can lag a few minutes past the cron time. Runs are also skipped automatically if no data changed.
 
 ## CSV data dictionary
 

@@ -8,9 +8,11 @@ name: Daily market refresh
 #      bot-managed figure in index.html.
 #   4. Commits and pushes when anything changed.
 #
-# Schedule note: GitHub only fires `schedule` from the default branch.
-# Until this workflow lives on `main`, use workflow_dispatch (Actions tab
-# → “Daily market refresh” → Run workflow) to run it on any branch.
+# ACTIVATION: copy this file to .github/workflows/daily-update.yml
+# (commit it from an account with workflow permissions — e.g. the GitHub
+# web UI: Add file → Create new file). GitHub only fires `schedule` from
+# the default branch; until then use workflow_dispatch (Actions tab →
+# “Daily market refresh” → Run workflow) to run it on any branch.
 
 on:
   schedule:
