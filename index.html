@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A dated, source-linked analysis of outbid.lol and the pay-to-rank website market, with a live inventory of every verified board.">
+  <title>Outbid Market Audit — 26 August 2026</title>
+  <style>
+    :root {
+      --ink: #171714;
+      --paper: #f4f0e7;
+      --paper-deep: #e9e2d4;
+      --card: #fffdf7;
+      --line: #c9c1b3;
+      --muted: #67645e;
+      --red: #f04d35;
+      --red-dark: #bb2f21;
+      --lime: #d9ff65;
+      --green: #18724c;
+      --amber: #9a6212;
+      --blue: #345bc4;
+      --shadow: 0 18px 50px rgba(37, 31, 20, .09);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --serif: Iowan Old Style, Baskerville, "Times New Roman", serif;
+      --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 1%, rgba(240, 77, 53, .11), transparent 24rem),
+        linear-gradient(90deg, rgba(23, 23, 20, .025) 1px, transparent 1px),
+        var(--paper);
+      background-size: auto, 32px 32px, auto;
+      font-family: var(--sans);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-underline-offset: 3px; }
+    a:hover { color: var(--red-dark); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+    .topline {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 7px 24px;
+      color: #fff;
+      background: var(--ink);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .live-label { display: inline-flex; align-items: center; gap: 8px; }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--lime);
+      box-shadow: 0 0 0 4px rgba(217, 255, 101, .15);
+    }
+
+    .shell {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 246px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      align-self: start;
+      padding: 30px 24px;
+      border-right: 1px solid var(--line);
+      background: rgba(244, 240, 231, .86);
+      backdrop-filter: blur(12px);
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      margin-bottom: 34px;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--red);
+      color: #fff;
+      font: 800 19px/1 var(--mono);
+      transform: rotate(-7deg);
+    }
+    .brand strong { display: block; font-size: 14px; letter-spacing: -.02em; }
+    .brand span { color: var(--muted); font: 10px/1.3 var(--mono); text-transform: uppercase; }
+
+    .nav-title {
+      margin: 24px 0 8px;
+      color: var(--muted);
+      font: 10px/1.2 var(--mono);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .side-nav { display: grid; gap: 2px; }
+    .side-nav a {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      text-decoration: none;
+    }
+    .side-nav a:hover { color: var(--ink); background: rgba(255, 255, 255, .6); }
+    .side-nav em { font: normal 10px/1 var(--mono); color: #99948a; }
+
+    .side-note {
+      margin-top: 34px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .side-note strong { color: var(--ink); }
+
+    main { min-width: 0; }
+    .content { padding: 0 clamp(24px, 5vw, 76px) 100px; }
+
+    .hero {
+      position: relative;
+      min-height: 660px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(300px, .6fr);
+      align-items: end;
+      gap: clamp(30px, 5vw, 80px);
+      padding: 76px clamp(24px, 5vw, 76px) 64px;
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "414";
+      position: absolute;
+      z-index: -1;
+      right: -30px;
+      top: -90px;
+      color: rgba(23, 23, 20, .035);
+      font: 800 340px/.8 var(--sans);
+      letter-spacing: -.11em;
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 20px;
+      color: var(--red-dark);
+      font: 700 11px/1.3 var(--mono);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 32px; border-top: 2px solid currentColor; }
+    h1 {
+      max-width: 860px;
+      margin: 0;
+      font: 400 clamp(58px, 8vw, 124px)/.87 var(--serif);
+      letter-spacing: -.065em;
+    }
+    h1 i { color: var(--red); font-weight: 400; }
+    .deck {
+      max-width: 720px;
+      margin: 28px 0 0;
+      font-size: clamp(17px, 1.8vw, 23px);
+      line-height: 1.45;
+      letter-spacing: -.02em;
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 43px;
+      padding: 9px 16px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      color: var(--ink);
+      background: transparent;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .btn:hover { color: #fff; background: var(--ink); }
+    .btn.primary { color: #fff; background: var(--ink); }
+    .btn.primary:hover { color: var(--ink); background: var(--lime); }
+    .btn.small { min-height: 34px; padding: 6px 12px; font-size: 11px; }
+
+    .audit-card {
+      padding: 26px;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: 9px 9px 0 var(--ink);
+    }
+    .audit-card .status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .status strong { font-size: 20px; letter-spacing: -.04em; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      width: max-content;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font: 700 10px/1.4 var(--mono);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .pill.up { color: var(--green); background: #ddf4e8; }
+    .pill.warn { color: var(--amber); background: #f7eacb; }
+    .pill.neutral { color: #555; background: #ece9e1; }
+    .pill.new { color: #7f291c; background: #ffdcd5; }
+    .pill::before { content: ""; width: 6px; height: 6px; border-radius: 99px; background: currentColor; }
+
+    .route-list { margin: 17px 0 0; padding: 0; list-style: none; }
+    .route-list li {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px dashed var(--line);
+      font: 11px/1.4 var(--mono);
+    }
+    .route-list li:last-child { border: 0; }
+    .route-list b { color: var(--green); }
+    .route-list .bad { color: var(--red-dark); }
+    .micro { color: var(--muted); font-size: 11px; }
+
+    .finding-bar {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 20px;
+      align-items: center;
+      padding: 19px clamp(24px, 5vw, 76px);
+      color: #fff;
+      background: var(--red);
+    }
+    .finding-bar strong { font: 800 10px/1.3 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .finding-bar p { margin: 0; font: 20px/1.25 var(--serif); }
+    .finding-bar span { font: 11px/1 var(--mono); opacity: .8; }
+
+    section { padding-top: 88px; scroll-margin-top: 30px; }
+    .section-head {
+      display: grid;
+      grid-template-columns: 100px minmax(0, 1fr) minmax(220px, .38fr);
+      gap: 24px;
+      align-items: start;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--ink);
+    }
+    .section-no { color: var(--red); font: 700 14px/1 var(--mono); }
+    h2 { margin: -8px 0 0; font: 400 clamp(40px, 5vw, 72px)/1 var(--serif); letter-spacing: -.045em; }
+    .section-intro { margin: 0; color: var(--muted); font-size: 13px; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .metric {
+      min-height: 156px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 253, 247, .62);
+    }
+    .metric .label { color: var(--muted); font: 10px/1.3 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+    .metric .value { margin: 22px 0 5px; font: 500 clamp(28px, 3.4vw, 52px)/1 var(--serif); letter-spacing: -.05em; }
+    .metric .note { color: var(--muted); font-size: 11px; }
+    .metric.accent { color: #fff; background: var(--ink); border-color: var(--ink); }
+    .metric.accent .label, .metric.accent .note { color: #bbb8af; }
+    .metric.accent .value { color: var(--lime); }
+
+    .two-col { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); gap: 22px; margin-top: 22px; }
+    .panel {
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+    .panel.dark { color: #fff; background: var(--ink); border-color: var(--ink); }
+    .panel h3 { margin: 0 0 14px; font-size: 18px; letter-spacing: -.03em; }
+    .panel p { margin: 0 0 13px; color: var(--muted); font-size: 13px; }
+    .panel.dark p { color: #b9b6ad; }
+    .panel p:last-child { margin-bottom: 0; }
+    .big-quote { margin: 0 !important; color: #fff !important; font: 30px/1.2 var(--serif) !important; letter-spacing: -.03em; }
+    .big-quote em { color: var(--lime); font-style: normal; }
+
+    .fact-list { display: grid; gap: 0; margin-top: 18px; }
+    .fact {
+      display: grid;
+      grid-template-columns: 35px minmax(0, 1fr);
+      gap: 12px;
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+    }
+    .fact b { color: var(--red); font: 700 11px/1.5 var(--mono); }
+    .fact strong { display: block; font-size: 13px; }
+    .fact span { display: block; color: var(--muted); font-size: 11px; }
+
+    .system-flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(110px, 1fr));
+      gap: 8px;
+      margin-top: 22px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .flow-step { position: relative; min-height: 128px; padding: 15px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+    .flow-step:not(:last-child)::after { content: "→"; position: absolute; right: -9px; top: 50%; z-index: 2; color: var(--red); font-weight: 800; }
+    .flow-step b { display: block; color: var(--red); font: 10px/1 var(--mono); }
+    .flow-step strong { display: block; margin: 10px 0 5px; font-size: 12px; }
+    .flow-step span { color: var(--muted); font-size: 10px; }
+
+    .score-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 22px; }
+    .score { padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+    .score b { font: 42px/1 var(--serif); color: var(--red); }
+    .score strong { display: block; margin: 13px 0 5px; font-size: 12px; }
+    .score span { display: block; color: var(--muted); font-size: 10px; }
+
+    .bars { display: grid; gap: 14px; margin-top: 20px; }
+    .bar-row { display: grid; grid-template-columns: 170px minmax(0, 1fr) 62px; gap: 12px; align-items: center; }
+    .bar-row label { font-size: 11px; }
+    .track { height: 9px; overflow: hidden; border-radius: 99px; background: var(--paper-deep); }
+    .fill { height: 100%; width: var(--w); border-radius: inherit; background: var(--red); }
+    .bar-row output { text-align: right; color: var(--muted); font: 10px/1 var(--mono); }
+
+    .concentration {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      min-height: 110px;
+      margin-top: 20px;
+      overflow: hidden;
+      border: 1px solid var(--ink);
+      border-radius: 12px;
+    }
+    .concentration > div { display: flex; flex-direction: column; justify-content: center; padding: 18px; border-right: 1px solid var(--ink); }
+    .concentration > div:last-child { border: 0; }
+    .concentration .original { color: #fff; background: var(--red); }
+    .concentration .top-clones { background: var(--lime); }
+    .concentration .tail { background: var(--card); }
+    .concentration b { font: 31px/1 var(--serif); }
+    .concentration span { margin-top: 5px; font: 9px/1.3 var(--mono); text-transform: uppercase; }
+
+    .table-wrap { width: 100%; margin-top: 20px; overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { padding: 11px 13px; color: var(--muted); background: #eee9df; font: 700 9px/1.2 var(--mono); letter-spacing: .07em; text-align: left; text-transform: uppercase; white-space: nowrap; }
+    td { padding: 12px 13px; border-top: 1px solid #ded8cb; vertical-align: top; }
+    tbody tr:hover { background: #fbf7ee; }
+    td.num { font-family: var(--mono); white-space: nowrap; }
+    .domain { display: block; color: var(--muted); font: 10px/1.4 var(--mono); }
+
+    .fresh-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+    .fresh-card { min-height: 210px; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+    .fresh-card h3 { margin: 18px 0 7px; font-size: 16px; letter-spacing: -.03em; }
+    .fresh-card p { margin: 0; color: var(--muted); font-size: 11px; }
+    .fresh-card footer { display: flex; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 18px; font: 9px/1.3 var(--mono); }
+    .fresh-card a { text-decoration: none; font-weight: 700; }
+    .fresh-card.skeleton { background: linear-gradient(100deg, #eee8dd 30%, #f9f5ed 50%, #eee8dd 70%); background-size: 300% 100%; animation: shimmer 1.7s infinite; }
+    @keyframes shimmer { to { background-position: -300% 0; } }
+
+    .spot-list { display: grid; gap: 8px; margin-top: 14px; }
+    .spot-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 15px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .spot-item strong { font-size: 12px; }
+    .spot-item span { display: block; color: var(--muted); font-size: 10px; }
+
+    .inventory-head { display: flex; justify-content: space-between; gap: 20px; align-items: end; margin-top: 24px; }
+    .inventory-head h3 { margin: 0; font: 29px/1.1 var(--serif); }
+    .inventory-head p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .source-state { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font: 10px/1.3 var(--mono); }
+    .source-state::before { content: ""; width: 7px; height: 7px; border-radius: 99px; background: #999; }
+    .source-state.connected::before { background: var(--green); box-shadow: 0 0 0 3px #dff0e6; }
+    .source-state.error::before { background: var(--red); }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(200px, 1.5fr) repeat(3, minmax(130px, .6fr)) auto;
+      gap: 8px;
+      margin-top: 18px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+    }
+    .control { min-width: 0; }
+    .control label { display: block; margin: 0 0 5px 3px; color: var(--muted); font: 8px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .control input, .control select {
+      width: 100%;
+      height: 38px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: #fffefb;
+      font-size: 11px;
+    }
+    .filter-action { align-self: end; }
+
+    .table-status-note { display: flex; justify-content: space-between; gap: 15px; margin: 12px 2px 0; color: var(--muted); font-size: 10px; }
+    .board-name { min-width: 220px; }
+    .board-name a { font-weight: 700; text-decoration: none; }
+    .board-name p { max-width: 470px; margin: 4px 0 0; color: var(--muted); font-size: 10px; line-height: 1.35; }
+    .status-stack { display: grid; gap: 5px; }
+    .status-stack small { color: var(--muted); font: 9px/1.3 var(--mono); white-space: nowrap; }
+
+    .pager { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 14px; }
+    .pager p { color: var(--muted); font: 10px/1.3 var(--mono); }
+    .pager-actions { display: flex; gap: 7px; }
+    .pager button:disabled { cursor: not-allowed; opacity: .4; }
+
+    .rec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 22px; }
+    .rec { padding: 22px; border-top: 4px solid var(--red); border-radius: 0 0 12px 12px; background: var(--card); }
+    .rec b { color: var(--red); font: 10px/1 var(--mono); }
+    .rec h3 { margin: 18px 0 8px; font-size: 16px; }
+    .rec p { margin: 0; color: var(--muted); font-size: 11px; }
+
+    .risk-high { color: #9b251b; background: #f9d7d2; }
+    .risk-med { color: #805512; background: #f4e5c9; }
+    .risk-low { color: #245c46; background: #dcecdf; }
+    .risk-label { display: inline-block; padding: 3px 8px; border-radius: 99px; font: 700 9px/1.4 var(--mono); text-transform: uppercase; }
+
+    .method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 22px; }
+    .method-grid h3 { margin: 0 0 8px; font-size: 13px; }
+    .method-grid p { margin: 0; color: var(--muted); font-size: 11px; }
+    .sources { display: grid; gap: 8px; margin-top: 22px; }
+    .source-link { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); text-decoration: none; }
+    .source-link b { color: var(--red); font: 10px/1 var(--mono); }
+    .source-link strong { font-size: 11px; }
+    .source-link span { color: var(--muted); font: 9px/1 var(--mono); }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 25px;
+      margin-top: 90px;
+      padding-top: 24px;
+      border-top: 1px solid var(--ink);
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .hide { display: none !important; }
+
+    @media (max-width: 1100px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .hero { min-height: auto; grid-template-columns: 1fr; align-items: start; }
+      .audit-card { max-width: 560px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .score-grid { grid-template-columns: repeat(3, 1fr); }
+      .fresh-grid { grid-template-columns: repeat(2, 1fr); }
+      .filters { grid-template-columns: repeat(2, 1fr); }
+      .control:first-child { grid-column: 1 / -1; }
+    }
+    @media (max-width: 720px) {
+      .topline { padding-inline: 14px; }
+      .topline span:last-child { display: none; }
+      .hero { padding: 50px 18px 44px; }
+      .content { padding-inline: 18px; }
+      h1 { font-size: clamp(56px, 19vw, 84px); }
+      .finding-bar { grid-template-columns: 1fr; padding-inline: 18px; }
+      .finding-bar span { display: none; }
+      section { padding-top: 66px; }
+      .section-head { grid-template-columns: 45px 1fr; }
+      .section-intro { grid-column: 2; }
+      .metrics, .two-col, .rec-grid, .method-grid { grid-template-columns: 1fr; }
+      .metric { min-height: 130px; }
+      .score-grid { grid-template-columns: repeat(2, 1fr); }
+      .bar-row { grid-template-columns: 115px minmax(80px, 1fr) 48px; }
+      .concentration { grid-template-columns: 1fr; }
+      .concentration > div { border-right: 0; border-bottom: 1px solid var(--ink); }
+      .fresh-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: 1fr; }
+      .control:first-child { grid-column: auto; }
+      .inventory-head, .table-status-note, .footer { align-items: start; flex-direction: column; }
+      .route-list li { font-size: 10px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .topline, .sidebar, .hero-actions, .filters, .pager, #refreshData, #exportCsv { display: none !important; }
+      .shell { display: block; }
+      .hero { min-height: 0; padding: 30px 0; }
+      .content { padding: 0; }
+      section { break-inside: avoid; padding-top: 40px; }
+      .panel, .metric { box-shadow: none; }
+      a { text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topline">
+    <span class="live-label"><span class="live-dot"></span> Field audit / 26 Aug 2026 / UTC</span>
+    <span>Primary site + 414 verified pay-to-rank boards</span>
+  </header>
+
+  <div class="shell">
+    <aside class="sidebar" aria-label="Report navigation">
+      <a class="brand" href="#top">
+        <span class="brand-mark">↑$</span>
+        <span><strong>Market Audit</strong><span>Outbid / report 001</span></span>
+      </a>
+      <p class="nav-title">Analysis</p>
+      <nav class="side-nav">
+        <a href="#brief">Executive brief <em>01</em></a>
+        <a href="#original">Original site <em>02</em></a>
+        <a href="#market">Market map <em>03</em></a>
+        <a href="#new-sites">New sites <em>04</em></a>
+        <a href="#inventory">All-site inventory <em>05</em></a>
+        <a href="#recommendations">Recommendations <em>06</em></a>
+        <a href="#method">Method & sources <em>07</em></a>
+      </nav>
+      <p class="nav-title">Live source</p>
+      <div class="side-note">
+        <div id="sideApiState" class="source-state">Waiting for directory API</div>
+        <p>The inventory refreshes from the CC BY 4.0 outoutbid.lol dataset when this HTML has internet access.</p>
+        <strong id="sideUpdated">Snapshot: 11:26 UTC</strong>
+      </div>
+    </aside>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <p class="eyebrow">Independent landscape analysis</p>
+          <h1 id="hero-title">The bid<br><i>after the boom.</i></h1>
+          <p class="deck">outbid.lol is live, legible and still moving. Its mechanic was copied at extraordinary speed; its economics were not. This report checks the original, maps the clone market and keeps a live, searchable inventory of every verified board we could source.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#inventory">Explore all sites ↓</a>
+            <a class="btn" href="https://outbid.lol/" target="_blank" rel="noopener">Open outbid.lol ↗</a>
+            <button class="btn" type="button" onclick="window.print()">Print / save PDF</button>
+          </div>
+        </div>
+
+        <aside class="audit-card" aria-label="Current status of outbid.lol">
+          <div class="status">
+            <div><span class="micro">Direct check</span><br><strong>outbid.lol</strong></div>
+            <span class="pill up">Live now</span>
+          </div>
+          <ul class="route-list">
+            <li><span>/ — all-time board</span><b>LIVE</b></li>
+            <li><span>/today — rolling 24h</span><b>LIVE</b></li>
+            <li><span>/about · /rules</span><b>LIVE</b></li>
+            <li><span>/terms · /privacy</span><b>LIVE</b></li>
+            <li><span>/category/* · /product/*</span><b>LIVE</b></li>
+            <li><span>/stats — internal route</span><b class="bad">404</b></li>
+          </ul>
+          <p class="micro">Checked through rendered page retrieval on 26 Aug 2026. The “see stats” control points to an external DataFast page, so the internal /stats 404 is not the linked user journey.</p>
+        </aside>
+      </section>
+
+      <div class="finding-bar" role="note">
+        <strong>Headline finding</strong>
+        <p>Originality captured the audience. <b>414 boards</b> copied the format; the median measurable clone reports only <b>$18.90</b>.</p>
+        <span>Evidence: outoutbid research snapshot</span>
+      </div>
+
+      <div class="content">
+        <section id="brief" aria-labelledby="brief-title">
+          <div class="section-head">
+            <span class="section-no">01 / 07</span>
+            <h2 id="brief-title">Executive brief</h2>
+            <p class="section-intro">A point-in-time read. Money and traffic values are the sites’ own public claims, not audited financial statements.</p>
+          </div>
+
+          <div class="metrics">
+            <article class="metric accent">
+              <div class="label">Verified boards</div>
+              <div class="value" data-live-total>414</div>
+              <div class="note">A floor, not a complete census</div>
+            </article>
+            <article class="metric">
+              <div class="label">Claimed across readable boards</div>
+              <div class="value">$188.2k</div>
+              <div class="note">294 boards measured at source</div>
+            </article>
+            <article class="metric">
+              <div class="label">Original’s measured share</div>
+              <div class="value">67.0%</div>
+              <div class="note">$126,157 in the research snapshot</div>
+            </article>
+            <article class="metric">
+              <div class="label">Re-check result</div>
+              <div class="value">292 / 308</div>
+              <div class="note">Still showed a valid price ladder</div>
+            </article>
+            <article class="metric">
+              <div class="label">Current #1 bid</div>
+              <div class="value">$17,000</div>
+              <div class="note">see.io on the direct homepage check</div>
+            </article>
+            <article class="metric">
+              <div class="label">Original’s self-reported revenue</div>
+              <div class="value">$221,360</div>
+              <div class="note">About page; definition differs from directory</div>
+            </article>
+            <article class="metric">
+              <div class="label">Visitors shown</div>
+              <div class="value">1.36m</div>
+              <div class="note">Live header counter, not independently audited</div>
+            </article>
+            <article class="metric">
+              <div class="label">Clone median</div>
+              <div class="value">$18.90</div>
+              <div class="note">293 measurable clones, original excluded</div>
+            </article>
+          </div>
+
+          <div class="two-col">
+            <article class="panel dark">
+              <p class="big-quote">The product is not the list. It is the <em>public contest for attention</em>—with a number everyone can repeat.</p>
+            </article>
+            <article class="panel">
+              <h3>What changed since launch?</h3>
+              <p>The first version’s single permanent board now has a rolling 24-hour view, category boards, product detail pages, latest activity, public click counts, case-study social proof and fuller policy coverage.</p>
+              <p>The market also fragmented: vertical boards now rank AI tools, X profiles, tokens, games, local businesses, newsletters, ads and even other bid boards.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="original" aria-labelledby="original-title">
+          <div class="section-head">
+            <span class="section-no">02 / 07</span>
+            <h2 id="original-title">The original site</h2>
+            <p class="section-intro">Product, operating model, public routes and trust signals observed on outbid.lol.</p>
+          </div>
+
+          <div class="two-col">
+            <article class="panel">
+              <h3>What works</h3>
+              <div class="fact-list">
+                <div class="fact"><b>01</b><div><strong>Instant comprehension</strong><span>“Rank is the bid” turns an auction, directory and ad unit into one memorable rule.</span></div></div>
+                <div class="fact"><b>02</b><div><strong>Visible stakes</strong><span>Rank, spend, click counts and activity are public; every bid creates content for the page.</span></div></div>
+                <div class="fact"><b>03</b><div><strong>Low-friction entry</strong><span>No account is required in the described flow; a website or X handle and whole-dollar bid are enough.</span></div></div>
+                <div class="fact"><b>04</b><div><strong>Compounding discovery</strong><span>All-time, today, category and detail views turn one listing into several discoverable surfaces.</span></div></div>
+                <div class="fact"><b>05</b><div><strong>Proof after purchase</strong><span>Public click totals and buyer testimonials give future bidders a reason to estimate return.</span></div></div>
+              </div>
+            </article>
+            <article class="panel">
+              <h3>What needs attention</h3>
+              <div class="fact-list">
+                <div class="fact"><b>A</b><div><strong>Metric definitions conflict</strong><span>The About page says $221,360 revenue; the independent directory snapshot read $126,157 taken. Dates and accounting bases should be explicit.</span></div></div>
+                <div class="fact"><b>B</b><div><strong>Status can be misread</strong><span>The directory’s scheduled check marked the original “down,” while this direct retrieval found it live. Timestamp and failure reason matter.</span></div></div>
+                <div class="fact"><b>C</b><div><strong>Paid-link compliance needs a source check</strong><span>The terms call listings paid advertisements. Verify outbound HTML uses rel="sponsored" or "nofollow"; a text scrape cannot confirm it.</span></div></div>
+                <div class="fact"><b>D</b><div><strong>Moderation is centralized</strong><span>AI assigns categories and corrections route to one X account. Scale needs a visible review status and SLA.</span></div></div>
+                <div class="fact"><b>E</b><div><strong>No-outcome/no-refund tension</strong><span>Terms correctly disclose that rank buys no traffic guarantee, but high bids increase expectations and support risk.</span></div></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="system-flow" aria-label="Observed service flow">
+            <div class="flow-step"><b>01</b><strong>Submit</strong><span>Product URL or X handle; disallowed destinations are screened.</span></div>
+            <div class="flow-step"><b>02</b><strong>Normalize</strong><span>Queries are stripped; short links resolved; platform paths can remain distinct.</span></div>
+            <div class="flow-step"><b>03</b><strong>Price</strong><span>$5 minimum. Top requires +$5; an existing listing pays only its difference.</span></div>
+            <div class="flow-step"><b>04</b><strong>Checkout</strong><span>Polar confirms payment and handles payment details/tax at checkout.</span></div>
+            <div class="flow-step"><b>05</b><strong>Rank</strong><span>Lifetime spend sets all-time rank; rolling 24-hour spend sets today’s rank.</span></div>
+            <div class="flow-step"><b>06</b><strong>Measure</strong><span>Clicks, activity and public listing detail pages feed the proof loop.</span></div>
+          </div>
+
+          <div class="score-grid" aria-label="Product assessment scores">
+            <article class="score"><b>A</b><strong>Proposition clarity</strong><span>One sentence explains the full mechanism.</span></article>
+            <article class="score"><b>A−</b><strong>Growth loop</strong><span>Competition, screenshots and visible spend market the market.</span></article>
+            <article class="score"><b>B+</b><strong>Buyer trust</strong><span>Legal pages and Polar help; high-ticket claims remain self-reported.</span></article>
+            <article class="score"><b>B</b><strong>Data transparency</strong><span>Good visible metrics, but definitions and timestamps need tightening.</span></article>
+            <article class="score"><b>C+</b><strong>Defensibility</strong><span>Code is easy to copy; audience, history and brand are the moat.</span></article>
+          </div>
+        </section>
+
+        <section id="market" aria-labelledby="market-title">
+          <div class="section-head">
+            <span class="section-no">03 / 07</span>
+            <h2 id="market-title">Market map</h2>
+            <p class="section-intro">The clone wave is broad, very young and economically concentrated.</p>
+          </div>
+
+          <div class="two-col">
+            <article class="panel">
+              <h3>Where the boards went</h3>
+              <p>Most copies kept the generic website-directory shape. The more credible differentiation appears in vertical focus or a changed mechanic.</p>
+              <div id="categoryBars" class="bars" aria-label="Board count by category">
+                <div class="bar-row"><label>Websites & products</label><div class="track"><div class="fill" style="--w:100%"></div></div><output>230</output></div>
+                <div class="bar-row"><label>X accounts</label><div class="track"><div class="fill" style="--w:22.2%"></div></div><output>51</output></div>
+                <div class="bar-row"><label>Ads & billboards</label><div class="track"><div class="fill" style="--w:13.5%"></div></div><output>31</output></div>
+                <div class="bar-row"><label>Crypto & tokens</label><div class="track"><div class="fill" style="--w:11.7%"></div></div><output>27</output></div>
+                <div class="bar-row"><label>AI tools & agents</label><div class="track"><div class="fill" style="--w:10.4%"></div></div><output>24</output></div>
+                <div class="bar-row"><label>Games & clips</label><div class="track"><div class="fill" style="--w:9.1%"></div></div><output>21</output></div>
+                <div class="bar-row"><label>Regional</label><div class="track"><div class="fill" style="--w:7.8%"></div></div><output>18</output></div>
+                <div class="bar-row"><label>Bid directories</label><div class="track"><div class="fill" style="--w:5.2%"></div></div><output>12</output></div>
+              </div>
+            </article>
+
+            <article class="panel">
+              <h3>Economics: a power-law market</h3>
+              <p>The original held 67% of reported value in the research snapshot. Among clones, the richest ten held 68.8% of clone money. The typical result is much closer to zero than to the average.</p>
+              <div class="concentration" aria-label="Claimed revenue concentration">
+                <div class="original"><b>67%</b><span>Original</span></div>
+                <div class="top-clones"><b>23%</b><span>Approx. top clones</span></div>
+                <div class="tail"><b>10%</b><span>Long tail</span></div>
+              </div>
+              <div class="fact-list">
+                <div class="fact"><b>27</b><div><strong>Reported $0</strong><span>9.2% of measurable clones.</span></div></div>
+                <div class="fact"><b>107</b><div><strong>Under $10</strong><span>36.5% of measurable clones.</span></div></div>
+                <div class="fact"><b>242</b><div><strong>Under $100</strong><span>82.6% of measurable clones.</span></div></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="two-col">
+            <article class="panel">
+              <h3>Current-status picture</h3>
+              <p>Every listed board was verified as a ranked price ladder when added. Of 308 boards reached by the next scheduled re-check, 292 still showed a valid ladder and 16 did not; 106 had not yet returned for re-check.</p>
+              <div class="bars">
+                <div class="bar-row"><label>Valid on re-check</label><div class="track"><div class="fill" style="--w:94.8%;background:var(--green)"></div></div><output>292</output></div>
+                <div class="bar-row"><label>Failed re-check</label><div class="track"><div class="fill" style="--w:5.2%;background:var(--red)"></div></div><output>16</output></div>
+                <div class="bar-row"><label>Pending re-check</label><div class="track"><div class="fill" style="--w:25.6%;background:#928d82"></div></div><output>106</output></div>
+              </div>
+              <p class="micro" style="margin-top:18px">“Failed” means the checker did not see a valid price ladder; it is not always equivalent to DNS or server downtime. The original itself demonstrates this distinction.</p>
+            </article>
+            <article class="panel dark">
+              <p class="big-quote">The first copy arrived after roughly <em>12.7 hours.</em> Then 189 domains were registered within 48 hours—20 in the busiest single hour.</p>
+              <p style="margin-top:18px">Yet the latest registration quartile reported only $1,381 combined versus $6,712 for the earliest quartile. Speed mattered; differentiation matters next.</p>
+            </article>
+          </div>
+
+          <h3 style="margin:32px 0 0">Largest public totals at the research snapshot</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Board</th><th>Category</th><th>Claimed taken</th><th>Observed status*</th></tr></thead>
+              <tbody>
+                <tr><td class="num">01</td><td><strong>outbid.lol</strong><span class="domain">outbid.lol</span></td><td>Websites & products</td><td class="num">$126,157</td><td><span class="pill warn">Directly live now</span></td></tr>
+                <tr><td class="num">02</td><td><strong>lamborghini.lol</strong><span class="domain">lamborghini.lol</span></td><td>Ads & billboards</td><td class="num">$25,000</td><td><span class="pill warn">Failed re-check</span></td></tr>
+                <tr><td class="num">03</td><td><strong>WARMAP</strong><span class="domain">warmap.lol</span></td><td>Ads & billboards</td><td class="num">$3,448</td><td><span class="pill neutral">Pending</span></td></tr>
+                <tr><td class="num">04</td><td><strong>topapp.lol</strong><span class="domain">topapp.lol</span></td><td>Websites & products</td><td class="num">$3,067</td><td><span class="pill up">Valid</span></td></tr>
+                <tr><td class="num">05</td><td><strong>SaaSBid</strong><span class="domain">saasbid.io</span></td><td>Websites & products</td><td class="num">$1,810</td><td><span class="pill up">Valid</span></td></tr>
+                <tr><td class="num">06</td><td><strong>Tiny Startups</strong><span class="domain">tinystartups.com</span></td><td>Bid directories</td><td class="num">$1,804</td><td><span class="pill up">Valid</span></td></tr>
+                <tr><td class="num">07</td><td><strong>BidYourApp</strong><span class="domain">bidyourapp.com</span></td><td>Websites & products</td><td class="num">$1,710</td><td><span class="pill up">Valid</span></td></tr>
+                <tr><td class="num">08</td><td><strong>Weekly Product Leaderboard</strong><span class="domain">wintop.lol</span></td><td>Websites & products</td><td class="num">$1,699</td><td><span class="pill up">Valid</span></td></tr>
+                <tr><td class="num">09</td><td><strong>Lugarcito</strong><span class="domain">lugarcito.online</span></td><td>Regional</td><td class="num">$1,505.14</td><td><span class="pill up">Valid</span></td></tr>
+                <tr><td class="num">10</td><td><strong>melhor lance</strong><span class="domain">melhorlance.dev</span></td><td>Regional</td><td class="num">$1,411.38</td><td><span class="pill up">Valid</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="micro">*Directory re-check status at 26 Aug 2026 11:26 UTC. The direct original-site check occurred later in this analysis.</p>
+        </section>
+
+        <section id="new-sites" aria-labelledby="new-title">
+          <div class="section-head">
+            <span class="section-no">04 / 07</span>
+            <h2 id="new-title">New sites added</h2>
+            <p class="section-intro">The cards below refresh from the live directory and therefore include sites found after this written snapshot.</p>
+          </div>
+
+          <div id="freshGrid" class="fresh-grid" aria-live="polite">
+            <article class="fresh-card skeleton" aria-label="Loading"></article>
+            <article class="fresh-card skeleton" aria-label="Loading"></article>
+            <article class="fresh-card skeleton" aria-label="Loading"></article>
+            <article class="fresh-card skeleton" aria-label="Loading"></article>
+          </div>
+
+          <div class="two-col">
+            <article class="panel">
+              <h3>Also spotted on outbid.lol’s live activity</h3>
+              <p>These new or newly active attention-market listings appeared on the original category board during the direct check.</p>
+              <div class="spot-list">
+                <div class="spot-item"><div><strong>inboxbid.lol</strong><span>Newsletter bidding leaderboard</span></div><span class="pill new">$5 today</span></div>
+                <div class="spot-item"><div><strong>corsica.top</strong><span>Paid ranking for Corsican businesses</span></div><span class="pill new">€1 entry</span></div>
+                <div class="spot-item"><div><strong>outflip.lol</strong><span>On-chain crypto leaderboard</span></div><span class="pill new">$5 today</span></div>
+                <div class="spot-item"><div><strong>burnbid.lol</strong><span>Finite pool with a daily burn mechanic</span></div><span class="pill new">Active</span></div>
+                <div class="spot-item"><div><strong>timebid.lol</strong><span>Activity-weighted climbing model</span></div><span class="pill new">Active</span></div>
+              </div>
+            </article>
+            <article class="panel dark">
+              <h3>Pattern in the new arrivals</h3>
+              <p>The straight generic clone is being replaced by four stronger patterns: a narrow audience, a visual territory, a time-boxed game, or a different settlement rail.</p>
+              <p>Recent examples cover AI songs, clips, on-chain tokens, newsletters and local business discovery. This is healthier differentiation—but not proof of durable demand.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="inventory" aria-labelledby="inventory-title">
+          <div class="section-head">
+            <span class="section-no">05 / 07</span>
+            <h2 id="inventory-title">All-site inventory</h2>
+            <p class="section-intro">Search and filter the complete public directory. “Measured” is evidence status, not an uptime promise.</p>
+          </div>
+
+          <div class="inventory-head">
+            <div>
+              <h3><span id="inventoryTotal">414</span> verified boards</h3>
+              <p id="inventorySummary">Loading the latest catalog…</p>
+            </div>
+            <div id="apiState" class="source-state">Connecting to live data</div>
+          </div>
+
+          <div class="filters" aria-label="Inventory filters">
+            <div class="control">
+              <label for="searchInput">Search</label>
+              <input id="searchInput" type="search" placeholder="Name, domain, description…" autocomplete="off">
+            </div>
+            <div class="control">
+              <label for="categoryFilter">Category</label>
+              <select id="categoryFilter"><option value="all">All categories</option></select>
+            </div>
+            <div class="control">
+              <label for="evidenceFilter">Evidence</label>
+              <select id="evidenceFilter">
+                <option value="all">All evidence states</option>
+                <option value="measured">Measured total</option>
+                <option value="zero">Explicit $0</option>
+                <option value="unmeasured">Unmeasured</option>
+              </select>
+            </div>
+            <div class="control">
+              <label for="sortSelect">Sort</label>
+              <select id="sortSelect">
+                <option value="new">Newest listed</option>
+                <option value="old">Oldest listed</option>
+                <option value="money">Claimed total ↓</option>
+                <option value="name">Name A–Z</option>
+              </select>
+            </div>
+            <div class="filter-action"><button id="exportCsv" class="btn small" type="button">Export CSV</button></div>
+          </div>
+
+          <div class="table-status-note">
+            <span id="resultsLabel">Preparing rows…</span>
+            <span>All boards were verified at listing. Individual uptime is not exposed by the directory API.</span>
+          </div>
+
+          <div class="table-wrap">
+            <table aria-describedby="resultsLabel">
+              <thead>
+                <tr><th>Board</th><th>Category</th><th>Evidence status</th><th>Claimed taken</th><th>Entry</th><th>Payment</th><th>Listed</th></tr>
+              </thead>
+              <tbody id="inventoryBody">
+                <tr><td colspan="7">Loading live inventory…</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pager">
+            <p id="pageLabel">Page 1</p>
+            <div class="pager-actions">
+              <button id="prevPage" class="btn small" type="button">← Previous</button>
+              <button id="nextPage" class="btn small" type="button">Next →</button>
+              <button id="refreshData" class="btn small" type="button">Refresh data</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="recommendations" aria-labelledby="recommendations-title">
+          <div class="section-head">
+            <span class="section-no">06 / 07</span>
+            <h2 id="recommendations-title">Recommendations</h2>
+            <p class="section-intro">Priorities for the original operator—and for anyone considering entering this market.</p>
+          </div>
+
+          <div class="rec-grid">
+            <article class="rec"><b>01 / DATA</b><h3>Publish one metric dictionary</h3><p>Define gross checkout volume, net revenue, active bids, all-time spend and rolling-day spend. Put a timestamp beside every counter and expose a read-only JSON status endpoint.</p></article>
+            <article class="rec"><b>02 / TRUST</b><h3>Make ad treatment inspectable</h3><p>Mark paid listings visibly and in HTML. Publish click-count rules, invalid-traffic filtering, moderation turnaround and checkout fulfillment status.</p></article>
+            <article class="rec"><b>03 / RETENTION</b><h3>Build return reasons beyond novelty</h3><p>Keep the 24-hour board, add category alerts and bidder performance history, and let buyers compare spend, clicks and effective CPC without promising outcomes.</p></article>
+            <article class="rec"><b>04 / RELIABILITY</b><h3>Separate “down” from “invalid”</h3><p>Monitor DNS, TLS, server response, rendered board and checkout independently. A stale or bot-blocked render should not be reported as site downtime.</p></article>
+            <article class="rec"><b>05 / MODERATION</b><h3>Operationalize review</h3><p>Move category corrections and takedowns from an X DM into a ticket flow with ownership proof, status, reason codes and appeal handling.</p></article>
+            <article class="rec"><b>06 / NEW ENTRANTS</b><h3>Do not ship clone #415</h3><p>Win a vertical audience first. Use expiring rounds, a meaningful prize, local payment rails or a new visual mechanic—then prove repeat attention before charging.</p></article>
+          </div>
+
+          <h3 style="margin:34px 0 0">Risk register</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Risk</th><th>Level</th><th>Why it matters</th><th>Suggested control</th></tr></thead>
+              <tbody>
+                <tr><td>Launch novelty decays</td><td><span class="risk-label risk-high">High</span></td><td>Bid value follows audience concentration; most clones never found it.</td><td>Rolling rounds, vertical utility, repeat-buyer cohorts.</td></tr>
+                <tr><td>Paid-link / ad disclosure</td><td><span class="risk-label risk-high">High</span></td><td>The product explicitly sells placement and outbound links.</td><td>Visible “Sponsored”; rel="sponsored nofollow"; compliance review.</td></tr>
+                <tr><td>Fraudulent or unauthorized listings</td><td><span class="risk-label risk-high">High</span></td><td>A bidder can attempt to submit brands or risky destinations.</td><td>Ownership proof, blocklists, review queue, rapid takedown.</td></tr>
+                <tr><td>Click-count manipulation</td><td><span class="risk-label risk-med">Medium</span></td><td>Public clicks are a central ROI signal and therefore a target.</td><td>Deduplication, bot filters, anomaly labels, methodology.</td></tr>
+                <tr><td>Metric confusion</td><td><span class="risk-label risk-med">Medium</span></td><td>Revenue, total bids and standing ladder sums are not interchangeable.</td><td>Definitions, timestamps, gross/net split, audit trail.</td></tr>
+                <tr><td>Single-operator bottleneck</td><td><span class="risk-label risk-med">Medium</span></td><td>Moderation, corrections and reputation concentrate in one person.</td><td>Admin roles, runbooks, support intake, incident page.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="method" aria-labelledby="method-title">
+          <div class="section-head">
+            <span class="section-no">07 / 07</span>
+            <h2 id="method-title">Method & sources</h2>
+            <p class="section-intro">What was checked, what was reused and what the evidence cannot prove.</p>
+          </div>
+
+          <div class="method-grid">
+            <article><h3>Direct site analysis</h3><p>Rendered text retrieval covered the homepage, today board, one category, one category-today board, About, Rules, Terms and Privacy. It confirmed content availability, routing and current public counters—but not checkout completion, browser accessibility, DOM link attributes or authenticated administration.</p></article>
+            <article><h3>Market dataset</h3><p>The census, category counts, registration timing, claimed totals and re-check rollup come from outoutbid.lol’s 26 Aug 2026 research snapshot. Its directory is CC BY 4.0. This report’s inventory reads its public API with pageSize=500 so newly verified sites appear automatically.</p></article>
+            <article><h3>Important limitations</h3><p>Revenue and traffic are self-reported. A null figure is unknown, not zero. A failed ladder check is not necessarily server downtime. The census misses undiscovered boards and free subdomains. Foreign-currency sorting in the live table is approximate and display-only.</p></article>
+          </div>
+
+          <div class="sources">
+            <a class="source-link" href="https://outbid.lol/" target="_blank" rel="noopener"><b>01</b><strong>outbid.lol live board</strong><span>Primary source ↗</span></a>
+            <a class="source-link" href="https://outbid.lol/about" target="_blank" rel="noopener"><b>02</b><strong>About / launch and self-reported metrics</strong><span>Primary source ↗</span></a>
+            <a class="source-link" href="https://outbid.lol/rules" target="_blank" rel="noopener"><b>03</b><strong>Rules / ranking, eligibility and payment behavior</strong><span>Primary source ↗</span></a>
+            <a class="source-link" href="https://outbid.lol/terms" target="_blank" rel="noopener"><b>04</b><strong>Terms and Privacy / operator, Polar, data handling</strong><span>Primary source ↗</span></a>
+            <a class="source-link" href="https://outoutbid.lol/research" target="_blank" rel="noopener"><b>05</b><strong>The outbid.lol clone wave, counted</strong><span>Research dataset ↗</span></a>
+            <a class="source-link" href="https://outoutbid.lol/api" target="_blank" rel="noopener"><b>06</b><strong>Public directory API documentation</strong><span>CC BY 4.0 ↗</span></a>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <span>Outbid market audit · prepared 26 August 2026 · snapshot values are dated and source-linked.</span>
+          <span>Directory data attribution: outoutbid.lol (CC BY 4.0).</span>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const API_URL = 'https://outoutbid.lol/api/directory.json?pageSize=500&sort=new';
+      const PAGE_SIZE = 20;
+      const fallbackBoards = [
+        { name:'Outbid Lol', url:'https://outbid-lol.lol/', host:'outbid-lol.lol', tagline:'Public pay-to-rank leaderboard for startups and products.', category:{slug:'websites',name:'Websites & products'}, minBid:'$5', payRail:null, listedAt:'2026-08-26T06:15:58.676Z', clicks:0, figures:{collected:'$0',readAt:'2026-08-26T06:19:02.095Z'} },
+        { name:'SongBid', url:'https://theoutbid.space/', host:'theoutbid.space', tagline:'A pay-to-rank leaderboard for AI-generated songs.', category:{slug:'ai',name:'AI tools & agents'}, minBid:null, payRail:null, listedAt:'2026-08-25T18:45:19.830Z', clicks:0, figures:{collected:'$10',readAt:'2026-08-25T18:49:39.996Z'} },
+        { name:'outfake.lol', url:'https://outfake.lol/', host:'outfake.lol', tagline:'Creates shareable Outbid-style leaderboard images.', category:{slug:'ai',name:'AI tools & agents'}, minBid:'$5', payRail:null, listedAt:'2026-08-25T16:15:16.366Z', clicks:0, figures:{collected:null,readAt:'2026-08-26T11:24:41.078Z'} },
+        { name:'Rank21', url:'https://outbidlol.ai/', host:'outbidlol.ai', tagline:'An Outbid alternative for AI products and X profiles.', category:{slug:'ai',name:'AI tools & agents'}, minBid:'$5', payRail:null, listedAt:'2026-08-25T15:15:16.164Z', clicks:1, figures:{collected:null,readAt:null} },
+        { name:'Gavel', url:'https://gavel.lol/', host:'gavel.lol', tagline:'Indie products ranked by what their makers pay.', category:{slug:'games-media',name:'Games & clips'}, minBid:'$1', payRail:null, listedAt:'2026-08-25T14:15:16.152Z', clicks:0, figures:{collected:'$49',readAt:'2026-08-26T10:49:22.323Z'} },
+        { name:'clipwar.lol', url:'https://clipwar.lol/', host:'clipwar.lol', tagline:'Clips compete for the top of the board.', category:{slug:'games-media',name:'Games & clips'}, minBid:null, payRail:null, listedAt:'2026-08-25T12:15:16.166Z', clicks:2, figures:{collected:null,readAt:null} },
+        { name:'TopBill', url:'https://topbill.lol/', host:'topbill.lol', tagline:'Whoever pays more stands above.', category:{slug:'websites',name:'Websites & products'}, minBid:'$1', payRail:null, listedAt:'2026-08-25T05:15:16.165Z', clicks:2, figures:{collected:'$125',readAt:'2026-08-25T15:14:24.251Z'} },
+        { name:'Product Leaderboard', url:'https://worldorder.lol/', host:'worldorder.lol', tagline:'A live product leaderboard where rank is bought, not voted.', category:{slug:'ai',name:'AI tools & agents'}, minBid:'$1', payRail:null, listedAt:'2026-08-25T03:15:17.568Z', clicks:0, figures:{collected:null,readAt:null} }
+      ];
+
+      const state = { boards: [], filtered: [], page: 1, meta: null, usingFallback: false, printPageSize: null };
+      const $ = (id) => document.getElementById(id);
+      const esc = (value) => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+      const safeUrl = (value) => /^https:\/\//i.test(value || '') ? value : '#';
+      const isZero = (board) => /^\s*[$€£]?\s*0(?:[.,]0+)?\s*$/.test(board?.figures?.collected || '');
+      const hasMeasured = (board) => board?.figures?.collected != null && !isZero(board);
+      const moneyNumber = (value) => {
+        const match = String(value || '').replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+        return match ? Number(match[0]) : -1;
+      };
+      const shortDate = (value) => {
+        if (!value) return '—';
+        const d = new Date(value);
+        return Number.isNaN(d.valueOf()) ? '—' : d.toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' });
+      };
+      const exactTime = (value) => {
+        if (!value) return 'Not measured';
+        const d = new Date(value);
+        return Number.isNaN(d.valueOf()) ? 'Not measured' : d.toLocaleString(undefined, { dateStyle:'medium', timeStyle:'short' });
+      };
+
+      function setConnection(kind, message) {
+        ['apiState', 'sideApiState'].forEach(id => {
+          const node = $(id);
+          if (!node) return;
+          node.className = 'source-state ' + kind;
+          node.textContent = message;
+        });
+      }
+
+      function evidence(board) {
+        if (isZero(board)) return { key:'zero', label:'Explicit $0', className:'warn', note:'Board showed zero' };
+        if (hasMeasured(board)) return { key:'measured', label:'Measured', className:'up', note: exactTime(board.figures.readAt) };
+        if (board?.figures?.readAt) return { key:'unmeasured', label:'Checked · unreadable', className:'neutral', note:exactTime(board.figures.readAt) };
+        return { key:'unmeasured', label:'Verified · unmeasured', className:'neutral', note:'No public total read' };
+      }
+
+      function renderFresh() {
+        const cards = [...state.boards].sort((a,b) => new Date(b.listedAt || 0) - new Date(a.listedAt || 0)).slice(0, 8);
+        $('freshGrid').innerHTML = cards.map(board => {
+          const ev = evidence(board);
+          return `<article class="fresh-card">
+            <span class="pill new">New listing</span>
+            <h3><a href="${esc(safeUrl(board.url))}" target="_blank" rel="noopener">${esc(board.name || board.host)}</a></h3>
+            <p>${esc(board.tagline || 'Verified pay-to-rank board.')}</p>
+            <footer><span>${esc(board.category?.name || 'Uncategorized')}</span><span>${esc(board.figures?.collected || ev.label)}</span></footer>
+          </article>`;
+        }).join('');
+      }
+
+      function renderCategories() {
+        if (state.usingFallback) return;
+        const counts = new Map();
+        state.boards.forEach(b => {
+          const key = b.category?.name || 'Uncategorized';
+          counts.set(key, (counts.get(key) || 0) + 1);
+        });
+        const items = [...counts.entries()].sort((a,b) => b[1] - a[1]);
+        const max = Math.max(...items.map(x => x[1]), 1);
+        $('categoryBars').innerHTML = items.map(([name,count]) => `<div class="bar-row"><label>${esc(name)}</label><div class="track"><div class="fill" style="--w:${(count/max*100).toFixed(1)}%"></div></div><output>${count}</output></div>`).join('');
+      }
+
+      function populateCategories() {
+        const select = $('categoryFilter');
+        const current = select.value;
+        const cats = [...new Map(state.boards.map(b => [b.category?.slug || 'other', b.category?.name || 'Uncategorized'])).entries()].sort((a,b) => a[1].localeCompare(b[1]));
+        select.innerHTML = '<option value="all">All categories</option>' + cats.map(([slug,name]) => `<option value="${esc(slug)}">${esc(name)}</option>`).join('');
+        if ([...select.options].some(o => o.value === current)) select.value = current;
+      }
+
+      function applyFilters(resetPage = true) {
+        const q = $('searchInput').value.trim().toLowerCase();
+        const category = $('categoryFilter').value;
+        const evidenceKey = $('evidenceFilter').value;
+        const sort = $('sortSelect').value;
+
+        state.filtered = state.boards.filter(board => {
+          const haystack = [board.name, board.host, board.tagline, board.category?.name, board.minBid, board.payRail].join(' ').toLowerCase();
+          const categoryMatch = category === 'all' || board.category?.slug === category;
+          const e = evidence(board).key;
+          const evidenceMatch = evidenceKey === 'all' || e === evidenceKey;
+          return (!q || haystack.includes(q)) && categoryMatch && evidenceMatch;
+        });
+
+        state.filtered.sort((a,b) => {
+          if (sort === 'old') return new Date(a.listedAt || 0) - new Date(b.listedAt || 0);
+          if (sort === 'money') return moneyNumber(b.figures?.collected) - moneyNumber(a.figures?.collected);
+          if (sort === 'name') return String(a.name || a.host).localeCompare(String(b.name || b.host));
+          return new Date(b.listedAt || 0) - new Date(a.listedAt || 0);
+        });
+        if (resetPage) state.page = 1;
+        renderInventory();
+      }
+
+      function renderInventory() {
+        const pageSize = state.printPageSize || PAGE_SIZE;
+        const pages = Math.max(1, Math.ceil(state.filtered.length / pageSize));
+        state.page = Math.min(state.page, pages);
+        const start = (state.page - 1) * pageSize;
+        const rows = state.filtered.slice(start, start + pageSize);
+
+        $('inventoryBody').innerHTML = rows.length ? rows.map(board => {
+          const ev = evidence(board);
+          return `<tr>
+            <td class="board-name"><a href="${esc(safeUrl(board.url))}" target="_blank" rel="noopener">${esc(board.name || board.host)} ↗</a><span class="domain">${esc(board.host || '')}</span><p>${esc(board.tagline || '')}</p></td>
+            <td>${esc(board.category?.name || 'Uncategorized')}</td>
+            <td><div class="status-stack"><span class="pill ${ev.className}">${esc(ev.label)}</span><small>${esc(ev.note)}</small></div></td>
+            <td class="num">${esc(board.figures?.collected || 'Unknown')}</td>
+            <td class="num">${esc(board.minBid || '—')}</td>
+            <td>${esc(board.payRail || 'Not stated')}</td>
+            <td class="num">${esc(shortDate(board.listedAt))}</td>
+          </tr>`;
+        }).join('') : '<tr><td colspan="7">No boards match these filters.</td></tr>';
+
+        const end = Math.min(start + rows.length, state.filtered.length);
+        $('resultsLabel').textContent = `${state.filtered.length.toLocaleString()} results · showing ${state.filtered.length ? start + 1 : 0}–${end}`;
+        $('pageLabel').textContent = `Page ${state.page} of ${pages}`;
+        $('prevPage').disabled = state.page <= 1;
+        $('nextPage').disabled = state.page >= pages;
+      }
+
+      function updateSummary() {
+        const total = state.meta?.total || state.boards.length;
+        const measured = state.boards.filter(b => b.figures?.collected != null).length;
+        const zero = state.boards.filter(isZero).length;
+        const newest = [...state.boards].sort((a,b) => new Date(b.listedAt || 0) - new Date(a.listedAt || 0))[0];
+        document.querySelectorAll('[data-live-total]').forEach(el => el.textContent = total.toLocaleString());
+        $('inventoryTotal').textContent = total.toLocaleString();
+        $('inventorySummary').textContent = state.usingFallback
+          ? `Live API unavailable. Showing ${state.boards.length} embedded recent records; written analysis still covers the 414-board snapshot.`
+          : `${measured} with a public total in the API · ${zero} explicitly at zero · newest: ${newest?.host || '—'}`;
+        if (state.meta?.generatedAt) {
+          const text = `API updated ${exactTime(state.meta.generatedAt)}`;
+          $('sideUpdated').textContent = text;
+        }
+      }
+
+      async function loadData() {
+        setConnection('', 'Connecting to live data');
+        $('refreshData').disabled = true;
+        try {
+          const response = await fetch(API_URL, { cache:'no-store', headers:{ 'Accept':'application/json' } });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const payload = await response.json();
+          if (!Array.isArray(payload.boards) || !payload.boards.length) throw new Error('No board records returned');
+          state.boards = payload.boards;
+          state.meta = payload.meta || null;
+          state.usingFallback = false;
+          setConnection('connected', `Live API connected · ${payload.boards.length} loaded`);
+        } catch (error) {
+          state.boards = fallbackBoards;
+          state.meta = null;
+          state.usingFallback = true;
+          setConnection('error', 'Offline fallback · live API unavailable');
+          console.warn('Directory API unavailable:', error);
+        } finally {
+          $('refreshData').disabled = false;
+          populateCategories();
+          renderFresh();
+          renderCategories();
+          updateSummary();
+          applyFilters();
+        }
+      }
+
+      function exportCsv() {
+        const fields = ['name','host','url','category','evidence','claimed_taken','minimum_bid','payment_rail','listed_at','measured_at'];
+        const quote = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const lines = [fields.join(',')];
+        state.filtered.forEach(b => lines.push([
+          b.name, b.host, b.url, b.category?.name, evidence(b).label, b.figures?.collected,
+          b.minBid, b.payRail, b.listedAt, b.figures?.readAt
+        ].map(quote).join(',')));
+        const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8'});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `outbid-market-inventory-${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        URL.revokeObjectURL(link.href);
+        link.remove();
+      }
+
+      ['searchInput','categoryFilter','evidenceFilter','sortSelect'].forEach(id => {
+        $(id).addEventListener(id === 'searchInput' ? 'input' : 'change', () => applyFilters());
+      });
+      $('prevPage').addEventListener('click', () => { if (state.page > 1) { state.page--; renderInventory(); $('inventory').scrollIntoView(); } });
+      $('nextPage').addEventListener('click', () => { const pages = Math.ceil(state.filtered.length / PAGE_SIZE); if (state.page < pages) { state.page++; renderInventory(); $('inventory').scrollIntoView(); } });
+      $('refreshData').addEventListener('click', loadData);
+      $('exportCsv').addEventListener('click', exportCsv);
+      window.addEventListener('beforeprint', () => { state.printPageSize = 1000; state.page = 1; renderInventory(); });
+      window.addEventListener('afterprint', () => { state.printPageSize = null; renderInventory(); });
+
+      loadData();
+    })();
+  </script>
+</body>
+</html>
