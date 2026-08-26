@@ -41,6 +41,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 HTML_PATH = REPO / "index.html"
+SIM_PATH = REPO / "entry-simulator.html"
 CSV_PATH = REPO / "data" / "outbid-market-inventory.csv"
 STATS_PATH = REPO / "data" / "stats.json"
 
@@ -302,14 +303,22 @@ def patch_scalars(html: str, values: dict) -> tuple[str, list]:
     return html, unpatched
 
 
-def replace_block(html: str, sentinel: str, body: str) -> str:
-    pattern = re.compile(
-        r"(<!--\s*bot:" + re.escape(sentinel) + r"\s*-->)[\s\S]*?(<!--\s*/bot:" + re.escape(sentinel) + r"\s*-->)"
+def replace_block(html: str, sentinel: str, body: str, *, where: str = "index.html") -> str:
+    """Swap the content between paired sentinels.
+
+    Accepts HTML comments (``<!--bot:x-->``) and, for markers that live inside
+    the page's <script>, JS line comments (``//bot:x``).
+    """
+    name = re.escape(sentinel)
+    patterns = (
+        re.compile(r"(<!--\s*bot:" + name + r"\s*-->)[\s\S]*?(<!--\s*/bot:" + name + r"\s*-->)"),
+        re.compile(r"(//\s*bot:" + name + r"\b)[\s\S]*?(//\s*/bot:" + name + r"\b)"),
     )
-    html, count = pattern.subn(lambda m: m.group(1) + body + m.group(2), html)
-    if count == 0:
-        raise RuntimeError(f"sentinel bot:{sentinel} not found in index.html")
-    return html
+    for pattern in patterns:
+        html, count = pattern.subn(lambda m: m.group(1) + body + m.group(2), html)
+        if count:
+            return html
+    raise RuntimeError(f"sentinel bot:{sentinel} not found in {where}")
 
 
 def render_category_bars(categories: dict) -> str:
@@ -362,6 +371,322 @@ def render_top_table(ranked: list[dict], status_map: dict, routes: dict) -> str:
             f'<td><span class="pill {cls}">{esc(label)}</span></td></tr>'
         )
     return "".join(rows) + "\n              "
+
+
+# --------------------------------------------------------------------------- #
+# entry-simulator.html (report 001b)
+# --------------------------------------------------------------------------- #
+
+SIM_BANDS = [
+    ("Exactly $0", lambda v: v == 0, "var(--red)"),
+    ("$0.01 – $4.99", lambda v: 0 < v < 5, "var(--red)"),
+    ("$5 – $24.99", lambda v: 5 <= v < 25, None),
+    ("$25 – $99.99", lambda v: 25 <= v < 100, None),
+    ("$100 – $499", lambda v: 100 <= v < 500, "var(--green)"),
+    ("$500 – $999", lambda v: 500 <= v < 1000, "var(--green)"),
+    ("$1,000 and up", lambda v: v >= 1000, "var(--green)"),
+]
+
+SIM_PERCENTILE_NOTES = {
+    25: "Bottom-quartile boundary — a quarter of boards took this or less.",
+    50: "The median board: the exact middle of the market.",
+    75: "Top-quartile boundary. Still under most launch costs.",
+    90: "Top decile — the first genuinely non-trivial outcome.",
+    99: "The top one percent of everyone who tried.",
+}
+
+
+def percentile(sorted_values: list[float], p: float) -> float:
+    """Linear-interpolated percentile, matching the report's published figures."""
+    if not sorted_values:
+        return 0.0
+    if len(sorted_values) == 1:
+        return sorted_values[0]
+    k = (len(sorted_values) - 1) * p / 100
+    lo, hi = int(k // 1), min(int(k // 1) + 1, len(sorted_values) - 1)
+    if lo == hi:
+        return sorted_values[lo]
+    return sorted_values[lo] + (sorted_values[hi] - sorted_values[lo]) * (k - lo)
+
+
+def compute_sim(boards: list[dict]) -> dict:
+    """Everything entry-simulator.html needs, derived from the same board list."""
+    clones = [b for b in boards if b.get("host") != ORIGINAL_HOST]
+
+    per_category: dict[str, list[dict]] = {}
+    listed_counts: dict[str, int] = {}
+    for board in clones:
+        name = (board.get("category") or {}).get("name") or "Uncategorized"
+        listed_counts[name] = listed_counts.get(name, 0) + 1
+        amount = money(board.get("figures", {}).get("collected"))
+        if amount is not None:
+            per_category.setdefault(name, []).append(
+                {"h": board.get("host") or board.get("name") or "", "v": round(amount, 2)}
+            )
+
+    for entries in per_category.values():
+        entries.sort(key=lambda e: e["v"])
+
+    # categories ordered by sample size (drives the simulator's default pick)
+    ordered = sorted(per_category.items(), key=lambda kv: (-len(kv[1]), kv[0]))
+    amounts = sorted(e["v"] for entries in per_category.values() for e in entries)
+    count = len(amounts)
+    total = sum(amounts)
+
+    rows = []
+    for name, entries in ordered:
+        values = [e["v"] for e in entries]
+        over = sum(1 for v in values if v >= 100)
+        rows.append({
+            "name": name,
+            "listed": listed_counts.get(name, len(values)),
+            "measured": len(values),
+            "median": statistics.median(values),
+            "total": sum(values),
+            "best": max(values),
+            "hit": over / len(values) if values else 0.0,
+        })
+    by_median = sorted(rows, key=lambda r: (-r["median"], r["name"]))
+
+    def tier(board: dict) -> str:
+        minimum = money(board.get("minBid"))
+        if minimum is None:
+            return "unstated"
+        if minimum < 5:
+            return "under5"
+        if minimum == 5:
+            return "at5"
+        if minimum <= 25:
+            return "mid"
+        return "over25"
+
+    tiers: dict[str, list[float]] = {}
+    for board in clones:
+        amount = money(board.get("figures", {}).get("collected"))
+        if amount is not None:
+            tiers.setdefault(tier(board), []).append(amount)
+
+    published_minimums = [money(b.get("minBid")) for b in boards]
+    published_minimums = [m for m in published_minimums if m is not None]
+    cheap = sum(1 for m in published_minimums if m <= 2)
+
+    bidders = []
+    for board in clones:
+        raw = board.get("figures", {}).get("bidders")
+        try:
+            if raw is not None and str(raw).strip() != "":
+                bidders.append(int(float(raw)))
+        except (TypeError, ValueError):
+            pass
+
+    no_clicks = sum(1 for b in clones if not (b.get("clicks") or 0))
+    unmeasured = sum(1 for b in boards if b.get("figures", {}).get("collected") is None)
+    unreadable = sum(
+        1 for b in boards
+        if b.get("figures", {}).get("collected") is None and b.get("figures", {}).get("readAt")
+    )
+
+    top10 = sum(amounts[-10:])
+    top29 = sum(amounts[-29:])
+    half = count // 2
+
+    weak = [r for r in rows if r["best"] < 100]
+    strong = by_median[:2]
+
+    return {
+        "ordered": ordered,
+        "listed_counts": listed_counts,
+        "rows": rows,
+        "by_median": by_median,
+        "amounts": amounts,
+        "count": count,
+        "total": total,
+        "mean": (total / count) if count else 0.0,
+        "median": statistics.median(amounts) if amounts else 0.0,
+        "clones_listed": len(clones),
+        "over100_pct": sum(1 for a in amounts if a >= 100) / count if count else 0.0,
+        "over1000_pct": sum(1 for a in amounts if a >= 1000) / count if count else 0.0,
+        "zero_pct": sum(1 for a in amounts if a == 0) / count if count else 0.0,
+        "under25_pct": sum(1 for a in amounts if a < 25) / count if count else 0.0,
+        "no_click_pct": (no_clicks / len(clones)) if clones else 0.0,
+        "bottom_half_share": (sum(amounts[:half]) / total) if total else 0.0,
+        "top10_share": (top10 / total) if total else 0.0,
+        "top10_total": top10,
+        "next19_share": ((top29 - top10) / total) if total else 0.0,
+        "next19_total": top29 - top10,
+        "tail_count": max(0, count - 29),
+        "tail_share": ((total - top29) / total) if total else 0.0,
+        "tail_total": total - top29,
+        "percentiles": {p: percentile(amounts, p) for p in (25, 50, 75, 90, 95, 99)},
+        "low_bid_median": statistics.median(tiers["under5"]) if tiers.get("under5") else 0.0,
+        "high_bid_median": statistics.median(tiers["over25"]) if tiers.get("over25") else 0.0,
+        "minimums_published": len(published_minimums),
+        "minimums_cheap": cheap,
+        "bidders_median": statistics.median(bidders) if bidders else 0,
+        "unmeasured": unmeasured,
+        "unreadable": unreadable,
+        "weak_categories": weak,
+        "strong_categories": strong,
+    }
+
+
+def sim_scalars(sim: dict) -> dict:
+    """data-stat values owned by entry-simulator.html."""
+    best = sim["by_median"][0] if sim["by_median"] else None
+    second = sim["by_median"][1] if len(sim["by_median"]) > 1 else None
+    mean_multiple = (sim["mean"] / sim["median"]) if sim["median"] else 0
+    values = {
+        "sim-measured-count": fmt_int(sim["count"]),
+        "sim-mean": fmt_money2(sim["mean"]),
+        "sim-mean-multiple": f"{mean_multiple:.0f}×",
+        "sim-over100-pct": fmt_pct1(sim["over100_pct"]),
+        "sim-over1000-pct": fmt_pct1(sim["over1000_pct"]),
+        "sim-zero-pct": fmt_pct1(sim["zero_pct"]),
+        "sim-noclick-pct": fmt_pct1(sim["no_click_pct"]),
+        "sim-bottomhalf-share": fmt_pct1(sim["bottom_half_share"]),
+        "sim-top10-share": fmt_pct1(sim["top10_share"]),
+        "sim-p75": fmt_money2(sim["percentiles"][75]),
+        "sim-p95": fmt_money2(sim["percentiles"][95]),
+        "sim-under25-note": (
+            f"{fmt_pct1(sim['under25_pct'])} of measured boards never reached $25 "
+            "— roughly the price of the domain they were launched on."
+        ),
+        "sim-cheap-minbid-note": (
+            f"{sim['minimums_cheap']} of the {sim['minimums_published']} boards that "
+            "publish a minimum ask for $2 or less"
+        ),
+        "sim-lowbid-median": fmt_money2(sim["low_bid_median"]),
+        "sim-highbid-median": fmt_money2(sim["high_bid_median"]),
+        "sim-bidders-median": fmt_int(sim["bidders_median"]),
+        "sim-unmeasured-count": fmt_int(sim["unmeasured"]),
+        "sim-unreadable-count": fmt_int(sim["unreadable"]),
+    }
+    if best:
+        values.update({
+            "sim-best-cat-name": best["name"],
+            "sim-best-cat-line": (
+                f"{best['listed']} listed · {best['measured']} measurable · "
+                f"${fmt_int(best['total'])} combined"
+            ),
+            "sim-best-cat-median": fmt_money2(best["median"]),
+            "sim-best-cat-hit": fmt_pct1(best["hit"]),
+        })
+    if second:
+        values.update({
+            "sim-second-cat-name": second["name"],
+            "sim-second-cat-median": fmt_money2(second["median"]),
+        })
+    return values
+
+
+def render_category_ladder(sim: dict) -> str:
+    rows = []
+    for row in sim["by_median"]:
+        share = row["hit"]
+        pill = "up" if share >= 0.3 else ("warn" if share >= 0.15 else "neutral")
+        rows.append(
+            f'\n                <tr><td><strong>{esc(row["name"])}</strong>'
+            f'<span class="domain">{row["listed"]} listed · {row["measured"]} measurable</span></td>'
+            f'<td class="num">{fmt_money2(row["median"])}</td>'
+            f'<td class="num">${fmt_int(row["total"])}</td>'
+            f'<td class="num">${fmt_int(row["best"])}</td>'
+            f'<td><span class="pill {pill}">{fmt_pct1(share)} cleared $100</span></td></tr>'
+        )
+    return "".join(rows) + "\n              "
+
+
+def render_outcome_bands(sim: dict) -> str:
+    counts = [sum(1 for a in sim["amounts"] if test(a)) for _, test, _ in SIM_BANDS]
+    peak = max(counts) if counts else 1
+    rows = []
+    for (label, _, colour), count in zip(SIM_BANDS, counts):
+        width = (count / peak * 100) if peak else 0
+        style = f"--w:{width:.1f}%" + (f";background:{colour}" if colour else "")
+        rows.append(
+            f'\n                <div class="bar-row"><label>{esc(label)}</label>'
+            f'<div class="track"><div class="fill" style="{style}"></div></div>'
+            f"<output>{count}</output></div>"
+        )
+    return "".join(rows) + "\n              "
+
+
+def render_percentiles(sim: dict) -> str:
+    rows = []
+    for p in (25, 50, 75, 90, 99):
+        rows.append(
+            f'\n                <div class="fact"><b>p{p}</b><div>'
+            f'<strong>{fmt_money2(sim["percentiles"][p])}</strong>'
+            f'<span>{esc(SIM_PERCENTILE_NOTES[p])}</span></div></div>'
+        )
+    return "".join(rows) + "\n              "
+
+
+def render_clone_concentration(sim: dict) -> str:
+    return (
+        f'\n            <div class="original"><b>{fmt_pct1(sim["top10_share"])}</b>'
+        f'<span>Top 10 boards · ${fmt_int(sim["top10_total"])}</span></div>'
+        f'\n            <div class="top-clones"><b>{fmt_pct1(sim["next19_share"])}</b>'
+        f'<span>Next 19 boards · ${fmt_int(sim["next19_total"])}</span></div>'
+        f'\n            <div class="tail"><b>{fmt_pct1(sim["tail_share"])}</b>'
+        f'<span>Remaining {sim["tail_count"]} boards · ${fmt_int(sim["tail_total"])}</span></div>'
+        "\n          "
+    )
+
+
+def render_ladder_callout(sim: dict) -> str:
+    best = sim["by_median"][0]
+    second = sim["by_median"][1] if len(sim["by_median"]) > 1 else best
+    multiple = (best["median"] / sim["median"]) if sim["median"] else 0
+    weak = sim["weak_categories"]
+
+    parts = [
+        f'\n              <p><strong>{esc(best["name"])}</strong> post the highest median in the '
+        f'market at {fmt_money2(best["median"])} — {multiple:.1f}× the market median — and '
+        f'{fmt_pct1(best["hit"])} of their measurable boards clear $100. The pick-and-shovel play '
+        "beat the gold rush, as it usually does.</p>",
+        f'\n              <p><strong>{esc(second["name"])}</strong> come second at '
+        f'{fmt_money2(second["median"])}, with a {fmt_pct1(second["hit"])} hit rate over $100. A '
+        "local audience and a local payment rail beat a global audience with neither.</p>",
+    ]
+    if weak:
+        names = " and ".join(f"<strong>{esc(w['name'])}</strong>" for w in weak[:2])
+        listed = sum(w["listed"] for w in weak[:2])
+        combined = sum(w["total"] for w in weak[:2])
+        parts.append(
+            f'\n              <p>{names} {"are" if len(weak[:2]) > 1 else "is"} the trap: '
+            f'{listed} listings between them, ${fmt_int(combined)} combined, and not one board over '
+            "$100. High enthusiasm, no willingness to pay.</p>"
+        )
+    return "".join(parts) + "\n            "
+
+
+def render_crowding_callout(sim: dict) -> str:
+    biggest = max(sim["rows"], key=lambda r: r["listed"]) if sim["rows"] else None
+    if not biggest:
+        return "\n            "
+    share = biggest["listed"] / sim["clones_listed"] if sim["clones_listed"] else 0
+    strong = sim["strong_categories"]
+    strong_measured = sum(r["measured"] for r in strong)
+    strong_total = sum(r["total"] for r in strong)
+    return (
+        f'\n              <p>{biggest["listed"]} of {sim["clones_listed"]} clones — '
+        f'{fmt_pct1(share)} — chose <strong>{esc(biggest["name"])}</strong>, the exact shape of the '
+        f'original. They compete with each other for the same buyers, and their median board takes '
+        f'{fmt_money2(biggest["median"])}.</p>'
+        f'\n              <p>Meanwhile the {strong_measured} measurable boards in the two '
+        f'best-performing categories took ${fmt_int(strong_total)} between them — against '
+        f'${fmt_int(sim["tail_total"])} for the entire {sim["tail_count"]}-board tail. Scarcity of '
+        "competitors, not size of audience, is what pays here.</p>"
+        "\n            "
+    )
+
+
+def render_sim_dataset(sim: dict) -> str:
+    payload = {
+        "counts": {name: sim["listed_counts"].get(name, len(entries)) for name, entries in sim["ordered"]},
+        "byCategory": {name: entries for name, entries in sim["ordered"]},
+    }
+    return "\n      " + json.dumps(payload, separators=(",", ":"), ensure_ascii=False) + "\n      "
 
 
 def render_fallback_boards(newest: list[dict]) -> str:
@@ -489,6 +814,33 @@ def main() -> int:
         unpatched.append("fallback-boards")
     HTML_PATH.write_text(html, encoding="utf-8")
     print(f"[bot] patched {HTML_PATH}", flush=True)
+
+    # ---- companion page: entry-simulator.html (report 001b) ----------------
+    sim = compute_sim(boards)
+    if SIM_PATH.exists():
+        sim_html = SIM_PATH.read_text(encoding="utf-8")
+        sim_values = dict(sim_scalars(sim))
+        # shared stamps/figures so both pages always agree
+        for shared in ("clone-median", "table-refreshed", "side-updated", "bot-updated"):
+            if shared in scalars:
+                sim_values[shared] = scalars[shared]
+        sim_html, sim_unpatched = patch_scalars(sim_html, sim_values)
+        for sentinel, body in (
+            ("category-ladder", render_category_ladder(sim)),
+            ("outcome-bands", render_outcome_bands(sim)),
+            ("percentiles", render_percentiles(sim)),
+            ("clone-concentration", render_clone_concentration(sim)),
+            ("ladder-callout", render_ladder_callout(sim)),
+            ("crowding-callout", render_crowding_callout(sim)),
+            ("sim-dataset", render_sim_dataset(sim)),
+        ):
+            sim_html = replace_block(sim_html, sentinel, body, where=SIM_PATH.name)
+        SIM_PATH.write_text(sim_html, encoding="utf-8")
+        print(f"[bot] patched {SIM_PATH}", flush=True)
+        unpatched.extend(f"sim:{key}" for key in sim_unpatched)
+    else:
+        print(f"[bot] note - {SIM_PATH.name} not present; skipped", flush=True)
+
     if unpatched:
         print(f"[bot] WARNING - markers not found: {', '.join(sorted(set(unpatched)))}", flush=True)
 
@@ -521,6 +873,28 @@ def main() -> int:
             "aboutVisitors": about.get("visitors"),
             "highestBid": about.get("top_bid"),
             "highestBidHost": about.get("top_bid_host"),
+        },
+        "entrySimulator": {
+            "measuredClones": sim["count"],
+            "meanUsd": round(sim["mean"], 2),
+            "medianUsd": round(sim["median"], 2),
+            "percentiles": {f"p{p}": round(v, 2) for p, v in sim["percentiles"].items()},
+            "shareOver100": round(sim["over100_pct"], 4),
+            "shareOver1000": round(sim["over1000_pct"], 4),
+            "shareExactlyZero": round(sim["zero_pct"], 4),
+            "bottomHalfShareOfMoney": round(sim["bottom_half_share"], 4),
+            "top10ShareOfCloneMoney": round(sim["top10_share"], 4),
+            "bestCategoryByMedian": (
+                {
+                    "name": sim["by_median"][0]["name"],
+                    "medianUsd": round(sim["by_median"][0]["median"], 2),
+                    "hitRateOver100": round(sim["by_median"][0]["hit"], 4),
+                }
+                if sim["by_median"] else None
+            ),
+            "categoryMedians": {
+                row["name"]: round(row["median"], 2) for row in sim["by_median"]
+            },
         },
         "unpatchedMarkers": sorted(set(unpatched)),
     }
