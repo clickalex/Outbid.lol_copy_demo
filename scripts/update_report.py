@@ -28,6 +28,7 @@ run it every day.
 from __future__ import annotations
 
 import csv
+import html
 import json
 import re
 import statistics
@@ -267,9 +268,9 @@ def check_routes() -> dict:
 
 def check_about_page() -> dict:
     """Parse the self-reported counters out of the About page text."""
-    html = http_get(ABOUT_URL)
-    text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html))
-    text = text.replace("&amp;", "&").replace("&#x27;", "'").replace("&quot;", '"')
+    page = http_get(ABOUT_URL)
+    text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", page))
+    text = html.unescape(text)
     found = {}
     revenue = re.search(r"\$([\d,]+)\s*(?:\|\s*)?revenue", text, re.I)
     if revenue:
@@ -443,7 +444,7 @@ def main() -> int:
         "original-share": fmt_pct1(stats["original_share"]),
         "original-share-round": fmt_pct0(stats["original_share"]),
         "original-share-note": (
-            f"{fmt_int(stats['original_amount'])} in the latest directory read"
+            f"${fmt_int(stats['original_amount'])} in the latest directory read"
             if stats["original_amount"] is not None else "not present in latest read"
         ),
         "top10-clones-share": fmt_pct1(stats["top10_share_of_clones"]),

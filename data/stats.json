@@ -1,0 +1,93 @@
+{
+  "runAt": "2026-08-26T14:01:16+00:00",
+  "source": "outoutbid.lol directory API (CC BY 4.0)",
+  "apiGeneratedAt": "2026-08-26T11:58:43.525Z",
+  "boardsTotal": 414,
+  "boardsMeasured": 294,
+  "cloneMeasured": 293,
+  "claimedTotalUsd": 188306.2,
+  "cloneTotalUsd": 62149.2,
+  "originalCollectedUsd": 126157.0,
+  "originalShare": 0.67,
+  "cloneMedianUsd": 18.9,
+  "top10CloneShareOfCloneMoney": 0.6873,
+  "categories": {
+    "Websites & products": 230,
+    "X accounts": 51,
+    "Ads & billboards": 31,
+    "Crypto & tokens": 27,
+    "AI tools & agents": 24,
+    "Games & clips": 21,
+    "Regional & other currencies": 18,
+    "Directories of bid sites": 12
+  },
+  "top10Boards": [
+    {
+      "host": "outbid.lol",
+      "name": "outbid.lol",
+      "claimed": "$126,157"
+    },
+    {
+      "host": "lamborghini.lol",
+      "name": "lamborghini.lol",
+      "claimed": "$25,000"
+    },
+    {
+      "host": "warmap.lol",
+      "name": "WARMAP",
+      "claimed": "$3,448"
+    },
+    {
+      "host": "topapp.lol",
+      "name": "topapp.lol",
+      "claimed": "$3,067"
+    },
+    {
+      "host": "saasbid.io",
+      "name": "SaaSBid",
+      "claimed": "$1,810"
+    },
+    {
+      "host": "tinystartups.com",
+      "name": "Tiny Startups",
+      "claimed": "$1,804"
+    },
+    {
+      "host": "bidyourapp.com",
+      "name": "BidYourApp",
+      "claimed": "$1,710"
+    },
+    {
+      "host": "wintop.lol",
+      "name": "Weekly Product Leaderboard",
+      "claimed": "$1,699"
+    },
+    {
+      "host": "lugarcito.online",
+      "name": "Lugarcito",
+      "claimed": "$1,505.14"
+    },
+    {
+      "host": "melhorlance.dev",
+      "name": "melhor lance",
+      "claimed": "$1,411.38"
+    }
+  ],
+  "primarySite": {
+    "routes": {
+      "route-root": "LIVE",
+      "route-today": "LIVE",
+      "route-about": "LIVE",
+      "route-rules": "LIVE",
+      "route-terms": "LIVE",
+      "route-privacy": "LIVE",
+      "route-category-product": "LIVE",
+      "route-stats": "404"
+    },
+    "aboutRevenue": 221615.0,
+    "aboutVisitors": 1364309,
+    "highestBid": 17000.0,
+    "highestBidHost": "see.io"
+  },
+  "unpatchedMarkers": []
+}
