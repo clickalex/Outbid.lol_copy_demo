@@ -5,7 +5,7 @@ name: Daily market refresh
 #   1. Fetches the public outoutbid.lol directory API (CC BY 4.0).
 #   2. Rewrites data/outbid-market-inventory.csv and data/stats.json.
 #   3. Re-checks outbid.lol routes + About counters and refreshes every
-#      bot-managed figure in index.html.
+#      bot-managed figure in index.html and entry-simulator.html.
 #   4. Commits and pushes when anything changed.
 #
 # ACTIVATION: copy this file to .github/workflows/daily-update.yml
@@ -49,7 +49,7 @@ jobs:
         run: |
           git config user.name "outbid-market-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/outbid-market-inventory.csv data/stats.json index.html
+          git add data/outbid-market-inventory.csv data/stats.json index.html entry-simulator.html
           if git diff --cached --quiet; then
             echo "No changes to commit — data identical to the last run."
             exit 0

@@ -1,0 +1,1190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An entry simulator for the pay-to-rank market: model what board #416 would realistically take, using the measured outcomes of every clone board in the public outoutbid.lol directory.">
+  <title>Should You Ship Board #416? — Outbid Market Audit</title>
+  <style>
+    :root {
+      --ink: #171714;
+      --paper: #f4f0e7;
+      --paper-deep: #e9e2d4;
+      --card: #fffdf7;
+      --line: #c9c1b3;
+      --muted: #67645e;
+      --red: #f04d35;
+      --red-dark: #bb2f21;
+      --lime: #d9ff65;
+      --green: #18724c;
+      --amber: #9a6212;
+      --blue: #345bc4;
+      --shadow: 0 18px 50px rgba(37, 31, 20, .09);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --serif: Iowan Old Style, Baskerville, "Times New Roman", serif;
+      --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 1%, rgba(240, 77, 53, .11), transparent 24rem),
+        linear-gradient(90deg, rgba(23, 23, 20, .025) 1px, transparent 1px),
+        var(--paper);
+      background-size: auto, 32px 32px, auto;
+      font-family: var(--sans);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-underline-offset: 3px; }
+    a:hover { color: var(--red-dark); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+    .topline {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 7px 24px;
+      color: #fff;
+      background: var(--ink);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .live-label { display: inline-flex; align-items: center; gap: 8px; }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--lime);
+      box-shadow: 0 0 0 4px rgba(217, 255, 101, .15);
+    }
+
+    .shell {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 246px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      align-self: start;
+      padding: 30px 24px;
+      border-right: 1px solid var(--line);
+      background: rgba(244, 240, 231, .86);
+      backdrop-filter: blur(12px);
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      margin-bottom: 34px;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--red);
+      color: #fff;
+      font: 800 19px/1 var(--mono);
+      transform: rotate(-7deg);
+    }
+    .brand strong { display: block; font-size: 14px; letter-spacing: -.02em; }
+    .brand span { color: var(--muted); font: 10px/1.3 var(--mono); text-transform: uppercase; }
+
+    .nav-title {
+      margin: 24px 0 8px;
+      color: var(--muted);
+      font: 10px/1.2 var(--mono);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .side-nav { display: grid; gap: 2px; }
+    .side-nav a {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      text-decoration: none;
+    }
+    .side-nav a:hover { color: var(--ink); background: rgba(255, 255, 255, .6); }
+    .side-nav em { font: normal 10px/1 var(--mono); color: #99948a; }
+
+    .side-note {
+      margin-top: 34px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .side-note strong { color: var(--ink); }
+
+    main { min-width: 0; }
+    .content { padding: 0 clamp(24px, 5vw, 76px) 100px; }
+
+    .hero {
+      position: relative;
+      min-height: 660px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(300px, .6fr);
+      align-items: end;
+      gap: clamp(30px, 5vw, 80px);
+      padding: 76px clamp(24px, 5vw, 76px) 64px;
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "414";
+      position: absolute;
+      z-index: -1;
+      right: -30px;
+      top: -90px;
+      color: rgba(23, 23, 20, .035);
+      font: 800 340px/.8 var(--sans);
+      letter-spacing: -.11em;
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 20px;
+      color: var(--red-dark);
+      font: 700 11px/1.3 var(--mono);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 32px; border-top: 2px solid currentColor; }
+    h1 {
+      max-width: 860px;
+      margin: 0;
+      font: 400 clamp(58px, 8vw, 124px)/.87 var(--serif);
+      letter-spacing: -.065em;
+    }
+    h1 i { color: var(--red); font-weight: 400; }
+    .deck {
+      max-width: 720px;
+      margin: 28px 0 0;
+      font-size: clamp(17px, 1.8vw, 23px);
+      line-height: 1.45;
+      letter-spacing: -.02em;
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 43px;
+      padding: 9px 16px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      color: var(--ink);
+      background: transparent;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .btn:hover { color: #fff; background: var(--ink); }
+    .btn.primary { color: #fff; background: var(--ink); }
+    .btn.primary:hover { color: var(--ink); background: var(--lime); }
+    .btn.small { min-height: 34px; padding: 6px 12px; font-size: 11px; }
+
+    .audit-card {
+      padding: 26px;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: 9px 9px 0 var(--ink);
+    }
+    .audit-card .status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .status strong { font-size: 20px; letter-spacing: -.04em; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      width: max-content;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font: 700 10px/1.4 var(--mono);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .pill.up { color: var(--green); background: #ddf4e8; }
+    .pill.warn { color: var(--amber); background: #f7eacb; }
+    .pill.neutral { color: #555; background: #ece9e1; }
+    .pill.new { color: #7f291c; background: #ffdcd5; }
+    .pill::before { content: ""; width: 6px; height: 6px; border-radius: 99px; background: currentColor; }
+
+    .route-list { margin: 17px 0 0; padding: 0; list-style: none; }
+    .route-list li {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px dashed var(--line);
+      font: 11px/1.4 var(--mono);
+    }
+    .route-list li:last-child { border: 0; }
+    .route-list b { color: var(--green); }
+    .route-list .bad { color: var(--red-dark); }
+    .micro { color: var(--muted); font-size: 11px; }
+
+    .finding-bar {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 20px;
+      align-items: center;
+      padding: 19px clamp(24px, 5vw, 76px);
+      color: #fff;
+      background: var(--red);
+    }
+    .finding-bar strong { font: 800 10px/1.3 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .finding-bar p { margin: 0; font: 20px/1.25 var(--serif); }
+    .finding-bar span { font: 11px/1 var(--mono); opacity: .8; }
+
+    section { padding-top: 88px; scroll-margin-top: 30px; }
+    .section-head {
+      display: grid;
+      grid-template-columns: 100px minmax(0, 1fr) minmax(220px, .38fr);
+      gap: 24px;
+      align-items: start;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--ink);
+    }
+    .section-no { color: var(--red); font: 700 14px/1 var(--mono); }
+    h2 { margin: -8px 0 0; font: 400 clamp(40px, 5vw, 72px)/1 var(--serif); letter-spacing: -.045em; }
+    .section-intro { margin: 0; color: var(--muted); font-size: 13px; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .metric {
+      min-height: 156px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 253, 247, .62);
+    }
+    .metric .label { color: var(--muted); font: 10px/1.3 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+    .metric .value { margin: 22px 0 5px; font: 500 clamp(28px, 3.4vw, 52px)/1 var(--serif); letter-spacing: -.05em; }
+    .metric .note { color: var(--muted); font-size: 11px; }
+    .metric.accent { color: #fff; background: var(--ink); border-color: var(--ink); }
+    .metric.accent .label, .metric.accent .note { color: #bbb8af; }
+    .metric.accent .value { color: var(--lime); }
+
+    .two-col { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); gap: 22px; margin-top: 22px; }
+    .panel {
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+    .panel.dark { color: #fff; background: var(--ink); border-color: var(--ink); }
+    .panel h3 { margin: 0 0 14px; font-size: 18px; letter-spacing: -.03em; }
+    .panel p { margin: 0 0 13px; color: var(--muted); font-size: 13px; }
+    .panel.dark p { color: #b9b6ad; }
+    .panel p:last-child { margin-bottom: 0; }
+    .big-quote { margin: 0 !important; color: #fff !important; font: 30px/1.2 var(--serif) !important; letter-spacing: -.03em; }
+    .big-quote em { color: var(--lime); font-style: normal; }
+
+    .fact-list { display: grid; gap: 0; margin-top: 18px; }
+    .fact {
+      display: grid;
+      grid-template-columns: 35px minmax(0, 1fr);
+      gap: 12px;
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+    }
+    .fact b { color: var(--red); font: 700 11px/1.5 var(--mono); }
+    .fact strong { display: block; font-size: 13px; }
+    .fact span { display: block; color: var(--muted); font-size: 11px; }
+
+    .system-flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(110px, 1fr));
+      gap: 8px;
+      margin-top: 22px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .flow-step { position: relative; min-height: 128px; padding: 15px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+    .flow-step:not(:last-child)::after { content: "→"; position: absolute; right: -9px; top: 50%; z-index: 2; color: var(--red); font-weight: 800; }
+    .flow-step b { display: block; color: var(--red); font: 10px/1 var(--mono); }
+    .flow-step strong { display: block; margin: 10px 0 5px; font-size: 12px; }
+    .flow-step span { color: var(--muted); font-size: 10px; }
+
+    .score-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 22px; }
+    .score { padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+    .score b { font: 42px/1 var(--serif); color: var(--red); }
+    .score strong { display: block; margin: 13px 0 5px; font-size: 12px; }
+    .score span { display: block; color: var(--muted); font-size: 10px; }
+
+    .bars { display: grid; gap: 14px; margin-top: 20px; }
+    .bar-row { display: grid; grid-template-columns: 170px minmax(0, 1fr) 62px; gap: 12px; align-items: center; }
+    .bar-row label { font-size: 11px; }
+    .track { height: 9px; overflow: hidden; border-radius: 99px; background: var(--paper-deep); }
+    .fill { height: 100%; width: var(--w); border-radius: inherit; background: var(--red); }
+    .bar-row output { text-align: right; color: var(--muted); font: 10px/1 var(--mono); }
+
+    .concentration {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      min-height: 110px;
+      margin-top: 20px;
+      overflow: hidden;
+      border: 1px solid var(--ink);
+      border-radius: 12px;
+    }
+    .concentration > div { display: flex; flex-direction: column; justify-content: center; padding: 18px; border-right: 1px solid var(--ink); }
+    .concentration > div:last-child { border: 0; }
+    .concentration .original { color: #fff; background: var(--red); }
+    .concentration .top-clones { background: var(--lime); }
+    .concentration .tail { background: var(--card); }
+    .concentration b { font: 31px/1 var(--serif); }
+    .concentration span { margin-top: 5px; font: 9px/1.3 var(--mono); text-transform: uppercase; }
+
+    .table-wrap { width: 100%; margin-top: 20px; overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { padding: 11px 13px; color: var(--muted); background: #eee9df; font: 700 9px/1.2 var(--mono); letter-spacing: .07em; text-align: left; text-transform: uppercase; white-space: nowrap; }
+    td { padding: 12px 13px; border-top: 1px solid #ded8cb; vertical-align: top; }
+    tbody tr:hover { background: #fbf7ee; }
+    td.num { font-family: var(--mono); white-space: nowrap; }
+    .domain { display: block; color: var(--muted); font: 10px/1.4 var(--mono); }
+
+    .fresh-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+    .fresh-card { min-height: 210px; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+    .fresh-card h3 { margin: 18px 0 7px; font-size: 16px; letter-spacing: -.03em; }
+    .fresh-card p { margin: 0; color: var(--muted); font-size: 11px; }
+    .fresh-card footer { display: flex; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 18px; font: 9px/1.3 var(--mono); }
+    .fresh-card a { text-decoration: none; font-weight: 700; }
+    .fresh-card.skeleton { background: linear-gradient(100deg, #eee8dd 30%, #f9f5ed 50%, #eee8dd 70%); background-size: 300% 100%; animation: shimmer 1.7s infinite; }
+    @keyframes shimmer { to { background-position: -300% 0; } }
+
+    .spot-list { display: grid; gap: 8px; margin-top: 14px; }
+    .spot-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 15px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .spot-item strong { font-size: 12px; }
+    .spot-item span { display: block; color: var(--muted); font-size: 10px; }
+
+    .inventory-head { display: flex; justify-content: space-between; gap: 20px; align-items: end; margin-top: 24px; }
+    .inventory-head h3 { margin: 0; font: 29px/1.1 var(--serif); }
+    .inventory-head p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .source-state { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font: 10px/1.3 var(--mono); }
+    .source-state::before { content: ""; width: 7px; height: 7px; border-radius: 99px; background: #999; }
+    .source-state.connected::before { background: var(--green); box-shadow: 0 0 0 3px #dff0e6; }
+    .source-state.error::before { background: var(--red); }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(200px, 1.5fr) repeat(3, minmax(130px, .6fr)) auto;
+      gap: 8px;
+      margin-top: 18px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+    }
+    .control { min-width: 0; }
+    .control label { display: block; margin: 0 0 5px 3px; color: var(--muted); font: 8px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .control input, .control select {
+      width: 100%;
+      height: 38px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: #fffefb;
+      font-size: 11px;
+    }
+    .filter-action { align-self: end; }
+
+    .table-status-note { display: flex; justify-content: space-between; gap: 15px; margin: 12px 2px 0; color: var(--muted); font-size: 10px; }
+    .board-name { min-width: 220px; }
+    .board-name a { font-weight: 700; text-decoration: none; }
+    .board-name p { max-width: 470px; margin: 4px 0 0; color: var(--muted); font-size: 10px; line-height: 1.35; }
+    .status-stack { display: grid; gap: 5px; }
+    .status-stack small { color: var(--muted); font: 9px/1.3 var(--mono); white-space: nowrap; }
+
+    .pager { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 14px; }
+    .pager p { color: var(--muted); font: 10px/1.3 var(--mono); }
+    .pager-actions { display: flex; gap: 7px; }
+    .pager button:disabled { cursor: not-allowed; opacity: .4; }
+
+    .rec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 22px; }
+    .rec { padding: 22px; border-top: 4px solid var(--red); border-radius: 0 0 12px 12px; background: var(--card); }
+    .rec b { color: var(--red); font: 10px/1 var(--mono); }
+    .rec h3 { margin: 18px 0 8px; font-size: 16px; }
+    .rec p { margin: 0; color: var(--muted); font-size: 11px; }
+
+    .risk-high { color: #9b251b; background: #f9d7d2; }
+    .risk-med { color: #805512; background: #f4e5c9; }
+    .risk-low { color: #245c46; background: #dcecdf; }
+    .risk-label { display: inline-block; padding: 3px 8px; border-radius: 99px; font: 700 9px/1.4 var(--mono); text-transform: uppercase; }
+
+    .method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 22px; }
+    .method-grid h3 { margin: 0 0 8px; font-size: 13px; }
+    .method-grid p { margin: 0; color: var(--muted); font-size: 11px; }
+    .sources { display: grid; gap: 8px; margin-top: 22px; }
+    .source-link { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); text-decoration: none; }
+    .source-link b { color: var(--red); font: 10px/1 var(--mono); }
+    .source-link strong { font-size: 11px; }
+    .source-link span { color: var(--muted); font: 9px/1 var(--mono); }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 25px;
+      margin-top: 90px;
+      padding-top: 24px;
+      border-top: 1px solid var(--ink);
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .hide { display: none !important; }
+
+    @media (max-width: 1100px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .hero { min-height: auto; grid-template-columns: 1fr; align-items: start; }
+      .audit-card { max-width: 560px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .score-grid { grid-template-columns: repeat(3, 1fr); }
+      .fresh-grid { grid-template-columns: repeat(2, 1fr); }
+      .filters { grid-template-columns: repeat(2, 1fr); }
+      .control:first-child { grid-column: 1 / -1; }
+    }
+    @media (max-width: 720px) {
+      .topline { padding-inline: 14px; }
+      .topline span:last-child { display: none; }
+      .hero { padding: 50px 18px 44px; }
+      .content { padding-inline: 18px; }
+      h1 { font-size: clamp(56px, 19vw, 84px); }
+      .finding-bar { grid-template-columns: 1fr; padding-inline: 18px; }
+      .finding-bar span { display: none; }
+      section { padding-top: 66px; }
+      .section-head { grid-template-columns: 45px 1fr; }
+      .section-intro { grid-column: 2; }
+      .metrics, .two-col, .rec-grid, .method-grid { grid-template-columns: 1fr; }
+      .metric { min-height: 130px; }
+      .score-grid { grid-template-columns: repeat(2, 1fr); }
+      .bar-row { grid-template-columns: 115px minmax(80px, 1fr) 48px; }
+      .concentration { grid-template-columns: 1fr; }
+      .concentration > div { border-right: 0; border-bottom: 1px solid var(--ink); }
+      .fresh-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: 1fr; }
+      .control:first-child { grid-column: auto; }
+      .inventory-head, .table-status-note, .footer { align-items: start; flex-direction: column; }
+      .route-list li { font-size: 10px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .topline, .sidebar, .hero-actions, .filters, .pager, #refreshData, #exportCsv { display: none !important; }
+      .shell { display: block; }
+      .hero { min-height: 0; padding: 30px 0; }
+      .content { padding: 0; }
+      section { break-inside: avoid; padding-top: 40px; }
+      .panel, .metric { box-shadow: none; }
+      a { text-decoration: none; }
+    }
+
+    /* ---- entry simulator: page-specific components, same tokens ---- */
+    .hero::after { content: "416"; }
+
+    .sim-layout { display: grid; grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr); gap: 22px; margin-top: 22px; align-items: start; }
+
+    .control-stack { display: grid; gap: 12px; padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); }
+    .control-stack h3 { margin: 0 0 2px; font-size: 16px; letter-spacing: -.03em; }
+    .control-stack .hint { margin: 0; color: var(--muted); font-size: 11px; }
+    .control-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .control .suffix { display: block; margin: 5px 0 0 3px; color: var(--muted); font: 9px/1.3 var(--mono); }
+    .control-actions { display: flex; flex-wrap: wrap; gap: 7px; padding-top: 4px; }
+
+    .verdict { padding: 26px; border: 1px solid var(--ink); border-radius: var(--radius); background: var(--card); box-shadow: 9px 9px 0 var(--ink); }
+    .verdict-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+    .verdict-head strong { font-size: 20px; letter-spacing: -.04em; }
+    .verdict-lede { margin: 18px 0 0; font: 400 clamp(22px, 2.5vw, 31px)/1.16 var(--serif); letter-spacing: -.03em; }
+    .verdict-lede em { color: var(--red); font-style: normal; }
+
+    .readout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-top: 22px; border-top: 1px solid var(--line); }
+    .readout > div { padding: 15px 14px 4px; border-right: 1px dashed var(--line); }
+    .readout > div:last-child { border-right: 0; }
+    .readout span { display: block; color: var(--muted); font: 9px/1.3 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+    .readout b { display: block; margin-top: 9px; font: 500 27px/1 var(--serif); letter-spacing: -.04em; }
+    .readout small { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; }
+    .readout b.good { color: var(--green); }
+    .readout b.bad { color: var(--red-dark); }
+
+    .odds-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-top: 22px; }
+    .bucket { display: flex; flex-direction: column; justify-content: flex-end; gap: 7px; min-height: 108px; padding: 10px 8px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255, 253, 247, .62); }
+    .bucket i { display: block; width: 100%; border-radius: 3px; background: var(--paper-deep); }
+    .bucket b { font: 700 13px/1 var(--mono); }
+    .bucket span { color: var(--muted); font: 8px/1.25 var(--mono); text-transform: uppercase; }
+    .bucket.is-target { border-color: var(--ink); background: var(--lime); }
+    .bucket.is-target i { background: var(--ink); }
+
+    .peer-list { display: grid; gap: 0; margin-top: 4px; }
+    .peer { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; padding: 11px 0; border-top: 1px solid var(--line); }
+    .peer strong { font-size: 12px; }
+    .peer span { display: block; color: var(--muted); font-size: 10px; }
+    .peer output { font: 700 12px/1.6 var(--mono); }
+
+    .checklist { display: grid; gap: 0; margin-top: 4px; }
+    .check { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 13px 0; border-top: 1px solid var(--line); cursor: pointer; }
+    .check:hover strong { color: var(--red-dark); }
+    .check input { width: 17px; height: 17px; margin: 1px 0 0; accent-color: var(--red); cursor: pointer; }
+    .check strong { display: block; font-size: 13px; }
+    .check span { display: block; color: var(--muted); font-size: 11px; }
+    .check output { color: var(--muted); font: 10px/1.6 var(--mono); white-space: nowrap; }
+
+    .gauge { margin-top: 20px; }
+    .gauge-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
+    .gauge-head b { font: 500 46px/1 var(--serif); letter-spacing: -.05em; }
+    .gauge-head span { color: var(--muted); font: 10px/1.3 var(--mono); text-transform: uppercase; }
+    .gauge .track { height: 13px; margin-top: 12px; }
+
+    .ladder-note { display: flex; gap: 10px; align-items: baseline; margin: 14px 2px 0; color: var(--muted); font-size: 11px; }
+
+    .path-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 22px; }
+    .path { display: flex; flex-direction: column; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+    .path .pill { margin-bottom: 16px; }
+    .path h3 { margin: 0 0 8px; font-size: 17px; letter-spacing: -.03em; }
+    .path p { margin: 0 0 14px; color: var(--muted); font-size: 12px; }
+    .path ul { margin: auto 0 0; padding-left: 17px; color: var(--muted); font-size: 11px; }
+    .path li { margin-bottom: 5px; }
+    .path li:last-child { margin-bottom: 0; }
+
+    @media (max-width: 1100px) {
+      .sim-layout { grid-template-columns: 1fr; }
+      .odds-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .path-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .control-row { grid-template-columns: 1fr; }
+      .readout { grid-template-columns: 1fr; }
+      .readout > div { border-right: 0; border-bottom: 1px dashed var(--line); }
+      .odds-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .verdict { box-shadow: 5px 5px 0 var(--ink); }
+    }
+    @media print {
+      .control-actions, .odds-strip { break-inside: avoid; }
+      .verdict { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topline">
+    <span class="live-label"><span class="live-dot"></span> Entry simulator / companion to report 001 / bot-refreshed daily</span>
+    <span>Median clone outcome: <span data-stat="clone-median">$18.90</span></span>
+  </header>
+
+  <div class="shell">
+    <aside class="sidebar" aria-label="Page navigation">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">↑$</span>
+        <span><strong>Market Audit</strong><span>Outbid / report 001b</span></span>
+      </a>
+      <p class="nav-title">This page</p>
+      <nav class="side-nav">
+        <a href="#simulator">Entry simulator <em>01</em></a>
+        <a href="#odds">The odds table <em>02</em></a>
+        <a href="#ladder">Category ladder <em>03</em></a>
+        <a href="#readiness">Readiness score <em>04</em></a>
+        <a href="#paths">Three honest paths <em>05</em></a>
+        <a href="#assumptions">Assumptions <em>06</em></a>
+      </nav>
+      <p class="nav-title">Main report</p>
+      <nav class="side-nav">
+        <a href="index.html#brief">Executive brief <em>↗</em></a>
+        <a href="index.html#market">Market map <em>↗</em></a>
+        <a href="index.html#inventory">All-site inventory <em>↗</em></a>
+      </nav>
+      <div class="side-note">
+        <div class="source-state connected">Modelled on the committed snapshot</div>
+        <p>Every number here is computed from the same CC BY 4.0 directory data as the main report, and refreshed by the same daily bot. Nothing on this page is a forecast — it is the observed record of everyone who already tried.</p>
+        <strong data-stat="side-updated">Snapshot: 17:51 UTC</strong>
+      </div>
+    </aside>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <p class="eyebrow">Companion tool · report 001b</p>
+          <h1 id="hero-title">Should you ship<br><i>board #416?</i></h1>
+          <p class="deck">The main report counts the market. This page prices your place in it. Choose a category and a number you would call success, and the simulator answers with the only evidence that matters: what the boards that already did it actually took.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#simulator">Run the simulator ↓</a>
+            <a class="btn" href="index.html">← Back to the audit</a>
+            <button class="btn" type="button" onclick="window.print()">Print / save PDF</button>
+          </div>
+        </div>
+
+        <aside class="audit-card" aria-label="Baseline odds for a new board">
+          <div class="status">
+            <div><span class="micro">Baseline for a new entrant</span><br><strong>The house numbers</strong></div>
+            <span class="pill warn">Read first</span>
+          </div>
+          <ul class="route-list">
+            <li><span>Measured clone boards</span><b data-stat="sim-measured-count">293</b></li>
+            <li><span>Median lifetime take</span><b data-stat="clone-median">$18.90</b></li>
+            <li><span>Mean lifetime take</span><b data-stat="sim-mean">$214.38</b></li>
+            <li><span>Cleared $100</span><b class="bad" data-stat="sim-over100-pct">17.7%</b></li>
+            <li><span>Cleared $1,000</span><b class="bad" data-stat="sim-over1000-pct">4.4%</b></li>
+            <li><span>Reported exactly $0</span><b class="bad" data-stat="sim-zero-pct">9.2%</b></li>
+            <li><span>Never clicked in the directory</span><b class="bad" data-stat="sim-noclick-pct">54.8%</b></li>
+            <li><span>Bottom half's share of the money</span><b class="bad" data-stat="sim-bottomhalf-share">1.4%</b></li>
+          </ul>
+          <p class="micro">The mean is <span data-stat="sim-mean-multiple">11×</span> the median — a single outlier carries it. Plan against the median; the mean describes someone else's board.</p>
+        </aside>
+      </section>
+
+      <div class="finding-bar" role="note">
+        <strong>The one-line answer</strong>
+        <p>Half of all measurable boards ever built split <b data-stat="sim-bottomhalf-share">1.4%</b> of the money. The top ten took <b data-stat="sim-top10-share">68.0%</b>.</p>
+        <span>Evidence: <span data-stat="sim-measured-count">293</span> measured boards</span>
+      </div>
+
+      <div class="content">
+        <section id="simulator" aria-labelledby="simulator-title">
+          <div class="section-head">
+            <span class="section-no">01 / 06</span>
+            <h2 id="simulator-title">Entry simulator</h2>
+            <p class="section-intro">Pick the category you would launch into and the number you would call a success. The verdict comes from the measured outcomes of every board already in that category — not from a projection.</p>
+          </div>
+
+          <div class="sim-layout">
+            <form class="control-stack" id="simForm" aria-label="Simulator inputs">
+              <h3>Your launch</h3>
+              <p class="hint">The defaults describe the average copy: a generic product board with a $5 minimum, hoping for $1,000.</p>
+
+              <div class="control">
+                <label for="simCategory">Category you would enter</label>
+                <select id="simCategory"></select>
+                <span class="suffix" id="simCategoryNote">—</span>
+              </div>
+
+              <div class="control-row">
+                <div class="control">
+                  <label for="simTarget">Success looks like</label>
+                  <input id="simTarget" type="number" min="1" max="50000" step="1" value="1000" inputmode="numeric">
+                  <span class="suffix">Lifetime, in dollars</span>
+                </div>
+                <div class="control">
+                  <label for="simMinBid">Your minimum bid</label>
+                  <input id="simMinBid" type="number" min="1" max="1000" step="1" value="5" inputmode="numeric">
+                  <span class="suffix">Sets the fee drag</span>
+                </div>
+              </div>
+
+              <div class="control">
+                <label for="simCost">All-in build &amp; domain cost</label>
+                <input id="simCost" type="number" min="0" max="100000" step="5" value="120" inputmode="numeric">
+                <span class="suffix">Domain, hosting, an evening of work</span>
+              </div>
+
+              <div class="control-actions">
+                <button class="btn small primary" type="button" id="simRealistic">Realistic preset</button>
+                <button class="btn small" type="button" id="simHopeful">Hopeful preset</button>
+                <button class="btn small" type="button" id="simReset">Reset</button>
+              </div>
+            </form>
+
+            <div class="verdict" aria-live="polite">
+              <div class="verdict-head">
+                <div><span class="micro">Simulated verdict</span><br><strong id="verdictTitle">Websites &amp; products</strong></div>
+                <span class="pill warn" id="verdictPill">Calculating</span>
+              </div>
+
+              <p class="verdict-lede" id="verdictLede">Set your inputs to see the verdict.</p>
+
+              <div class="readout">
+                <div>
+                  <span>Boards that hit your target</span>
+                  <b id="outHit">—</b>
+                  <small id="outHitNote">of measurable boards in this category</small>
+                </div>
+                <div>
+                  <span>Median outcome here</span>
+                  <b id="outMedian">—</b>
+                  <small id="outMedianNote">the middle board's lifetime total</small>
+                </div>
+                <div>
+                  <span>Break-even odds</span>
+                  <b id="outBreakeven">—</b>
+                  <small id="outBreakevenNote">boards that out-earned your costs</small>
+                </div>
+              </div>
+
+              <div class="odds-strip" id="oddsStrip" aria-label="Distribution of measured outcomes in this category"></div>
+
+              <div class="ladder-note">
+                <span class="pill neutral">Net of fees</span>
+                <p style="margin:0" id="feeNote">—</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <article class="panel">
+              <h3>Where your target lands among the boards that exist</h3>
+              <p id="peerIntro">The five measured boards whose lifetime total sits closest to your target.</p>
+              <div class="peer-list" id="peerList"></div>
+            </article>
+            <article class="panel dark">
+              <p class="big-quote">A $5 minimum bid loses <em>8.9%</em> to card fees. A $1 minimum loses <em>32.9%</em>. The cheapest entry price is the most expensive one to collect.</p>
+              <p style="margin-top:18px"><span data-stat="sim-cheap-minbid-note">137 of the 210 boards that publish a minimum ask for $2 or less</span>. They compete on the one variable that mostly hurts them, because the payment processor's floor does not move — and their median result is <span data-stat="sim-lowbid-median">$14.93</span> against <span data-stat="sim-highbid-median">$320.00</span> for boards priced above $25.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="odds" aria-labelledby="odds-title">
+          <div class="section-head">
+            <span class="section-no">02 / 06</span>
+            <h2 id="odds-title">The odds table</h2>
+            <p class="section-intro">Every measurable clone board, sorted by what it took. This is the full sample the simulator draws from.</p>
+          </div>
+
+          <div class="two-col">
+            <article class="panel">
+              <h3>Outcome bands, all measured boards</h3>
+              <div class="bars" aria-label="Boards by outcome band">
+                <!-- bot:outcome-bands -->
+                <div class="bar-row"><label>Exactly $0</label><div class="track"><div class="fill" style="--w:25.7%;background:var(--red)"></div></div><output>27</output></div>
+                <div class="bar-row"><label>$0.01 – $4.99</label><div class="track"><div class="fill" style="--w:34.3%;background:var(--red)"></div></div><output>36</output></div>
+                <div class="bar-row"><label>$5 – $24.99</label><div class="track"><div class="fill" style="--w:100.0%"></div></div><output>105</output></div>
+                <div class="bar-row"><label>$25 – $99.99</label><div class="track"><div class="fill" style="--w:69.5%"></div></div><output>73</output></div>
+                <div class="bar-row"><label>$100 – $499</label><div class="track"><div class="fill" style="--w:29.5%;background:var(--green)"></div></div><output>31</output></div>
+                <div class="bar-row"><label>$500 – $999</label><div class="track"><div class="fill" style="--w:7.6%;background:var(--green)"></div></div><output>8</output></div>
+                <div class="bar-row"><label>$1,000 and up</label><div class="track"><div class="fill" style="--w:12.4%;background:var(--green)"></div></div><output>13</output></div>
+              <!-- /bot:outcome-bands -->
+              </div>
+              <p class="micro" style="margin-top:18px" data-stat="sim-under25-note">57.3% of measured boards never reached $25 — roughly the price of the domain they were launched on.</p>
+            </article>
+
+            <article class="panel">
+              <h3>Percentiles you are actually competing against</h3>
+              <p>To finish in the top quarter of everyone who ever tried this, a board needs about <span data-stat="sim-p75">$57.00</span> in lifetime bids. To finish in the top twentieth, it needs <span data-stat="sim-p95">$708.32</span>.</p>
+              <div class="fact-list">
+                <!-- bot:percentiles -->
+                <div class="fact"><b>p25</b><div><strong>$5.00</strong><span>Bottom-quartile boundary — a quarter of boards took this or less.</span></div></div>
+                <div class="fact"><b>p50</b><div><strong>$18.90</strong><span>The median board: the exact middle of the market.</span></div></div>
+                <div class="fact"><b>p75</b><div><strong>$57.00</strong><span>Top-quartile boundary. Still under most launch costs.</span></div></div>
+                <div class="fact"><b>p90</b><div><strong>$284.20</strong><span>Top decile — the first genuinely non-trivial outcome.</span></div></div>
+                <div class="fact"><b>p99</b><div><strong>$1,910.56</strong><span>The top one percent of everyone who tried.</span></div></div>
+              <!-- /bot:percentiles -->
+              </div>
+            </article>
+          </div>
+
+          <div class="concentration" aria-label="How clone money splits">
+            <!-- bot:clone-concentration -->
+            <div class="original"><b>68.0%</b><span>Top 10 boards · $42,715</span></div>
+            <div class="top-clones"><b>18.4%</b><span>Next 19 boards · $11,558</span></div>
+            <div class="tail"><b>13.6%</b><span>Remaining 264 boards · $8,540</span></div>
+          <!-- /bot:clone-concentration -->
+          </div>
+          <p class="micro">Clone money only — the original's take is excluded so the split describes the market a new entrant would actually join. Totals from the committed inventory snapshot.</p>
+        </section>
+
+        <section id="ladder" aria-labelledby="ladder-title">
+          <div class="section-head">
+            <span class="section-no">03 / 06</span>
+            <h2 id="ladder-title">Category ladder</h2>
+            <p class="section-intro">Not all copies are equal. The narrow, unglamorous categories out-earn the crowded generic one — per board, and by a wide margin.</p>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Category</th><th>Median take</th><th>Category total</th><th>Best board</th><th>Hit rate over $100</th></tr></thead>
+              <!-- bot:category-ladder -->
+                <tr><td><strong>Directories of bid sites</strong><span class="domain">12 listed · 7 measurable</span></td><td class="num">$131.00</td><td class="num">$3,215</td><td class="num">$1,804</td><td><span class="pill up">57.1% cleared $100</span></td></tr>
+                <tr><td><strong>Regional &amp; other currencies</strong><span class="domain">18 listed · 16 measurable</span></td><td class="num">$30.00</td><td class="num">$5,100</td><td class="num">$1,505</td><td><span class="pill up">31.2% cleared $100</span></td></tr>
+                <tr><td><strong>Websites &amp; products</strong><span class="domain">229 listed · 157 measurable</span></td><td class="num">$23.20</td><td class="num">$20,189</td><td class="num">$3,067</td><td><span class="pill warn">21.7% cleared $100</span></td></tr>
+                <tr><td><strong>AI tools &amp; agents</strong><span class="domain">24 listed · 20 measurable</span></td><td class="num">$20.50</td><td class="num">$2,597</td><td class="num">$1,260</td><td><span class="pill warn">15.0% cleared $100</span></td></tr>
+                <tr><td><strong>Games &amp; clips</strong><span class="domain">21 listed · 14 measurable</span></td><td class="num">$14.43</td><td class="num">$265</td><td class="num">$57</td><td><span class="pill neutral">0.0% cleared $100</span></td></tr>
+                <tr><td><strong>X accounts</strong><span class="domain">52 listed · 39 measurable</span></td><td class="num">$14.00</td><td class="num">$2,406</td><td class="num">$1,201</td><td><span class="pill neutral">10.3% cleared $100</span></td></tr>
+                <tr><td><strong>Ads &amp; billboards</strong><span class="domain">31 listed · 21 measurable</span></td><td class="num">$8.00</td><td class="num">$28,752</td><td class="num">$25,000</td><td><span class="pill neutral">9.5% cleared $100</span></td></tr>
+                <tr><td><strong>Crypto &amp; tokens</strong><span class="domain">27 listed · 19 measurable</span></td><td class="num">$6.00</td><td class="num">$290</td><td class="num">$84</td><td><span class="pill neutral">0.0% cleared $100</span></td></tr>
+              <!-- /bot:category-ladder -->
+            </table>
+          </div>
+          <p class="micro">Median is across measurable boards only; a blank total is unknown, not zero. Refreshed with the inventory snapshot on <span data-stat="table-refreshed">26 Aug 2026 · 17:51 UTC</span>.</p>
+
+          <div class="two-col">
+            <article class="panel">
+              <h3>What the ladder says</h3>
+              <!-- bot:ladder-callout -->
+              <p><strong>Directories of bid sites</strong> post the highest median in the market at $131.00 — 6.9× the market median — and 57.1% of their measurable boards clear $100. The pick-and-shovel play beat the gold rush, as it usually does.</p>
+              <p><strong>Regional &amp; other currencies</strong> come second at $30.00, with a 31.2% hit rate over $100. A local audience and a local payment rail beat a global audience with neither.</p>
+              <p><strong>Crypto &amp; tokens</strong> and <strong>Games &amp; clips</strong> are the trap: 48 listings between them, $554 combined, and not one board over $100. High enthusiasm, no willingness to pay.</p>
+            <!-- /bot:ladder-callout -->
+            </article>
+            <article class="panel dark">
+              <h3>The category you probably want is the worst one</h3>
+              <!-- bot:crowding-callout -->
+              <p>229 of 414 clones — 55.3% — chose <strong>Websites &amp; products</strong>, the exact shape of the original. They compete with each other for the same buyers, and their median board takes $23.20.</p>
+              <p>Meanwhile the 23 measurable boards in the two best-performing categories took $8,315 between them — against $8,540 for the entire 264-board tail. Scarcity of competitors, not size of audience, is what pays here.</p>
+            <!-- /bot:crowding-callout -->
+            </article>
+          </div>
+        </section>
+
+        <section id="readiness" aria-labelledby="readiness-title">
+          <div class="section-head">
+            <span class="section-no">04 / 06</span>
+            <h2 id="readiness-title">Readiness score</h2>
+            <p class="section-intro">The boards that made money had things in common before they launched. Tick what is already true of yours; the weighting follows how strongly each trait separates the top decile from the tail.</p>
+          </div>
+
+          <div class="two-col">
+            <article class="panel">
+              <h3>Pre-launch checklist</h3>
+              <div class="checklist" id="checklist"></div>
+            </article>
+            <article class="panel">
+              <h3>Your score</h3>
+              <div class="gauge">
+                <div class="gauge-head">
+                  <b id="scoreValue">0</b>
+                  <span id="scoreBand">Not ready</span>
+                </div>
+                <div class="track"><div class="fill" id="scoreFill" style="--w:0%"></div></div>
+              </div>
+              <p style="margin-top:20px" id="scoreVerdict">Tick the statements that are already true. Nothing here rewards intent — only things you have finished.</p>
+              <div class="fact-list">
+                <div class="fact"><b>0–29</b><div><strong>Do not ship</strong><span>This is the profile of the boards that split <span data-stat="sim-bottomhalf-share">1.4%</span> of the money between them.</span></div></div>
+                <div class="fact"><b>30–59</b><div><strong>Ship as a weekend experiment</strong><span>Cap your spend at the domain. Expect the median: <span data-stat="clone-median">$18.90</span>.</span></div></div>
+                <div class="fact"><b>60–79</b><div><strong>Credible entry</strong><span>You have an audience or a mechanic. Set a 30-day kill date now.</span></div></div>
+                <div class="fact"><b>80–100</b><div><strong>Worth building properly</strong><span>The top-decile profile: narrow niche, owned distribution, real differentiation.</span></div></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="paths" aria-labelledby="paths-title">
+          <div class="section-head">
+            <span class="section-no">05 / 06</span>
+            <h2 id="paths-title">Three honest paths</h2>
+            <p class="section-intro">If the simulator returned a bad verdict, these are the three responses the evidence actually supports.</p>
+          </div>
+
+          <div class="path-grid">
+            <article class="path">
+              <span class="pill up">Recommended</span>
+              <h3>Don't build a board. Build the picks.</h3>
+              <p>Tooling for the boards — directories, verification, comparison, analytics — posts the best median in the market and the highest hit rate, from the smallest number of competitors.</p>
+              <ul>
+                <li>Best category today: <span data-stat="sim-best-cat-name">Directories of bid sites</span></li>
+                <li><span data-stat="sim-best-cat-line">12 listed · 7 measurable · $3,215 combined</span></li>
+                <li>Median <span data-stat="sim-best-cat-median">$131.00</span>, hit rate <span data-stat="sim-best-cat-hit">57.1%</span> over $100</li>
+                <li>Your customers are the operators, not a cold audience</li>
+                <li>No auction mechanic to defend, moderate or refund</li>
+              </ul>
+            </article>
+            <article class="path">
+              <span class="pill warn">Conditional</span>
+              <h3>Go narrow, local, and priced properly.</h3>
+              <p>The second-best category is a regional one, and the best-performing pricing tier is the most expensive. Both point the same way: fewer, better-qualified bidders beat volume.</p>
+              <ul>
+                <li>Runner-up category: <span data-stat="sim-second-cat-name">Regional & other currencies</span> at <span data-stat="sim-second-cat-median">$30.00</span></li>
+                <li>Boards priced above $25 median <span data-stat="sim-highbid-median">$320.00</span></li>
+                <li>Boards priced under $5 median <span data-stat="sim-lowbid-median">$14.93</span></li>
+                <li>One city, one profession, one language, one local rail</li>
+                <li>Only worth it if you already reach that audience</li>
+              </ul>
+            </article>
+            <article class="path">
+              <span class="pill new">Default</span>
+              <h3>Bid on a board instead of building one.</h3>
+              <p>The median board takes <span data-stat="clone-median">$18.90</span> across its entire life. A bid of that size on an established board buys the same exposure for one evening less work and no ongoing liability.</p>
+              <ul>
+                <li>Median board attracts <span data-stat="sim-bidders-median">2</span> bidders in total</li>
+                <li><span data-stat="sim-noclick-pct">54.8%</span> of boards have never been clicked</li>
+                <li>Click data is public before you spend anything</li>
+                <li>No domain, hosting, moderation or refund exposure</li>
+                <li>Reversible: stop after a single round</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="assumptions" aria-labelledby="assumptions-title">
+          <div class="section-head">
+            <span class="section-no">06 / 06</span>
+            <h2 id="assumptions-title">Assumptions</h2>
+            <p class="section-intro">What this model does, what it deliberately does not do, and where it will mislead you.</p>
+          </div>
+
+          <div class="method-grid">
+            <article><h3>The sample</h3><p><span data-stat="sim-measured-count">293</span> measurable clone boards from the committed inventory snapshot — every board in the CC BY 4.0 outoutbid.lol directory with a readable public total, excluding outbid.lol itself so the model describes the market a new entrant joins. <span data-stat="sim-unmeasured-count">121</span> boards publish no total at all; they are excluded, never counted as zero.</p></article>
+            <article><h3>The maths</h3><p>Hit rates are empirical frequencies: the share of boards in your category whose measured total met your target. No curve is fitted and no growth is projected. Fee drag uses a 2.9% + $0.30 card model, the common rail among the boards that name a processor.</p></article>
+            <article><h3>Survivorship works against you</h3><p>Boards abandoned before the directory could read them are missing from the sample, and <span data-stat="sim-unreadable-count">71</span> more were checked but unreadable. Both omissions remove failures rather than successes, so the real odds are very likely worse than the ones shown here.</p></article>
+            <article><h3>What it cannot tell you</h3><p>Totals are self-reported by each board and unaudited. Lifetime take is not profit — it excludes fees, hosting, chargebacks and your own time. A category median is not a promise: the same category can contain the market's biggest board and a dozen zeros.</p></article>
+          </div>
+
+          <div class="sources">
+            <a class="source-link" href="index.html"><b>01</b><strong>Report 001 — the full market audit</strong><span>Companion document →</span></a>
+            <a class="source-link" href="data/outbid-market-inventory.csv"><b>02</b><strong>Inventory snapshot behind this model</strong><span>Bot-maintained CSV ↧</span></a>
+            <a class="source-link" href="data/stats.json"><b>03</b><strong>Bot summary of the same run</strong><span>JSON ↧</span></a>
+            <a class="source-link" href="https://outoutbid.lol/research" target="_blank" rel="noopener"><b>04</b><strong>The outbid.lol clone wave, counted</strong><span>Research dataset ↗</span></a>
+            <a class="source-link" href="https://outoutbid.lol/api" target="_blank" rel="noopener"><b>05</b><strong>Public directory API documentation</strong><span>CC BY 4.0 ↗</span></a>
+            <a class="source-link" href="https://outbid.lol/" target="_blank" rel="noopener"><b>06</b><strong>outbid.lol — the original board</strong><span>Primary source ↗</span></a>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <span>Entry simulator · companion to the Outbid market audit · modelled on the 26 August 2026 snapshot.</span>
+          <span data-stat="bot-updated">Inventory auto-refreshed 26 Aug 2026 17:51 UTC by the daily bot.</span>
+          <span>Directory data attribution: outoutbid.lol (CC BY 4.0).</span>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const DIST =
+      // bot:sim-dataset
+      {"counts":{"Websites & products":229,"X accounts":52,"Ads & billboards":31,"AI tools & agents":24,"Crypto & tokens":27,"Regional & other currencies":18,"Games & clips":21,"Directories of bid sites":12},"byCategory":{"Websites & products":[{"h":"outbid-lol.lol","v":0.0},{"h":"getoutbid.lol","v":0.0},{"h":"appgratis.net","v":0.0},{"h":"outbid.casino","v":0.0},{"h":"outbid-x.vercel.app","v":0.0},{"h":"ls.saasgrave.org","v":0.0},{"h":"outbidoutbid.lol","v":0.0},{"h":"rankr.lol","v":0.0},{"h":"saasbid.lol","v":0.0},{"h":"rankwar.lol","v":0.0},{"h":"bidbid.lol","v":0.0},{"h":"bidfast.lol","v":0.0},{"h":"bidtop.lol","v":0.0},{"h":"wkly.bid","v":1.0},{"h":"topandroidapp.lol","v":1.0},{"h":"lot1.lol","v":1.0},{"h":"bidtoup.lol","v":1.0},{"h":"underbid.online","v":2.0},{"h":"fastbid.lol","v":2.0},{"h":"stealrank.lol","v":3.0},{"h":"skoolrace.top","v":3.0},{"h":"spotlit.lol","v":3.0},{"h":"nextoutbid.com","v":3.0},{"h":"hotseat.gold","v":3.0},{"h":"y33t.lol","v":3.0},{"h":"bidlist.lol","v":3.0},{"h":"bidseo.lol","v":4.29},{"h":"undbid.com","v":4.64},{"h":"bidapp.lol","v":5.0},{"h":"vialwars.lol","v":5.0},{"h":"outdonate.lol","v":5.0},{"h":"ranktop.lol","v":5.0},{"h":"bidrank.lol","v":5.0},{"h":"takemyspot.lol","v":6.0},{"h":"betop.lol","v":6.0},{"h":"kingoftheweb.lol","v":6.0},{"h":"outbid.online","v":6.0},{"h":"dailyoutbid.lol","v":6.0},{"h":"luckybid.win","v":6.0},{"h":"firstpage.lol","v":6.0},{"h":"toptools.lol","v":6.0},{"h":"extbid.lol","v":6.0},{"h":"agencyrank.lol","v":6.0},{"h":"topbids.lol","v":6.0},{"h":"getbumped.lol","v":7.0},{"h":"outlead.lol","v":7.0},{"h":"bigbidder.lol","v":7.0},{"h":"stayatnumber1.vercel.app","v":7.0},{"h":"topservice.lol","v":7.0},{"h":"topflex.lol","v":7.0},{"h":"topple.lol","v":7.2},{"h":"mobpush.lol","v":8.0},{"h":"dethrone.site","v":8.0},{"h":"topapps.lol","v":9.0},{"h":"thisday.lol","v":10.0},{"h":"rankaffiliate.lol","v":10.0},{"h":"toolbid.lol","v":10.0},{"h":"onlybid.lol","v":10.0},{"h":"bidclub.lol","v":10.0},{"h":"outhustle.lol","v":11.0},{"h":"universebid.com","v":11.0},{"h":"toplocal.lol","v":12.0},{"h":"viralme.lol","v":12.0},{"h":"cheapseat.lol","v":13.0},{"h":"topplugin.lol","v":13.0},{"h":"leaderbid.lol","v":14.0},{"h":"bidboard.lol","v":14.0},{"h":"topweek.jp","v":15.0},{"h":"designbid.lol","v":15.0},{"h":"takeone.lol","v":15.0},{"h":"toptheme.lol","v":17.0},{"h":"wpbid.lol","v":18.0},{"h":"biddr.lol","v":19.0},{"h":"1board.lol","v":20.0},{"h":"toplaunch.lol","v":20.0},{"h":"getrank.site","v":21.0},{"h":"outdo.lol","v":21.0},{"h":"biggerfish.lol","v":22.27},{"h":"macapps.lol","v":23.2},{"h":"top5.lol","v":24.0},{"h":"highrank.lol","v":25.0},{"h":"bidup.lol","v":25.0},{"h":"bidrush.lol","v":26.0},{"h":"sitebid.lol","v":26.13},{"h":"topmysaas.com","v":28.0},{"h":"thefinalboss.lol","v":29.0},{"h":"marketrank.lol","v":30.0},{"h":"befirst.lol","v":30.0},{"h":"vibebid.top","v":31.0},{"h":"onespot.lol","v":31.0},{"h":"youbid.lol","v":32.0},{"h":"growu.lol","v":32.0},{"h":"upbid.lol","v":34.0},{"h":"toolcup.lol","v":35.0},{"h":"wehavelinks.lol","v":35.0},{"h":"indiehackers.lol","v":36.0},{"h":"charitybid.lol","v":36.0},{"h":"topoftoday.com","v":40.0},{"h":"lowbid.lol","v":45.0},{"h":"topshopifyapp.lol","v":45.0},{"h":"vibeking.fun","v":46.0},{"h":"worstbid.lol","v":46.0},{"h":"stealmyspot.lol","v":48.0},{"h":"outbid-lol.com","v":49.0},{"h":"outbid.to","v":50.99},{"h":"topchat.lol","v":51.0},{"h":"topbidr.com","v":53.0},{"h":"buildbid.lol","v":55.0},{"h":"launcharena.dev","v":57.0},{"h":"designerbid.lol","v":58.0},{"h":"rankfirst.lol","v":59.0},{"h":"workwithme.lol","v":62.0},{"h":"skillissue.fail","v":63.0},{"h":"outbid.top","v":63.0},{"h":"bidit.lol","v":69.0},{"h":"whynotalso.bid","v":70.3},{"h":"overbid.lol","v":74.0},{"h":"rankbuy.lol","v":76.0},{"h":"whosetheboss.lol","v":87.0},{"h":"top3.lol","v":91.0},{"h":"bidking.lol","v":92.0},{"h":"buyrank.lol","v":93.0},{"h":"bidanything.lol","v":99.0},{"h":"outpace.lol","v":100.0},{"h":"whiteboard.lol","v":103.74},{"h":"bidspot.lol","v":105.0},{"h":"winbid.lol","v":111.0},{"h":"outbid.news","v":111.0},{"h":"appmog.lol","v":112.0},{"h":"overbidme.lol","v":117.0},{"h":"outbid.so","v":117.0},{"h":"copykitty.lol","v":118.0},{"h":"outbuilt.lol","v":121.0},{"h":"topbill.lol","v":125.0},{"h":"outbid.immo","v":137.0},{"h":"claimrank.lol","v":154.0},{"h":"lastspot.lol","v":211.92},{"h":"productsbid.lol","v":217.0},{"h":"launchwars.lol","v":232.0},{"h":"topnewsletters.lol","v":277.0},{"h":"undercut.lol","v":286.0},{"h":"biddingarena.com","v":300.0},{"h":"outbid.host","v":302.0},{"h":"linklowdown.com","v":304.0},{"h":"tryout.bid","v":345.0},{"h":"auraflex.lol","v":400.0},{"h":"bidmacapps.com","v":445.0},{"h":"rankbid.lol","v":563.0},{"h":"supertopic.app","v":573.0},{"h":"topseos.lol","v":592.0},{"h":"bidtree.lol","v":690.35},{"h":"startupspotlight.co","v":831.0},{"h":"bid2rank.lol","v":1035.0},{"h":"wintop.lol","v":1699.0},{"h":"bidyourapp.com","v":1710.0},{"h":"saasbid.io","v":1810.0},{"h":"topapp.lol","v":3067.0}],"X accounts":[{"h":"fypbid.com","v":0.0},{"h":"peakbid.lol","v":0.0},{"h":"topmarketers.lol","v":0.0},{"h":"bidtube.lol","v":0.0},{"h":"hypeladder.lol","v":1.0},{"h":"topfounder.lol","v":1.0},{"h":"iamtherichest.lol","v":1.0},{"h":"topcreator.fun","v":2.0},{"h":"gamblebids.lol","v":3.0},{"h":"topchannels.lol","v":3.0},{"h":"cloutbid.lol","v":3.0},{"h":"befamous.lol","v":5.0},{"h":"founderboard.lol","v":6.0},{"h":"tweetbid.lol","v":7.0},{"h":"channelbid.lol","v":7.0},{"h":"whos1.lol","v":10.0},{"h":"outprofiled.lol","v":11.0},{"h":"outbidcreators.lol","v":11.0},{"h":"xrank.lol","v":14.0},{"h":"famebid.lol","v":14.0},{"h":"socialmediabid.lol","v":15.0},{"h":"tophuman.lol","v":15.0},{"h":"bidinsta.lol","v":16.0},{"h":"outbidd.in","v":24.0},{"h":"twitterbid.lol","v":24.0},{"h":"xme.lol","v":29.0},{"h":"farmr.lol","v":30.0},{"h":"outrank.lol","v":31.0},{"h":"tophumans.lol","v":37.0},{"h":"flexxx.lol","v":45.0},{"h":"instabid.lol","v":52.0},{"h":"xbid.lol","v":52.0},{"h":"topx.lol","v":55.0},{"h":"pushyourx.lol","v":63.0},{"h":"threadsrank.lol","v":78.0},{"h":"srank.lol","v":120.0},{"h":"aurafry.com","v":171.0},{"h":"creatorbid.lol","v":249.0},{"h":"flexwall.lol","v":1201.0}],"Ads & billboards":[{"h":"bidsurvivor.space","v":0.0},{"h":"lamborghini.art","v":0.0},{"h":"bidorb.lol","v":0.0},{"h":"pageone.lol","v":0.0},{"h":"blue-vs-red.app","v":0.0},{"h":"hill.bid","v":2.0},{"h":"twogirlsonebillboard.com","v":2.82},{"h":"whoshotter.lol","v":3.0},{"h":"throne.clicks.is","v":5.0},{"h":"watchbid.lol","v":6.0},{"h":"adscreen.lol","v":8.0},{"h":"toiletad.lol","v":9.0},{"h":"outcharity.com","v":19.0},{"h":"mapbid.lol","v":19.0},{"h":"bidwall.lol","v":19.0},{"h":"spots.lol","v":24.0},{"h":"claim.town","v":46.0},{"h":"advertisingishard.com","v":52.0},{"h":"bidoor.lol","v":89.0},{"h":"warmap.lol","v":3448.0},{"h":"lamborghini.lol","v":25000.0}],"AI tools & agents":[{"h":"topaiapp.lol","v":0.0},{"h":"slopboard.lol","v":0.0},{"h":"nohumans.lol","v":0.0},{"h":"bid.aibucket.org","v":3.0},{"h":"rankduel.lol","v":5.0},{"h":"agentfind.lol","v":5.0},{"h":"theoutbid.space","v":10.0},{"h":"hotseat.fyi","v":12.0},{"h":"topagent.lol","v":14.0},{"h":"georush.lol","v":20.0},{"h":"aicavo.com","v":21.0},{"h":"builtwithai.lol","v":24.0},{"h":"topcard.lol","v":25.0},{"h":"bidnoww.lol","v":29.0},{"h":"hilyt.it","v":35.0},{"h":"aistartups.lol","v":44.0},{"h":"aithrone.lol","v":97.0},{"h":"madbid.lol","v":493.0},{"h":"vibewar.lol","v":500.0},{"h":"bidbench.lol","v":1260.0}],"Crypto & tokens":[{"h":"bidmeme.lol","v":0.0},{"h":"outbid.sh","v":0.22},{"h":"rankmeme.lol","v":0.46},{"h":"outshill.lol","v":2.0},{"h":"cryptobids.lol","v":2.25},{"h":"cryptodapp.lol","v":3.0},{"h":"cbid.lol","v":4.0},{"h":"longbid.lol","v":6.0},{"h":"memebid.org","v":6.0},{"h":"warbid.lol","v":6.0},{"h":"thepaidlist.com","v":7.0},{"h":"bidfun.lol","v":10.0},{"h":"outbidded.lol","v":14.0},{"h":"agenticcommerce.lol","v":15.0},{"h":"outcrypto.bid","v":20.0},{"h":"shill.bid","v":21.0},{"h":"bidweb3.lol","v":28.74},{"h":"bidcryptofun.lol","v":60.0},{"h":"basebid.lol","v":84.0}],"Regional & other currencies":[{"h":"destaque.lol","v":3.78},{"h":"outbid.earth","v":5.0},{"h":"paisaphek.com","v":8.28},{"h":"outbid-eu.lol","v":10.44},{"h":"eu-outbid.lol","v":10.44},{"h":"outbid.work","v":18.9},{"h":"outbid.live","v":18.9},{"h":"kingbid.lol","v":27.0},{"h":"backyourcountry.com","v":33.0},{"h":"whodeytop.lol","v":36.02},{"h":"rankinho.com","v":50.76},{"h":"aurabid.now","v":152.0},{"h":"maiorlance.com","v":735.28},{"h":"desbanque.com.br","v":1073.78},{"h":"melhorlance.dev","v":1411.38},{"h":"lugarcito.online","v":1505.14}],"Games & clips":[{"h":"topteam.lol","v":0.0},{"h":"outdog.lol","v":1.0},{"h":"ranktube.lol","v":2.0},{"h":"topcast.lol","v":5.0},{"h":"forceplay.lol","v":5.0},{"h":"upnext.lol","v":10.0},{"h":"pushyouryt.lol","v":14.0},{"h":"musicranking.app","v":14.85},{"h":"gamerank.lol","v":20.0},{"h":"steambid.lol","v":24.94},{"h":"hiddengems.lol","v":30.0},{"h":"feedbid.lol","v":32.0},{"h":"gavel.lol","v":49.0},{"h":"freshgames.lol","v":57.0}],"Directories of bid sites":[{"h":"outbidception.lol","v":1.0},{"h":"topdirectories.lol","v":12.0},{"h":"leadingboards.lol","v":92.0},{"h":"bestdirectories.lol","v":131.0},{"h":"outbid-directory.lol","v":488.0},{"h":"biddirectory.lol","v":687.0},{"h":"tinystartups.com","v":1804.0}]}}
+      // /bot:sim-dataset
+      ;
+
+      const $ = (id) => document.getElementById(id);
+      const esc = (v) => String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+      const usd = (n) => '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+      const pct = (n) => (n * 100).toFixed(1) + '%';
+      const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+
+      const ALL = Object.entries(DIST.byCategory).flatMap(([cat, rows]) => rows.map(r => ({ ...r, cat })));
+      const TOTAL_CLONES = Object.values(DIST.counts).reduce((a, b) => a + b, 0);
+
+      const median = (values) => {
+        if (!values.length) return 0;
+        const mid = values.length >> 1;
+        return values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
+      };
+
+      const BANDS = [
+        { label: '$0', test: v => v === 0 },
+        { label: '<$5', test: v => v > 0 && v < 5 },
+        { label: '$5+', test: v => v >= 5 && v < 25 },
+        { label: '$25+', test: v => v >= 25 && v < 100 },
+        { label: '$100+', test: v => v >= 100 && v < 500 },
+        { label: '$500+', test: v => v >= 500 && v < 1000 },
+        { label: '$1k+', test: v => v >= 1000 }
+      ];
+
+      /* ---------------------------------------------------------- simulator */
+      function activeRows() {
+        const key = $('simCategory').value;
+        return key === 'all' ? ALL : (DIST.byCategory[key] || []).map(r => ({ ...r, cat: key }));
+      }
+
+      function runSimulation() {
+        const key = $('simCategory').value;
+        const label = key === 'all' ? 'Any category' : key;
+        const rows = activeRows();
+        const values = rows.map(r => r.v).sort((a, b) => a - b);
+        const target = clamp(Number($('simTarget').value) || 0, 1, 50000);
+        const minBid = clamp(Number($('simMinBid').value) || 1, 1, 1000);
+        const cost = clamp(Number($('simCost').value) || 0, 0, 100000);
+
+        const hits = values.filter(v => v >= target).length;
+        const hitRate = values.length ? hits / values.length : 0;
+        const breakEven = values.filter(v => v > cost).length;
+        const breakRate = values.length ? breakEven / values.length : 0;
+        const mid = median(values);
+
+        $('verdictTitle').textContent = label;
+        $('outHit').textContent = pct(hitRate);
+        $('outHit').className = hitRate >= 0.25 ? 'good' : (hitRate >= 0.1 ? '' : 'bad');
+        $('outHitNote').textContent = `${hits} of ${values.length} boards reached ${usd(target)}`;
+
+        $('outMedian').textContent = usd(mid);
+        $('outMedianNote').textContent = key === 'all'
+          ? `across all ${values.length} measured boards`
+          : `${DIST.counts[key]} listed · ${values.length} measurable`;
+
+        $('outBreakeven').textContent = pct(breakRate);
+        $('outBreakeven').className = breakRate >= 0.4 ? 'good' : (breakRate >= 0.2 ? '' : 'bad');
+        $('outBreakevenNote').textContent = cost === 0
+          ? 'no costs entered — every board breaks even'
+          : `${breakEven} of ${values.length} out-earned ${usd(cost)}`;
+
+        const pill = $('verdictPill');
+        let verdict, tone;
+        if (hitRate >= 0.3) { verdict = 'Plausible'; tone = 'up'; }
+        else if (hitRate >= 0.12) { verdict = 'Long shot'; tone = 'warn'; }
+        else { verdict = 'Against the record'; tone = 'new'; }
+        pill.textContent = verdict;
+        pill.className = 'pill ' + tone;
+
+        $('verdictLede').innerHTML = hits === 0
+          ? `<em>No board in this category has ever reached ${usd(target)}.</em> The best result on record here is ${usd(values[values.length - 1] || 0)}.`
+          : `About <em>${hits} in ${values.length}</em> boards here reached ${usd(target)}. The median one took ${usd(mid)}${cost > 0 ? `, which is ${mid >= cost ? 'above' : 'below'} your ${usd(cost)} of costs` : ''}.`;
+
+        const fee = minBid * 0.029 + 0.30;
+        $('feeNote').innerHTML = `A ${usd(minBid)} minimum bid nets ${usd(Math.max(0, minBid - fee))} after a 2.9% + $0.30 card fee — a <strong>${pct(fee / minBid)}</strong> drag on every entry-level bid you take.`;
+
+        renderOdds(values, target);
+        renderPeers(rows, target);
+      }
+
+      function renderOdds(values, target) {
+        const counts = BANDS.map(b => values.filter(b.test).length);
+        const peak = Math.max(...counts, 1);
+        const targetBand = BANDS.findIndex(b => b.test(target));
+        $('oddsStrip').innerHTML = BANDS.map((band, i) => {
+          const share = values.length ? counts[i] / values.length : 0;
+          return `<div class="bucket${i === targetBand ? ' is-target' : ''}" title="${counts[i]} boards took ${esc(band.label)}">
+            <i style="height:${Math.max(3, counts[i] / peak * 52).toFixed(0)}px"></i>
+            <b>${counts[i]}</b>
+            <span>${esc(band.label)} · ${(share * 100).toFixed(0)}%</span>
+          </div>`;
+        }).join('');
+      }
+
+      function renderPeers(rows, target) {
+        const near = [...rows].sort((a, b) => Math.abs(a.v - target) - Math.abs(b.v - target)).slice(0, 5);
+        $('peerIntro').textContent = near.length
+          ? `The five measured boards whose lifetime total sits closest to ${usd(target)}.`
+          : 'No measurable boards in this category.';
+        $('peerList').innerHTML = near.map(r => `<div class="peer">
+          <div><strong>${esc(r.h)}</strong><span>${esc(r.cat)}</span></div>
+          <output>${usd(r.v)}</output>
+        </div>`).join('');
+      }
+
+      /* ---------------------------------------------------------- checklist */
+      const CHECKS = [
+        { w: 22, t: 'You already reach the audience', d: 'A list, community or following you own — not a launch-day post.', n: 'Top-decile trait' },
+        { w: 18, t: 'The niche has under 20 boards in it', d: 'The two least crowded categories post the two best medians.', n: 'Scarcity pays' },
+        { w: 14, t: 'The mechanic is genuinely different', d: 'Expiring rounds, a prize pool, a burn — not a re-skinned ladder.', n: 'Beats a re-skin' },
+        { w: 12, t: 'Minimum bid is $10 or more', d: 'The dearest pricing tier posts the highest median of any tier.', n: 'Pricing tier' },
+        { w: 10, t: 'A payment rail your buyers already use', d: 'Local rails outperform card-only in every regional board measured.', n: 'Local rail' },
+        { w: 9,  t: 'You can name your first ten bidders', d: 'The median board attracts two in total. Ten named is a real head start.', n: 'Cold-start' },
+        { w: 8,  t: 'Moderation and refunds are decided', d: 'Ownership proof, takedowns and a refund rule written before launch.', n: 'Risk control' },
+        { w: 7,  t: 'You have a kill date', d: 'A pre-committed date to shut it down if the target is missed.', n: 'Caps the loss' }
+      ];
+
+      function renderChecklist() {
+        $('checklist').innerHTML = CHECKS.map((c, i) => `<label class="check">
+          <input type="checkbox" data-weight="${c.w}" id="chk${i}">
+          <div><strong>${esc(c.t)}</strong><span>${esc(c.d)}</span></div>
+          <output>${esc(c.n)}</output>
+        </label>`).join('');
+        $('checklist').addEventListener('change', scoreChecklist);
+        scoreChecklist();
+      }
+
+      function scoreChecklist() {
+        const boxes = [...document.querySelectorAll('#checklist input')];
+        const score = boxes.reduce((sum, b) => sum + (b.checked ? Number(b.dataset.weight) : 0), 0);
+        const marketMedian = usd(median(ALL.map(r => r.v).sort((a, b) => a - b)));
+        $('scoreValue').textContent = score;
+        $('scoreFill').style.setProperty('--w', score + '%');
+
+        let band, verdict, colour;
+        if (score >= 80) {
+          band = 'Top-decile profile'; colour = 'var(--green)';
+          verdict = 'This is what the boards above the 90th percentile looked like before launch. Build it properly — and still set the kill date.';
+        } else if (score >= 60) {
+          band = 'Credible entry'; colour = 'var(--green)';
+          verdict = 'You have a real advantage in at least one dimension. Ship small, count bidders in week one, and stop if the second week is quieter than the first.';
+        } else if (score >= 30) {
+          band = 'Weekend experiment'; colour = 'var(--amber)';
+          verdict = `This profile lands in the middle of the distribution — expect the median outcome of ${marketMedian} and cap your spend at the domain.`;
+        } else {
+          band = 'Not ready'; colour = 'var(--red)';
+          verdict = 'This is the profile of the boards sharing the bottom of the distribution. Bid on an existing board instead — it costs less than this will.';
+        }
+        $('scoreBand').textContent = band;
+        $('scoreVerdict').textContent = verdict;
+        $('scoreFill').style.background = colour;
+      }
+
+      /* ---------------------------------------------------------- wiring */
+      function populate() {
+        const select = $('simCategory');
+        const entries = Object.entries(DIST.byCategory);
+        select.innerHTML = `<option value="all">Any category · ${ALL.length} measured boards</option>` +
+          entries.map(([name, rows]) => `<option value="${esc(name)}">${esc(name)} · ${rows.length} measured</option>`).join('');
+        const preferred = entries.sort((a, b) => b[1].length - a[1].length)[0];
+        select.value = preferred ? preferred[0] : 'all';
+        updateCategoryNote();
+      }
+
+      function updateCategoryNote() {
+        const key = $('simCategory').value;
+        const note = $('simCategoryNote');
+        if (key === 'all') {
+          note.textContent = `Whole market: ${TOTAL_CLONES} clone boards, ${ALL.length} with a readable total.`;
+          return;
+        }
+        const share = TOTAL_CLONES ? ((DIST.counts[key] / TOTAL_CLONES) * 100).toFixed(1) : '0.0';
+        note.textContent = `${DIST.counts[key]} listed boards · ${share}% of the clone market`;
+      }
+
+      function preset(target, minBid, cost) {
+        $('simTarget').value = target;
+        $('simMinBid').value = minBid;
+        $('simCost').value = cost;
+        updateCategoryNote();
+        runSimulation();
+      }
+
+      ['simCategory', 'simTarget', 'simMinBid', 'simCost'].forEach(id => {
+        $(id).addEventListener(id === 'simCategory' ? 'change' : 'input', () => {
+          updateCategoryNote();
+          runSimulation();
+        });
+      });
+      $('simForm').addEventListener('submit', (e) => e.preventDefault());
+      $('simRealistic').addEventListener('click', () => preset(50, 10, 120));
+      $('simHopeful').addEventListener('click', () => preset(5000, 5, 400));
+      $('simReset').addEventListener('click', () => preset(1000, 5, 120));
+
+      populate();
+      renderChecklist();
+      runSimulation();
+    })();
+  </script>
+</body>
+
+</html>
