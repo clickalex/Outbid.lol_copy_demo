@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BidRanks.lol — the board of boards. Pay to rank above every other leaderboard.</title>
+<meta name="description" content="A pay-to-rank directory of pay-to-rank boards. Every slot is a paid placement, every total is public, and #1 is yours until someone beats your bid.">
+<meta property="og:title" content="BidRanks.lol — the board of boards">
+<meta property="og:description" content="Pay to rank above every other leaderboard site. Minimum bid $25, #1 until outbid, all totals public.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070806'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23d9ff65' font-family='monospace'%3E%E2%86%91%24%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --ink:#f7f4ea;--paper:#070806;--card:rgba(255,252,239,.075);--line:rgba(247,244,234,.18);
+  --muted:#b9b4a6;--lime:#d9ff65;--red:#ff5c3f;--green:#63e69d;--amber:#ffc768;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --serif:Iowan Old Style,Baskerville,Times New Roman,serif;--r:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:var(--sans);line-height:1.6;background:
+  radial-gradient(circle at 6% -10%,rgba(217,255,101,.22),transparent 26rem),
+  radial-gradient(circle at 96% 2%,rgba(255,92,63,.2),transparent 28rem),
+  linear-gradient(135deg,#050604,#0b0d09 45%,#141008);background-attachment:fixed}
+main{max-width:1080px;margin:0 auto;padding:0 clamp(16px,4vw,32px) 80px}
+a{color:var(--lime)}
+header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+  padding:16px clamp(16px,4vw,32px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;
+  background:rgba(7,8,6,.82);backdrop-filter:blur(16px) saturate(150%)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:var(--mono);letter-spacing:.04em}
+.brand span{display:grid;place-items:center;width:30px;height:30px;border:1px solid var(--lime);border-radius:9px;color:var(--lime);font-weight:700}
+.brand b{font-size:15px;text-transform:uppercase}
+nav.top-links{display:flex;gap:16px;flex-wrap:wrap;font:12px/1 var(--mono);text-transform:uppercase;letter-spacing:.09em}
+nav.top-links a{color:var(--muted);text-decoration:none}
+nav.top-links a:hover{color:var(--ink)}
+.menu-btn{display:none;align-items:center;justify-content:center;min-height:44px;min-width:86px;padding:8px 14px;
+  border:1px solid var(--lime);border-radius:999px;background:var(--lime);color:#080806;
+  font:800 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;cursor:pointer;-webkit-tap-highlight-color:transparent}
+@media(max-width:880px){
+  header.top{position:sticky;flex-wrap:wrap;padding:10px max(14px,env(safe-area-inset-left)) 10px max(14px,env(safe-area-inset-right));gap:10px;background:rgba(7,8,6,.94)}
+  .menu-btn{display:inline-flex}
+  nav.top-links{display:none;position:absolute;left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));
+    top:calc(100% + 6px);flex-direction:column;flex-wrap:nowrap;gap:4px;z-index:40;padding:10px;
+    border:1px solid rgba(217,255,101,.34);border-radius:16px;background:rgba(7,8,6,.98);
+    box-shadow:0 22px 50px rgba(0,0,0,.5);max-height:70vh;max-height:70dvh;overflow-y:auto;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  header.top.is-open nav.top-links{display:flex}
+  nav.top-links a{display:flex;align-items:center;min-height:46px;padding:11px 12px;border-radius:10px;
+    background:rgba(255,252,239,.05);color:var(--ink);font-size:13px}
+  nav.top-links a:active{background:rgba(217,255,101,.26)}
+  .nav-scrim{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.42);border:0;padding:0;cursor:pointer}
+  body.nav-open{overflow:hidden}
+  main{padding-top:8px}
+  .hero{padding:32px 0 22px}
+  input,select,textarea{font-size:16px}
+  .btn{min-height:44px;padding:13px 18px}
+  .cta-row .btn{flex:1 1 auto;justify-content:center}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  table{font-size:13px}
+  th,td{padding:10px 8px}
+  .row2{grid-template-columns:1fr}
+  form{padding:16px}
+  #boardTable{min-width:560px}
+  #boardBody,#market table{scrollbar-width:thin}
+  #boardBody{overflow:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r)}
+  #refTable{min-width:520px}
+  .filter input,.filter select{flex:1 1 auto;max-width:none}
+}
+@media(max-width:880px) and (orientation:landscape){
+  nav.top-links{max-height:52vh;flex-direction:row;flex-wrap:wrap}
+  nav.top-links a{flex:1 0 40%}
+}
+@media(min-width:881px){.menu-btn{display:none!important}}
+@media(hover:none){nav.top-links a:hover{color:var(--muted)}nav.top-links a:active{color:var(--ink)}}
+nav.top-links a:focus-visible,.menu-btn:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+@media print{header.top,nav.top-links,.menu-btn{display:none!important}body{padding-bottom:0!important}}
+.hero{padding:54px 0 30px}
+.eyebrow{font:11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,6vw,56px);line-height:1.05;letter-spacing:-.02em;margin:0 0 16px}
+h1 i{color:var(--lime);font-style:italic}
+.deck{font-size:clamp(15px,2vw,18px);color:var(--muted);max-width:62ch;margin:0 0 24px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:999px;border:1px solid var(--lime);
+  background:var(--lime);color:#080806;font:600 13px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
+  text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:hover{transform:translateY(-1px)}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:30px 0 0}
+.stat{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px 16px}
+.stat b{display:block;font-family:var(--serif);font-size:26px;letter-spacing:-.01em}
+.stat span{font:11px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+section{margin:46px 0 0}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(22px,3.4vw,32px);letter-spacing:-.01em;margin:0 0 6px}
+h2+p.sub{color:var(--muted);margin:0 0 18px;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+caption{text-align:left;color:var(--muted);font-size:12px;font-family:var(--mono);padding-bottom:8px}
+th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+tbody tr:hover{background:rgba(255,252,239,.04)}
+td.num,th.num{text-align:right;font-family:var(--mono);white-space:nowrap}
+.rank{font-family:var(--mono);color:var(--muted)}
+#boardTable tr.top1{background:rgba(217,255,101,.07)}
+#boardTable tr.top1 .rank{color:var(--lime);font-weight:700}
+.name{font-weight:600}
+.name a{color:var(--ink);text-decoration:none;border-bottom:1px dotted rgba(247,244,234,.4)}
+.tag{display:block;color:var(--muted);font-size:12.5px;margin-top:3px;max-width:52ch}
+.pill{display:inline-block;font:10px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+  border:1px solid var(--line);border-radius:999px;padding:4px 8px;color:var(--muted)}
+.pill.sponsored{border-color:var(--amber);color:var(--amber)}
+.pill.live{border-color:var(--green);color:var(--green)}
+.pill.open{border-color:var(--lime);color:var(--lime)}
+.empty{border:1px dashed var(--line);border-radius:var(--r);padding:28px;text-align:center;background:var(--card)}
+.empty b{display:block;font-family:var(--serif);font-size:22px;margin-bottom:6px}
+.empty p{color:var(--muted);margin:0 auto 16px;max-width:52ch;font-size:14.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:18px}
+.card h3{margin:0 0 6px;font-size:15px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--lime)}
+.card p{margin:0;font-size:14px;color:var(--muted)}
+form{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:22px;display:grid;gap:14px}
+label{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:6px}
+input,textarea,select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);
+  background:rgba(0,0,0,.3);color:var(--ink);font-family:var(--mono);font-size:14px}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--lime)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.row2{grid-template-columns:1fr}}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);text-transform:none;letter-spacing:0;font-family:var(--sans)}
+.check input{width:auto;margin-top:3px}
+.note{font-size:13px;color:var(--muted);border-left:2px solid var(--lime);padding-left:12px}
+.err{color:var(--red);font-size:13px;font-family:var(--mono)}
+.ok{color:var(--green);font-size:13px;font-family:var(--mono)}
+pre{overflow:auto;background:rgba(0,0,0,.42);border:1px solid var(--line);border-radius:12px;padding:14px;
+  font-size:12.5px;line-height:1.5;color:#e9e5d8}
+.filter{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.filter input{max-width:320px}
+footer{border-top:1px solid var(--line);margin-top:60px;padding:26px clamp(16px,4vw,32px);color:var(--muted);font-size:12.5px}
+footer .in{max-width:1080px;margin:0 auto;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono)}
+.small{font-size:12.5px;color:var(--muted)}
+#admin{display:none}#admin.on{display:block}
+code{font-family:var(--mono);font-size:.9em;background:rgba(0,0,0,.35);padding:1px 5px;border-radius:5px;color:#e9e5d8}
+h3.mini{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:26px 0 8px}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#top"><span>↑$</span><b id="brandTxt">BidRanks</b></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-controls="topLinks" aria-expanded="false">Menu</button>
+  <nav class="top-links" id="topLinks">
+    <a href="#board">Board</a><a href="#how">How it works</a><a href="#enter">Enter</a>
+    <a href="#rules">Rules</a><a href="#market">The market</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <p class="eyebrow">Every slot here is a paid placement · nothing is ranked by merit</p>
+    <h1>The board of <i>boards</i>. Rank above every leaderboard your customers already compare you on.</h1>
+    <p class="deck"><b id="mktCount">449</b> pay-to-rank sites exist. Nobody ranks <i>them</i>. If you run a board, a directory or a
+      launch platform, this is the one page where your rivals can see you — and where your users go looking for you.
+      Minimum bid <b id="minbidTxt">$25</b>. #1 is yours until someone bids more. Every total is public.</p>
+    <div class="cta-row">
+      <a class="btn" href="#enter" id="heroCta">Claim #1</a>
+      <a class="btn ghost" href="#board">See the board</a>
+      <span class="small" id="stampTxt"></span>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="sSlots">0</b><span>paid slots sold</span></div>
+      <div class="stat"><b id="sTotal">$0</b><span>raised on this board</span></div>
+      <div class="stat"><b id="sNext">$25</b><span>minimum next bid</span></div>
+      <div class="stat"><b id="sSites">0</b><span>boards in the reference list</span></div>
+    </div>
+  </section>
+
+  <section id="board">
+    <h2>The paid board</h2>
+    <p class="sub">Sorted by <b>total paid, highest first</b>. Ties go to whoever paid first. A slot moves only when someone outbids it — no refresh, no decay, no "featured" tier.</p>
+    <div id="boardBody"></div>
+  </section>
+
+  <section id="how">
+    <h2>How it works</h2>
+    <p class="sub">Four rules, and that's the whole product.</p>
+    <div class="grid">
+      <div class="card"><h3>1 · Bid</h3><p>Send at least the minimum next bid for the slot you want. UPI or card link — a receipt reference is required.</p></div>
+      <div class="card"><h3>2 · We publish</h3><p>Within one working day your row is live with name, one-line description and link. Paid = listed, no editorial review of <i>quality</i>.</p></div>
+      <div class="card"><h3>3 · Hold #1</h3><p>Your row stays where it is until another bidder beats your total by at least 10%. Nobody is demoted by us, ever.</p></div>
+      <div class="card"><h3>4 · Refund window</h3><p>Wrong link, broken URL, listed in the wrong category? Fixed or refunded within 7 days. After that it's a placement, not a purchase you can return.</p></div>
+    </div>
+    <p class="note" style="margin-top:16px">Why the floor is $25: at a $1 bid a card rail (2.9% + $0.30) keeps you <b>nothing</b> and manual UPI costs you 10 minutes of admin. Tiny bids are the fastest way to build a busy, poor board.</p>
+  </section>
+
+  <section id="enter">
+    <h2>Claim or outbid a slot</h2>
+    <p class="sub">This form does not charge you and does not need a server. It builds your row + the exact payment to make, and sends it to us.</p>
+    <form id="entryForm" novalidate>
+      <div class="row2">
+        <div><label for="fName">Site name</label><input id="fName" name="name" placeholder="OutbidSocial" maxlength="48" required></div>
+        <div><label for="fUrl">Link (must be a live page you own)</label><input id="fUrl" name="url" type="url" placeholder="https://example.com" required></div>
+      </div>
+      <div><label for="fTag">One line, 90 chars — what a visitor gets</label><input id="fTag" name="tagline" maxlength="90" placeholder="The Instagram leaderboard where the top spot is bought, not earned."></div>
+      <div class="row2">
+        <div><label for="fCat">Category</label>
+          <select id="fCat" name="category">
+            <option>Websites &amp; products</option><option>AI tools &amp; agents</option><option>X / social accounts</option>
+            <option>Directories of bid sites</option><option>Regional / local boards</option><option>Ads &amp; billboards</option>
+            <option>Jobs &amp; hiring</option><option>Games &amp; clips</option><option>Other</option>
+          </select></div>
+        <div><label for="fAmount">Your bid (USD) — minimum <span id="minTxt">$25</span></label><input id="fAmount" name="amount" type="number" min="1" step="1" required></div>
+      </div>
+      <div class="row2">
+        <div><label for="fRef">Payment reference / UPI txn id</label><input id="fRef" name="ref" placeholder="UPI-0417-88213" maxlength="60"></div>
+        <div><label for="fMail">Reply-to email (never published)</label><input id="fMail" name="email" type="email" placeholder="you@site.com" required></div>
+      </div>
+      <label class="check"><input type="checkbox" id="fOk" required>
+        <span>I own this site or I'm authorised to list it. I understand this row is a <b>paid advertisement</b> that will be labelled as such, that we sell a placement and not an outcome, and I accept the <a href="legal.html#terms" target="_blank" rel="noopener">Terms</a>, the <a href="legal.html#refunds" target="_blank" rel="noopener">refund policy</a> and the <a href="legal.html#privacy" target="_blank" rel="noopener">privacy notice</a>.</span></label>
+      <div class="cta-row">
+        <button class="btn" type="submit">Build my row &amp; payment</button>
+        <button class="btn ghost" type="button" id="clearBtn">Clear</button>
+        <span class="small">Draft is saved in this browser only.</span>
+      </div>
+      <div id="formMsg" class="small"></div>
+      <div id="result" hidden>
+        <h3 class="mini">1 · Pay this</h3>
+        <p class="small" id="payHow"></p>
+        <h3 class="mini">2 · Send us this row</h3>
+        <pre id="jsonOut"></pre>
+        <div class="cta-row">
+          <button class="btn ghost" type="button" id="copyBtn">Copy</button>
+          <a class="btn" id="mailBtn" href="#">Open email with this attached</a>
+        </div>
+        <p class="small" style="margin-top:10px">We paste your row into <code>entries.json</code> and re-deploy. You'll get a link to your live row before it goes up.</p>
+      </div>
+    </form>
+  </section>
+
+  <section id="market">
+    <h2>The market, for free</h2>
+    <p class="sub">Reference list — <b>not paid, not ranked by money, not part of the board</b>. Pulled from the public outoutbid.lol directory (CC BY 4.0), figures self-reported by each site. Use it to see what a real board earns before you bid.</p>
+    <div class="filter">
+      <input id="q" type="search" placeholder="Search the reference list…">
+      <select id="catFilter"><option value="">All categories</option></select>
+      <span class="small" id="refCount" style="align-self:center"></span>
+    </div>
+    <div style="overflow:auto"><table id="refTable">
+      <thead><tr><th>#</th><th>Site</th><th class="num">Self-reported total</th><th class="num">Bidders</th><th>Rail</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <p class="small" id="attrTxt" style="margin-top:10px"></p>
+  </section>
+
+  <section id="rules">
+    <h2>Rules, refunds and what we reject</h2>
+    <p class="sub">Short on purpose. If it isn't written here, it isn't a rule. <a href="legal.html">The full Terms, privacy notice, refund policy and disclosure spec are here →</a></p>
+    <div class="grid">
+      <div class="card"><h3>What gets rejected</h3><p>Anything we can't take money for: betting, real-money gaming, crypto/forex "returns", investment advice, adult, weapons, medical claims, hate, scams, clone boards that impersonate another site. We keep the list and we don't negotiate.</p></div>
+      <div class="card"><h3>Disclosure</h3><p>Every paid row shows a <span class="pill sponsored">Sponsored</span> mark and your total. No fake scarcity, no "almost gone", no editorial voice pretending we picked you. Paid links carry <code>rel="sponsored nofollow"</code> — we sell visibility, not search-engine equity, and we would rather lose a sale than promise otherwise.</p></div>
+      <div class="card"><h3>Refunds</h3><p>7 days from payment for a listing error, a dead link, a wrong category, or a rejection. Not for regret, not for "it didn't convert". Chargebacks are treated as ending the listing and the account's right to bid.</p></div>
+      <div class="card"><h3>No viewer money</h3><p>Visitors never pay, stake or earn here. No wallets, no balances, no tokens, no redeemable points. This is an advertising service: you buy a row, we publish a row.</p></div>
+      <div class="card"><h3>Data</h3><p>We keep your reply-to email, your payment reference and your published row. That's all. No trackers by default. Delete request by email and it's gone within 7 days.</p></div>
+      <div class="card"><h3>Grievance</h3><p>One address for everything, including complaints about a listing: <b id="grievTxt"></b>. We answer within 72 hours.</p></div>
+    </div>
+  </section>
+
+  <section id="admin">
+    <h2>Owner console <span class="pill" style="text-transform:none">local only</span></h2>
+    <p class="sub">Not a real admin. Nothing here leaves your browser. This is how you edit the board without a backend: change rows, export <code>entries.json</code>, re-run <code>python3 launch/build_data.py</code>, deploy.</p>
+    <div class="cta-row" style="margin-bottom:14px">
+      <button class="btn ghost" type="button" id="toggleAdmin">Show / hide console</button>
+      <button class="btn ghost" type="button" id="exportBtn">Copy entries.json</button>
+      <button class="btn ghost" type="button" id="wipeBtn">Drop pending draft</button>
+    </div>
+    <div id="admin">
+      <h3 class="mini">Published slots (from data.js)</h3>
+      <pre id="pubOut"></pre>
+      <h3 class="mini">Pending draft from this browser</h3>
+      <pre id="draftOut">none</pre>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="in">
+    <span id="footBrand">BidRanks.lol · a pay-to-rank directory</span>
+    <span id="footStamp"></span>
+  <span><a href="legal.html">Terms</a> · <a href="legal.html#privacy">Privacy</a> · <a href="legal.html#refunds">Refunds</a> · <a href="legal.html#disclosure">Disclosure</a></span>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script>
+/* ============ CONFIG — edit these 10 lines, nothing else ============ */
+const CONFIG = {
+  brand: "BidRanks.lol",            // swap to "BlogRank.in" for the BlogRank build
+  tagline: "the board of boards — pay to rank above every other leaderboard",
+  subject: "a pay-to-rank directory, run as a sole proprietorship (India)",
+  minBid: 25,          // USD floor
+  incrementPct: 0.10,  // an outbid must beat the top total by 10%
+  currency: "USD",
+  pay: {
+    stripePaymentLink: "",              // e.g. https://buy.stripe.com/xxxxx  (empty = UPI only)
+    upi: "yourname@okhdfcbank",         // VPA shown to bidders
+    payee: "Proprietor's legal name",
+    note: "Put the site name in the payment note."
+  },
+  contact: "board@bidranks.lol",
+  generatedFrom: "data/outbid-market-inventory.csv"
+};
+/* ==================================================================== */
+
+const D = window.DATA || {entries:{slots:[]},seed:[]};
+const slots = Array.isArray(D.entries?.slots) ? D.entries?.slots : [];
+const $ = id => document.getElementById(id);
+const usd = n => "$" + (Math.round(n*100)/100).toLocaleString("en-US",{maximumFractionDigits:2});
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./,""); } catch { return String(u||"").replace(/^https?:\/\//,"").split("/")[0] || "—"; } };
+
+/* ranked by total paid desc, then earliest last payment */
+function ranked(){
+  return [...slots].sort((a,b)=>(b.totalPaid||0)-(a.totalPaid||0) || String(a.lastBidAt||"").localeCompare(String(b.lastBidAt||"")));
+}
+function nextMinBid(){
+  const top = ranked()[0];
+  const pct = Math.round(CONFIG.incrementPct * 100);
+  const want = top ? Math.ceil((top.totalPaid||0) * (100 + pct) / 100) : CONFIG.minBid;
+  return Math.max(CONFIG.minBid, want);
+}
+
+function renderBoard(){
+  const body = $("boardBody"), rows = ranked();
+  if(!rows.length){
+    body.innerHTML = `<div class="empty"><b>The #1 slot is empty, and it is empty right now.</b>
+      <p>Zero paid rows means whoever bids ${usd(CONFIG.minBid)} owns the only row on a page whose whole pitch is
+      "the directory of ${(D.inventoryRows||449)} pay-to-rank boards". Cheapest permanent placement you will get in this market.</p>
+      <a class="btn" href="#enter">Bid ${usd(nextMinBid())} for #1</a></div>`;
+  } else {
+    body.innerHTML = `<div style="overflow:auto"><table id="boardTable"><thead><tr>
+      <th>Rank</th><th>Site</th><th class="num">Total paid</th><th class="num">Bids</th><th>Last bid</th><th></th>
+      </tr></thead><tbody>` + rows.map((s,i)=>`<tr class="${i===0?"top1":""}">
+      <td class="rank">${i+1}</td>
+      <td><span class="name"><a href="${esc(s.url)}" rel="nofollow sponsored noopener" target="_blank">${esc(s.name)}</a></span>
+        <span class="tag">${esc(s.tagline||hostOf(s.url))}</span>
+        <span class="pill sponsored">Sponsored</span> <span class="pill">${esc(s.category||"—")}</span></td>
+      <td class="num">${usd(s.totalPaid||0)}</td>
+      <td class="num">${s.bidCount||1}</td>
+      <td class="small">${esc((s.lastBidAt||"").slice(0,10)||"—")}</td>
+      <td class="num"><a class="btn ghost" href="?outbid=${i+1}#enter">Outbid</a></td></tr>`).join("")
+      + `</tbody></table></div>
+      <p class="small" style="margin-top:10px">Next bid must be at least <b>${usd(nextMinBid())}</b>
+      (top total ${usd(rows[0].totalPaid||0)} + ${Math.round(CONFIG.incrementPct*100)}%).</p>`;
+  }
+  $("sSlots").textContent = rows.length;
+  $("sTotal").textContent = usd(rows.reduce((t,s)=>t+(s.totalPaid||0),0));
+  $("sNext").textContent = usd(nextMinBid());
+  $("minTxt").textContent = usd(nextMinBid());
+  $("minbidTxt").textContent = usd(CONFIG.minBid);
+  $("heroCta").textContent = rows.length ? `Outbid #1 for ${usd(nextMinBid())}` : `Claim #1 for ${usd(CONFIG.minBid)}`;
+}
+
+function renderRef(){
+  const seed = D.seed || [];
+  const cats = [...new Set(seed.map(s=>s.category).filter(Boolean))].sort();
+  $("catFilter").insertAdjacentHTML("beforeend", cats.map(c=>`<option>${esc(c)}</option>`).join(""));
+  $("sSites").textContent = seed.length;
+  const draw = () => {
+    const q = $("q").value.trim().toLowerCase(), cf = $("catFilter").value;
+    const rows = seed.filter(s => (!cf || s.category===cf) &&
+      (!q || (s.name+" "+s.host+" "+s.tagline+" "+s.category).toLowerCase().includes(q)));
+    $("refTable").tBodies[0].innerHTML = rows.slice(0,40).map((s,i)=>`<tr>
+      <td class="rank">${i+1}</td>
+      <td><span class="name"><a href="${esc(s.url)}" rel="nofollow noopener" target="_blank">${esc(s.name)}</a></span>
+      <span class="tag">${esc(s.tagline||s.host)}</span></td>
+      <td class="num">${usd(s.claimedUsd)}</td><td class="num">${esc(s.bidders||"—")}</td>
+      <td><span class="pill">${esc(s.rail||"—")}</span></td></tr>`).join("")
+      || `<tr><td colspan="5" class="small">No match. Try a shorter search.</td></tr>`;
+    $("refCount").textContent = `${rows.length} shown${rows.length>40?" (top 40 by self-reported total)":""}`;
+  };
+  $("q").addEventListener("input", draw); $("catFilter").addEventListener("change", draw); draw();
+  const stamp = (D.generatedAt||"").slice(0,10);
+  $("mktCount").textContent = D.inventoryRows || "400+";
+  $("q").placeholder = `Search the ${D.inventoryRows || seed.length}-board reference list…`;
+  $("stampTxt").textContent = stamp ? `board data refreshed ${stamp}` : "";
+  $("footStamp").textContent = stamp ? `Refreshed ${stamp} from ${CONFIG.generatedFrom}` : "";
+  $("attrTxt").innerHTML = `Directory data: <a href="https://outoutbid.lol" rel="noopener" target="_blank">outoutbid.lol</a>, licensed CC BY 4.0. Amounts are self-reported by each site and not independently audited.`;
+  $("grievTxt").textContent = CONFIG.contact;
+}
+
+/* ---------- entry form ---------- */
+const DRAFT = "board-draft." + String(CONFIG.brand||"x").toLowerCase().replace(/[^a-z0-9]+/g,"");
+const fields = {name:"fName",url:"fUrl",tagline:"fTag",category:"fCat",amount:"fAmount",ref:"fRef",email:"fMail"};
+const readForm = () => Object.fromEntries(Object.entries(fields).map(([k,id])=>[k,$(id).value.trim()]));
+const writeForm = o => Object.entries(fields).forEach(([k,id])=>{ if(o[k]!=null) $(id).value = o[k]; });
+
+function prefill(){
+  try{ const p=new URLSearchParams(location.hash.split("?")[1]||location.search);
+    const o={};["name","url","tagline","category","amount","email"].forEach(k=>{if(p.get(k))o[k]=p.get(k);});
+    if(Object.keys(o).length) writeForm(o);
+    if(p.get("outbid") && !$("fAmount").value){ $("fAmount").value = nextMinBid(); $("fAmount").focus(); }
+  }catch{}
+  try{ const d=JSON.parse(localStorage.getItem(DRAFT)||"null"); if(d&&!$("fAmount").value) writeForm(d); }catch{}
+}
+
+$("entryForm").addEventListener("input", () => { try{ localStorage.setItem(DRAFT, JSON.stringify(readForm())); renderDraft(); }catch{} });
+
+$("entryForm").addEventListener("submit", e => {
+  e.preventDefault(); $("result").hidden = true; $("formMsg").innerHTML="";
+  const f = readForm(), min = nextMinBid(), bad = [];
+  const amt = Number(f.amount);
+  if(f.name.length<2) bad.push("site name");
+  if(!/^https?:\/\/.+\..+/.test(f.url)) bad.push("a full URL starting with https://");
+  if(!(amt>0)) bad.push("a bid amount"); else if(amt<min) bad.push(`a bid of at least ${usd(min)}`);
+  if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(f.email)) bad.push("a reply-to email");
+  if(!$("fOk").checked) bad.push("the tick box confirming you own the site and this is an ad");
+  if(bad.length){ $("formMsg").innerHTML = `<span class="err">Fix: ${esc(bad.join(" · "))}</span>`; return; }
+
+  const top = ranked()[0], isOutbid = top && amt > (top.totalPaid||0);
+  const row = {
+    id: hostOf(f.url).replace(/^www\./,""),
+    name: f.name.slice(0,48), url: f.url, tagline: (f.tagline||"").slice(0,90),
+    category: f.category, totalPaid: isOutbid ? Math.round(amt) : Math.round(amt),
+    bidCount: isOutbid ? (top.bidCount||1)+1 : 1,
+    lastBidAt: new Date().toISOString().slice(0,10),
+    paymentRef: f.ref || "awaiting", contact: f.email, status: "pending-payment-check"
+  };
+  const out = {slots: isOutbid ? [row, ...slots.filter(s=>s.id!==top.id)] : [row, ...slots]};
+  const payLine = CONFIG.pay.stripeLink
+    ? `${usd(amt)} via card: <a href="${esc(CONFIG.pay.stripeLink)}" target="_blank" rel="noopener">pay here</a> — ${esc(CONFIG.pay.note)}
+       <br>or UPI <b>${esc(CONFIG.pay.upi)}</b> (${esc(CONFIG.pay.payee)}) for ${usd(amt)}.`
+    : `Pay ${usd(amt)} to UPI <b>${esc(CONFIG.pay.upi)}</b> (${esc(CONFIG.pay.payee)}). ${esc(CONFIG.pay.note)}`;
+  $("payHow").innerHTML = payLine + `<br><span class="small">Nothing is published until the payment is matched to a reference.</span>`;
+  $("jsonOut").textContent = JSON.stringify(out, null, 2);
+  $("mailBtn").href = `mailto:${CONFIG.contact}?subject=${encodeURIComponent("New slot — "+row.name+" — "+usd(amt))}&body=${encodeURIComponent(JSON.stringify(out,null,2))}`;
+  $("result").hidden = false;
+  $("formMsg").innerHTML = `<span class="ok">Row built. Pay, then send it — that's the whole signup flow.</span>`;
+  $("copyBtn").onclick = async () => { try{ await navigator.clipboard.writeText($("jsonOut").textContent); $("copyBtn").textContent="Copied"; setTimeout(()=>$("copyBtn").textContent="Copy",1400);}catch{ $("copyBtn").textContent="Select + copy"; } };
+  $("result").scrollIntoView({behavior:"smooth",block:"center"});
+});
+
+$("clearBtn").onclick = () => { $("entryForm").reset(); try{ localStorage.removeItem(DRAFT);}catch{} renderDraft(); };
+
+/* ---------- owner console ---------- */
+function renderDraft(){
+  const d = $("draftOut"); if(!d) return;
+  let txt = "none";
+  try{ const raw=localStorage.getItem(DRAFT); if(raw) txt = JSON.stringify(JSON.parse(raw),null,2); }catch{}
+  d.textContent = txt;
+  const p = $("pubOut"); if(p) p.textContent = JSON.stringify({slots}, null, 2);
+}
+$("toggleAdmin").onclick = () => { $("admin").classList.toggle("on"); renderDraft(); };
+$("wipeBtn").onclick = () => { try{ localStorage.removeItem(DRAFT);}catch{} renderDraft(); };
+$("exportBtn").onclick = async () => {
+  const txt = JSON.stringify({slots}, null, 2);
+  try{ await navigator.clipboard.writeText(txt); $("exportBtn").textContent="Copied — paste into launch/entries.json"; }
+  catch{ prompt("Copy this into launch/entries.json:", txt); }
+  setTimeout(()=>$("exportBtn").textContent="Copy entries.json", 2200);
+};
+
+function applyBrand(){
+  const full = CONFIG.brand || "BidRanks.lol";
+  const short = full.replace(/\.[a-z]{2,}$/i, "");
+  $("brandTxt").textContent = short;
+  document.title = `${full} — ${CONFIG.tagline}`;
+  $("footBrand").textContent = `${full} · ${CONFIG.subject}`;
+  $("grievTxt").textContent = CONFIG.contact;
+}
+applyBrand();
+renderBoard(); renderRef(); prefill();
+
+/* ---------- responsive nav — self-contained, because this page deploys without assets/ ---------- */
+(() => {
+  const hdr = document.querySelector('header.top'), btn = $("menuBtn"), links = $("topLinks");
+  if(!hdr || !btn || !links) return;
+  const mq = window.matchMedia ? matchMedia('(max-width: 880px)') : {matches:false};
+  let scrim = null;
+  const isOpen = () => hdr.classList.contains('is-open');
+  function setOpen(v){
+    if (v === isOpen()) return;
+    hdr.classList.toggle('is-open', v);
+    document.body.classList.toggle('nav-open', v && mq.matches);
+    btn.setAttribute('aria-expanded', String(v));
+    btn.textContent = v ? 'Close' : 'Menu';
+    if (v && mq.matches && !scrim){
+      scrim = document.createElement('button');
+      scrim.className = 'nav-scrim'; scrim.type = 'button';
+      scrim.setAttribute('aria-label','Close menu');
+      scrim.addEventListener('click', () => setOpen(false));
+      document.body.appendChild(scrim);
+    } else if ((!v || !mq.matches) && scrim){ scrim.remove(); scrim = null; }
+  }
+  btn.addEventListener('click', () => {
+    const v = !isOpen(); setOpen(v);
+    if (v){ const first = links.querySelector('a'); if(first) first.focus({preventScroll:true}); } else btn.focus({preventScroll:true});
+  });
+  links.addEventListener('click', e => { if (e.target.closest('a') && mq.matches) setOpen(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen()){ setOpen(false); btn.focus({preventScroll:true}); } });
+  const sync = () => { if (!mq.matches && isOpen()) setOpen(false); };
+  if (mq.addEventListener) mq.addEventListener('change', sync); else if (mq.addListener) mq.addListener(sync);
+  addEventListener('resize', sync);
+  addEventListener('hashchange', () => { if (isOpen()) setOpen(false); });
+})();
+</script>
+</body>
+</html>

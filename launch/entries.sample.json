@@ -1,0 +1,40 @@
+{
+  "slots": [
+    {
+      "id": "outbid-lol",
+      "name": "outbid.lol",
+      "url": "https://outbid.lol",
+      "tagline": "Promote your project on the live billboard.",
+      "category": "Websites & products",
+      "totalPaid": 60,
+      "bidCount": 3,
+      "lastBidAt": "2026-08-21T10:00:00Z",
+      "paymentRef": "UPI-1",
+      "status": "live"
+    },
+    {
+      "id": "example",
+      "name": "<script>alert(1)</script>",
+      "url": "https://evil.example",
+      "tagline": "x\" onmouseover=\"alert(2)",
+      "category": "Other",
+      "totalPaid": 100,
+      "bidCount": 1,
+      "lastBidAt": "2026-08-20T10:00:00Z",
+      "paymentRef": "UPI-2",
+      "status": "live"
+    },
+    {
+      "id": "tie",
+      "name": "Tie Site",
+      "url": "https://tie.example",
+      "tagline": "",
+      "category": "Ads & billboards",
+      "totalPaid": 60,
+      "bidCount": 2,
+      "lastBidAt": "2026-08-19T10:00:00Z",
+      "paymentRef": "",
+      "status": "live"
+    }
+  ]
+}

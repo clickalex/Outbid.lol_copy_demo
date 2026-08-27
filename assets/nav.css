@@ -1,0 +1,120 @@
+/* ============================================================================
+   nav.css — responsive navigation layer for every Outbid OS page
+   ----------------------------------------------------------------------------
+   Loaded AFTER each page's own <style> block so it can override the older
+   per-page nav rules (three pages used to hide .site-nav entirely on phones).
+
+   Three tiers, one breakpoint to reason about:
+     > 1240px   full nav row, no wrapping
+     901–1240px horizontal pill rail (laptops) — never wraps to 3 lines
+     ≤ 900px    hamburger + dropdown panel + fixed bottom bar (tablet/phone)
+
+   Shared by all 17 report pages; launch/index.html carries an equivalent
+   inline copy because it deploys standalone.
+   ========================================================================== */
+
+/* ---------- base: never hide the nav, ever ---------- */
+.site-nav{display:flex !important;flex-wrap:nowrap;align-items:center}
+.site-nav .site-links{flex-wrap:nowrap}
+.nav-toggle{display:none}
+
+/* ---------- tier 2 (901–1240px): scrollable pill rail ---------- */
+@media (max-width:1240px) and (min-width:901px){
+  .site-nav{gap:10px;padding:12px clamp(14px,3vw,32px)}
+  .site-nav .site-links{
+    overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-ms-overflow-style:none;
+    -webkit-overflow-scrolling:touch;scroll-padding-inline:12px;
+    mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);
+  }
+  .site-nav .site-links::-webkit-scrollbar{display:none}
+  .site-nav .site-links a{flex:0 0 auto;white-space:nowrap}
+  main{padding-top:44px}
+}
+
+/* ---------- tier 3 (≤900px): hamburger + panel ---------- */
+@media (max-width:900px){
+  .site-nav{position:sticky;flex-direction:row !important;align-items:center;justify-content:space-between;
+    gap:10px;padding:10px max(14px,env(safe-area-inset-left)) 10px max(14px,env(safe-area-inset-right))}
+  .site-logo{gap:9px;font-size:14px}
+  .site-logo span{width:32px;height:32px;border-radius:12px}
+
+  .nav-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:76px;
+    padding:8px 16px;border:1px solid rgba(217,255,101,.5);border-radius:999px;
+    background:var(--lime,#d9ff65);color:#080806;font:800 12px/1 var(--sans,sans-serif);cursor:pointer;
+    -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  .nav-toggle:active{transform:scale(.97)}
+
+  /* the panel: anchored to the sticky bar, own scroll, never pushes content */
+  .site-nav .site-links{display:none;position:absolute;left:max(10px,env(safe-area-inset-left));
+    right:max(10px,env(safe-area-inset-right));top:calc(100% + 6px);z-index:60;
+    flex-direction:column;flex-wrap:nowrap;justify-content:flex-start;gap:4px;width:auto;
+    max-height:min(68vh,520px);max-height:min(68dvh,520px);overflow-y:auto;-webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;padding:10px;border:1px solid rgba(217,255,101,.34);border-radius:18px;
+    background:rgba(7,8,6,.97);box-shadow:0 26px 60px rgba(0,0,0,.5);
+    backdrop-filter:blur(18px) saturate(150%)}
+  .site-nav.is-open .site-links{display:flex;animation:navDrop .16s ease-out}
+  @keyframes navDrop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  .site-nav .site-links a{display:flex;width:100%;min-height:46px;padding:11px 14px;justify-content:flex-start;
+    border-radius:12px;font:700 14px/1.1 var(--sans,sans-serif);color:rgba(247,244,234,.86);background:rgba(255,255,255,.05)}
+  .site-nav .site-links a[aria-current="page"]{background:var(--lime,#d9ff65);color:#080806;border-color:transparent}
+  body.light-theme .site-nav .site-links{background:rgba(246,241,231,.98);border-color:rgba(23,23,20,.16)}
+  body.light-theme .site-nav .site-links a{color:#171714;background:rgba(0,0,0,.05)}
+
+  /* dim the page behind an open panel so the menu is the only focus */
+  body.nav-open{overflow:hidden}
+  body.nav-open .site-nav{z-index:70}
+  .nav-scrim{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.5);border:0;padding:0;
+    -webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px)}
+
+  /* bottom quick-bar: bigger targets, safe-area aware, hidden while the panel is open */
+  .mobile-bottom-nav{display:grid !important;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));
+    padding:7px 7px calc(7px + env(safe-area-inset-bottom));gap:6px}
+  .mobile-bottom-nav a{min-height:46px;font:800 12px/1 var(--sans,sans-serif);-webkit-tap-highlight-color:transparent}
+  body.nav-open .mobile-bottom-nav{display:none !important}
+  body{padding-bottom:calc(86px + env(safe-area-inset-bottom))}
+
+  /* the topline ticker is the first thing to go, and main needs breathing room */
+  .topline{display:none}
+  main{padding-top:34px;padding-bottom:64px}
+}
+
+/* ---------- small phones: tighter but still 44px+ targets ---------- */
+@media (max-width:420px){
+  .site-nav{padding:8px 12px}
+  .site-logo b{font-size:13px}
+  .nav-toggle{min-width:68px;padding:8px 13px;font-size:11px}
+  .theme-toggle{min-height:44px;padding:8px 11px;font-size:10px}
+  .site-nav{gap:8px}
+  .site-logo strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mobile-bottom-nav{gap:4px;border-radius:18px}
+  h1{font-size:clamp(38px,12vw,56px) !important}
+  .grid{gap:10px !important}
+}
+
+/* ---------- landscape phones: don't waste the height on a tall panel ---------- */
+@media (max-height:520px) and (orientation:landscape){
+  .site-nav .site-links{max-height:56vh}
+  body{padding-bottom:0}
+  .mobile-bottom-nav{position:static;margin:0 10px 10px}
+}
+
+/* ---------- input hygiene on touch: stop iOS zoom-on-focus shoving the nav ---------- */
+@media (max-width:900px){
+  input,select,textarea{font-size:16px !important}
+  .btn,a.btn,button,.theme-toggle{min-height:44px}
+}
+
+/* ---------- no-hover devices: give taps a visible state instead of :hover ---------- */
+@media (hover:none){
+  .site-nav .site-links a:hover,.mobile-bottom-nav a:hover{background:rgba(255,255,255,.05)}
+  .site-nav .site-links a:active{background:rgba(217,255,101,.28)}
+  .mobile-bottom-nav a:active{background:rgba(217,255,101,.22)}
+}
+
+/* ---------- keyboard users: always see focus inside the nav ---------- */
+.site-nav a:focus-visible,.site-nav button:focus-visible,.mobile-bottom-nav a:focus-visible{
+  outline:2px solid var(--lime,#d9ff65);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.site-nav .site-links,.nav-toggle{animation:none !important;transition:none !important}}
+
+/* ---------- print: nav is noise ---------- */
+@media print{.site-nav,.mobile-bottom-nav,.topline,.nav-toggle{display:none !important}body{padding-bottom:0}}

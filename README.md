@@ -49,7 +49,11 @@ The written snapshot is dated **26 August 2026**. The inventory figures inside i
 | `ideas.html` | The idea list (002) — websites nobody has built yet. **Idea cards are hand-written** (offline, human-edited); only the live counters and collision watch are bot-refreshed. |
 | `data/outbid-market-inventory.csv` | **Bot-maintained CSV** — the complete inventory snapshot (one row per verified board, newest first), regenerated on every bot run. |
 | `data/stats.json` | **Bot-maintained summary** of the latest run: totals, claimed amounts, category counts, top-10 boards, route checks, and an `entrySimulator` block with the percentiles and per-category medians behind report 001b. |
+| `assets/nav.css` | **Shared responsive navigation layer.** Loaded last in every page's `<head>` so it overrides the older per-page nav rules: full nav row above 1240px, scrollable pill rail 901–1240px, hamburger panel + bottom quick-bar ≤900px (44px targets, safe-area insets, panel scroll, `Escape`/tap-outside/`aria-expanded` via `assets/site-enhancements.js`). Any new page must include this link *after* its own `<style>` block. |
+| `docs/level0-launch-pack/` | **The Level 0 legal/ops pack** — 9 files: pack index, Terms of Service, DPDP-shaped privacy notice, refund policy, ad content policy + 10-point screening checklist, paid-placement disclosure spec, invoicing/books/tax, entity-bank-PG-trademark setup, ops SOP + pre-launch gate, and the scope-lock guardrails. Written for BlogRank, niche-agnostic. |
+| `launch/legal.html` | The public legal page for the product (terms + privacy + refunds + disclosure), served alongside the board so policies deploy with it. |
 | `scripts/update_report.py` | The update bot (Python 3.9+, standard library only). |
+| **`launch/`** | **The product, not a report.** A shippable pay-to-rank board (`index.html` + `entries.json` + `build_data.py`). Static, no backend, deploys on its own domain. See `launch/README.md`. |
 | `docs/daily-update.yml` | The GitHub Actions workflow for the bot. **One-time activation:** a repo admin copies it to `.github/workflows/daily-update.yml` (see below). |
 
 ## The daily update bot
