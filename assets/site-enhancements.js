@@ -17,7 +17,47 @@
       btn.onclick = () => { document.body.classList.toggle('light-theme'); localStorage.setItem('outbid-theme', document.body.classList.contains('light-theme') ? 'light' : 'dark'); };
     }
     const toggle = $('.nav-toggle', nav);
-    if (toggle) toggle.addEventListener('click', () => { const open = nav.classList.toggle('is-open'); toggle.setAttribute('aria-expanded', String(open)); toggle.textContent = open ? 'Close' : 'Menu'; });
+    const links = $('.site-links', nav);
+    if (toggle && links) {
+      const mq = window.matchMedia ? window.matchMedia('(max-width: 900px)') : { matches: false };
+      if (!links.id) links.id = 'site-links';
+      toggle.type = 'button';
+      toggle.setAttribute('aria-controls', links.id);
+      toggle.setAttribute('aria-expanded', 'false');
+      let scrim = null;
+      const isOpen = () => nav.classList.contains('is-open');
+      const panelMode = () => mq.matches;
+      function setOpen(open) {
+        if (isOpen() === open) return;
+        nav.classList.toggle('is-open', open);
+        document.body.classList.toggle('nav-open', open && panelMode());
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.textContent = open ? 'Close' : 'Menu';
+        if (open && panelMode() && !scrim) {
+          scrim = document.createElement('button');
+          scrim.className = 'nav-scrim'; scrim.type = 'button';
+          scrim.setAttribute('aria-label', 'Close menu');
+          scrim.addEventListener('click', () => setOpen(false));
+          document.body.appendChild(scrim);
+        } else if ((!open || !panelMode()) && scrim) { scrim.remove(); scrim = null; }
+      }
+      toggle.addEventListener('click', () => {
+        const open = !isOpen();
+        setOpen(open);
+        if (open) { const first = links.querySelector('a'); if (first) first.focus({ preventScroll: true }); }
+        else toggle.focus({ preventScroll: true });
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && isOpen()) { setOpen(false); toggle.focus({ preventScroll: true }); }
+      });
+      // tapping a link in the panel should close it, so the target page isn't hidden behind the menu
+      links.addEventListener('click', e => { if (e.target.closest('a') && panelMode()) setOpen(false); });
+      const sync = () => { if (!panelMode() && isOpen()) setOpen(false); };
+      if (mq.addEventListener) mq.addEventListener('change', sync);
+      else if (mq.addListener) mq.addListener(sync);   // Safari < 14
+      window.addEventListener('resize', sync);
+      window.addEventListener('hashchange', () => { if (isOpen()) setOpen(false); });
+    }
   }
   if (localStorage.getItem('outbid-theme') === 'light') document.body.classList.add('light-theme');
   document.querySelectorAll('.idea').forEach(card => {
