@@ -36,7 +36,7 @@ Every figure on it is computed from the committed inventory snapshot and refresh
 The audit shows *what exists*; this page lists *what doesn't*. It is a dated, one-time idea list for choosing the next pay-to-rank site to build and launch for reach —
 
 - **from your attachment** (section 01): the flagship **BlogRank** idea (pay to rank, watch/read to earn), the four hosted-demo ideas, and all **25 ideas from `docs/pay-to-rank-new-ideas.csv`** — every one keyword-verified against the inventory: new ones kept, borderline ones kept with a mark, already-built ones marked and excluded;
-- **vertical gaps**: pay-to-rank board niches with zero entries among the 444 verified boards (food, books, freelancers, fitness, image-memes, campuses, barbers, weddings, coffee & bars, nightlife, matrimony, performing arts);
+- **vertical gaps**: pay-to-rank board niches with zero entries among the 450 verified boards (food, books, freelancers, fitness, image-memes, campuses, barbers, weddings, coffee & bars, nightlife, matrimony, performing arts — plus six added by the 27 Aug evening re-scan: education, clinics, legal, travel, photographers, interior designers & architects);
 - **new mechanics**: brand-new twists none of the existing boards ships — including the **visitor-earn family** (AttentionDividend, CashbackClick, PredictWall), rank insurance, season passes, the text-box hill with pot, auction-the-site's-name and the anonymous wall;
 - a three-question **pick test**, the build-and-launch plan, and a filtered/searchable card list.
 
@@ -121,6 +121,7 @@ The nav now carries 11 destinations: Audit · Ideas · Tools · Search · Picker
 | **`docs/level0-launch-pack/`** | **The Level 0 document set** (9 files): pack index → terms → privacy → refunds → ad content policy & screening → disclosure spec → invoicing/books/tax → entity/bank/PG/trademark → ops SOP & pre-launch gate → guardrails. Niche-agnostic, written for BlogRank. |
 | `scripts/update_report.py` | The update bot (Python 3.9+, standard library only; all writes atomic). |
 | `run-bot.sh` | Hands-off wrapper for manual/screen runs of the bot: `--loop` (daily, retries after failures), `--commit` (commit + push the bot files), `--log FILE` (default `bot.log`, git-ignored). |
+| `scripts/audit.py` + `scripts/audit_dom.js` | One-command full-repo audit pass: syntax (Python/JS/bash/JSON/CSV/YAML/SVG), HTML structure and tag balance, duplicate ids, internal links and anchors, bot-sentinel integrity, stats↔CSV↔page consistency, a jsdom runtime smoke test of every page, and launch-kit rebuild idempotence. `python3 scripts/audit.py` (exit 0 = clean; `--json` for machine output). The DOM checks need `jsdom` (`npm i jsdom`) and are skipped with a warning when absent. |
 | `docs/daily-update.yml` | Reference copy of the GitHub Actions workflow. The live file is already committed at `.github/workflows/daily-update.yml` and active; only a fresh fork needs it copied (see below). |
 
 ## The daily update bot
