@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="BlogRank India legal compliance + launch checklist: gaming law red lines, entity and GST setup, vendor onboarding, build phases, beta money-loop test and ongoing compliance calendar.">
+<meta property="og:title" content="India Legal &amp; Launch Checklist — BlogRank"><meta property="og:description" content="Pay-to-rank, watch-to-earn — legally in India. Red lines, launch phases from domain buy to go-live, and the recurring compliance calendar."><meta property="og:type" content="website"><meta property="og:image" content="og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<title>India Legal &amp; Launch Checklist — BlogRank | Outbid OS</title>
+<link rel="stylesheet" href="assets/os.css">
+<style>
+  body[data-page=legal] .site-links a[data-page=legal]{color:#080806;border-color:var(--lime);background:var(--lime)}
+  .hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:24px;align-items:end}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+  .meter{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,rgba(255,255,255,.095),rgba(255,255,255,.055));box-shadow:var(--shadow);backdrop-filter:blur(12px);padding:24px}
+  .meter b{display:block;color:var(--lime);font:500 58px/1 var(--serif)}
+  .track{height:14px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,var(--lime),var(--red));border-radius:inherit;transition:width .3s ease}
+  .meter p{margin:12px 0 0}
+  section{margin-top:62px}
+  .section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);padding-bottom:18px;flex-wrap:wrap}
+  h2{margin:0;font:400 clamp(32px,4.6vw,58px)/1 var(--serif);letter-spacing:-.045em}
+  .group{margin-top:40px}
+  .group-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  .group-head h3{margin:0;font:400 clamp(22px,3vw,30px)/1.1 var(--serif);letter-spacing:-.03em}
+  .group-head .meta{color:var(--muted);font:700 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+  .group-head .count{margin-left:auto;color:#080806;background:var(--lime);border-radius:999px;padding:4px 10px;font:800 10px/1 var(--mono);white-space:nowrap}
+  .tasks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .task{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.095),rgba(255,255,255,.055));box-shadow:var(--shadow);padding:16px 18px;display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start}
+  .task input{width:20px;height:20px;margin-top:2px;accent-color:var(--lime)}
+  .task strong{display:block;font-size:14.5px}
+  .task span{display:block;color:var(--muted);font-size:12.5px;margin-top:3px}
+  .task.danger{border-color:rgba(255,92,63,.45)}
+  .task.danger input{accent-color:var(--red)}
+  .task.danger strong{color:var(--red)}
+  .task.done{opacity:.55}
+  .task.done strong{text-decoration:line-through;text-decoration-color:rgba(247,244,234,.5)}
+  .redlines{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}
+  .redline{border:1px solid rgba(255,92,63,.4);border-radius:var(--radius);background:linear-gradient(180deg,rgba(255,92,63,.12),rgba(255,92,63,.05));box-shadow:var(--shadow);padding:22px}
+  .redline em{color:var(--red);font:800 11px/1 var(--mono);letter-spacing:.1em}
+  .redline strong{display:block;margin:10px 0 8px;font-size:18px}
+  .redline span{color:var(--muted);font-size:13px}
+  .verdict{margin-top:26px}
+  .verdict b{color:var(--green)}
+  .calendar th:first-child{width:150px}
+  .disclaimer{margin-top:16px;color:var(--muted);font-size:13px}
+  @media(max-width:900px){.hero,.tasks,.redlines{grid-template-columns:1fr}
+  .mini-grid{grid-template-columns:1fr!important}}
+  .mini-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;margin-top:24px;align-items:start}
+  .mini-grid select{margin-top:4px}
+  .toggles{display:grid;gap:10px;margin-top:16px}
+  .tog{display:flex;align-items:center;gap:10px;color:var(--ink);font-size:14px;cursor:pointer}
+  .tog input{width:18px;height:18px;accent-color:var(--lime);flex:none}
+  .tog small{display:block;color:var(--muted);font-size:11.5px}
+  .loadline{display:flex;align-items:baseline;gap:12px;margin:6px 0 14px}
+  .loadline b{font:500 40px/1 var(--serif);color:var(--lime)}
+  .loadline span{color:var(--muted);font:700 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+  .stack{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .stack li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:13.5px;color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:rgba(255,255,255,.03)}
+  .stack li em{font:900 9px/1.6 var(--mono);letter-spacing:.06em;color:#080806;background:var(--lime);border-radius:6px;padding:3px 6px;white-space:nowrap;font-style:normal}
+  .stack li strong{color:var(--ink);font-weight:700}
+  .warn{margin-top:10px;border:1px solid rgba(255,92,63,.5);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--red);background:rgba(255,92,63,.09)}
+</style>
+</head>
+<body data-page="legal">
+<header class="topline"><span>BlogRank / India legal &amp; launch</span><span>Domain → entity → build → beta → go-live → calendar</span></header>
+<nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a><a href="about.html" data-page="about">About</a><a href="legal-checklist.html" data-page="legal">Legal</a></div></nav>
+<nav class="mobile-bottom-nav" aria-label="Quick mobile navigation"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a></nav>
+
+<main id="top">
+  <div class="hero">
+    <div>
+      <p class="eyebrow">BlogRank · India compliance</p>
+      <h1>Pay to rank. Watch to earn. <i>Do it legally.</i></h1>
+      <p class="deck">Bloggers pay for placement, visitors watch and answer to earn. In India that is legal only while viewers never pay or stake anything. Tick every step below — domain buy to go-live — and keep the five red lines checked forever.</p>
+      <div class="actions"><a class="btn primary" href="#checklist">Start checklist ↓</a><a class="btn" href="docs/blogrank-india-legal-compliance.md">Full legal memo (MD)</a><a class="btn" href="launch-checklist.html">Generic launch checklist →</a></div>
+    </div>
+    <aside class="meter" aria-live="polite">
+      <span class="eyebrow">Progress</span>
+      <b id="score">0%</b>
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <p id="scoreText">Nothing checked yet.</p>
+    </aside>
+  </div>
+
+  <section id="verdict">
+    <div class="section-head"><h2>Verdict &amp; the five red lines</h2></div>
+    <div class="panel verdict">
+      <p><b>Legal as described</b> — viewers pay nothing, creators pay for advertising. No stakes means no gambling, no "online money game" under the Promotion and Regulation of Online Gaming Act, 2025 (in force 1 May 2026), and no 28%-on-stakes GST. But each red line below is a trap door: one paid-retry button turns the whole product into a banned money game (up to 3 years / ₹1 crore).</p>
+    </div>
+    <div class="redlines">
+      <div class="redline"><em>RED LINE 01</em><strong>Viewers never pay or stake</strong><span>No entry fees, paid retries, coins/boosts, deposit-to-withdraw — ever. "Other stakes" includes anything bought with money.</span></div>
+      <div class="redline"><em>RED LINE 02</em><strong>No earnings from recruiting</strong><span>No referral chains, no % of downline activity. Otherwise: Prize Chits &amp; Money Circulation Act (Ponzi law).</span></div>
+      <div class="redline"><em>RED LINE 03</em><strong>Every paid slot labelled</strong><span>"Sponsored / Paid placement" visible on the card. Hidden paid ranking = misleading ad, CCPA fines ₹10–50 lakh.</span></div>
+      <div class="redline"><em>RED LINE 04</em><strong>Honour published reward rules</strong><span>Transparent "real time spent" measurement, payout timelines, logged and appealable denials. Opaque denials = unfair trade practice.</span></div>
+      <div class="redline"><em>RED LINE 05</em><strong>18+ only, KYC at payout</strong><span>DPDP Act bans behavioural tracking of under-18s — your attention/anti-fraud tracking is exactly that. Age-gate at signup, PAN at payout.</span></div>
+    </div>
+  </section>
+
+  <section id="fastlane">
+    <div class="section-head"><h2>Fast lane: launch in 1–3 days, legally</h2></div>
+    <div class="panel verdict"><p>A <b>no-rewards sponsored board</b> is an ordinary advertising business — almost nothing in it legally needs a waiting period. Company, GST, trademark, payment-gateway KYC and counsel are all deferrable or skippable at launch.</p></div>
+    <table>
+      <thead><tr><th>Roadmap item</th><th>Days-version</th><th>Why it's legal to skip/defer</th></tr></thead>
+      <tbody>
+        <tr><td>Pvt Ltd (1–3 wks)</td><td>Launch as proprietor/individual</td><td>No registration needed to trade; PAN + bank account = valid business. Convert later in parallel.</td></tr>
+        <tr><td>GST</td><td>Skip entirely</td><td>Not required under ₹20 lakh/yr for services, incl. inter-state (Notif. 10/2017-IT). Simple invoices only.</td></tr>
+        <tr><td>Trademark</td><td>File week 1–2</td><td>Use doesn't require registration; just do a conflict search before Day 1.</td></tr>
+        <tr><td>Payment gateway KYC</td><td>Day 1: manual UPI QR + form</td><td>Invoicing for your own services needs no licence. Submit PG KYC Day 1 → automation by Day 3–5.</td></tr>
+        <tr><td>SMS/DLT, accounts</td><td>No login at all</td><td>Login-free board = no SMS stack, minimal DPDP surface.</td></tr>
+        <tr><td>Counsel ₹25–75k</td><td>Not needed yet</td><td>No rewards = no prize/payout law in play. Get the opinion before adding coupons, not before launch.</td></tr>
+        <tr><td>Legal pages</td><td>Templates, hours</td><td>T&amp;C + privacy + refund + contact — also required for PG KYC; tighten later.</td></tr>
+      </tbody>
+    </table>
+    <div class="panel disclaimer"><p><strong>Day 0:</strong> conflict search → domain → deploy board with pricing, "all slots are paid placements" labels, legal pages, UPI QR + form. <strong>Day 1:</strong> first paid slots live (manual), screen advertisers, submit PG KYC, open current account, publish grievance email. <strong>Day 2–3:</strong> automated checkout, TM filing. <strong>Week 2–3:</strong> incorporate, counsel opinion, then switch on capped coupon rewards (Level 1). <em>Hard rules on Day 1: sponsored labels · no viewer payments · no rewards until Level-1 legal work · honour refunds · screen advertisers.</em></p></div>
+  </section>
+
+  <section id="checklist">
+    <div class="section-head">
+      <h2>Launch checklist: domain → go-live</h2>
+      <div style="display:flex;gap:10px"><button class="btn" id="exportJson" type="button">Export JSON</button><button class="btn" id="reset" type="button">Reset</button></div>
+    </div>
+    <div id="groups"></div>
+  </section>
+
+  <section id="reward-models">
+    <div class="section-head"><h2>Reward model compared: nothing · coupons · cash</h2></div>
+    <div class="panel verdict"><p>Compliance scales with what you give viewers. <b>No rewards</b> = an ordinary sponsored-listings site (most duties vanish). <b>Coupons</b> = same gaming/prize/TDS rules as cash, but simpler GST and no bank rails. <b>Cash</b> = the full stack.</p></div>
+    <table>
+      <thead><tr><th>Regime / duty</th><th>No rewards</th><th>Coupons</th><th>Cash</th></tr></thead>
+      <tbody>
+        <tr><td>Gaming Act 2025 / gambling</td><td>Moot — nothing to win</td><td>✅ Same as cash — reward form irrelevant while viewers stake nothing</td><td>✅ Fine while viewers pay nothing</td></tr>
+        <tr><td>Prize Competitions Act / TN prize schemes</td><td>❌ Gone — no prize offered</td><td>⚠️ Applies — prizes count "in cash or otherwise"</td><td>⚠️ Applies</td></tr>
+        <tr><td>TDS 194B · 30% tax</td><td>❌ Nothing to withhold</td><td>✅ Applies, in-kind: cap users &lt; ₹10,000/FY → zero TDS</td><td>✅ Applies (₹10,000/FY threshold)</td></tr>
+        <tr><td>GST on the reward</td><td>n/a</td><td>✅ Simple — vouchers not taxable at issuance (tax at redemption, by the brand)</td><td>✅ Cash payout = expense</td></tr>
+        <tr><td>Payout rails · KYC · AML</td><td>❌ Gone</td><td>⚠️ Lighter — codes by email/SMS; identity only for TDS + fraud</td><td>✅ Full stack (UPI, penny-drop)</td></tr>
+        <tr><td>PCMCSA (Ponzi) red lines</td><td>❌ Moot</td><td>⚠️ Never sell / trade / cash-out coupons</td><td>⚠️ No deposits, no referral chains</td></tr>
+        <tr><td>Gig-work risk</td><td>❌ Gone</td><td>⚠️ Medium</td><td>⚠️ Medium</td></tr>
+        <tr><td>DPDP / minors / attention data</td><td>⚠️ Lighter — can go login-free</td><td>✅ Full</td><td>✅ Full</td></tr>
+        <tr><td>Ad disclosure · entity · GST 18% on fees · ad screening</td><td>✅ Always</td><td>✅ Always</td><td>✅ Always</td></tr>
+      </tbody>
+    </table>
+    <div class="panel disclaimer"><p><strong>Coupon rules of thumb:</strong> use third-party brand vouchers only (never issue your own stored-value balance — RBI PPI territory); keep coupons unpurchasable, non-tradeable, never cash-outable; disclose validity, brand and min-spend at the moment of the offer (CCPA); single-use codes against resale. Details in <a href="docs/blogrank-india-legal-compliance.md">§11 of the memo</a>.</p></div>
+  </section>
+
+  <section id="minimizer">
+    <div class="section-head"><h2>Compliance minimizer: cut features, cut law</h2></div>
+    <p class="deck" style="font-size:16px">Every feature you don't build deletes a chapter of the memo. Toggle your planned build below — the right panel shows the compliance stack that remains and any hard warnings.</p>
+    <div class="mini-grid">
+      <div class="panel">
+        <label><span>Reward model</span>
+          <select id="mReward">
+            <option value="none">None — pure sponsored listings</option>
+            <option value="coupon">Third-party coupons, capped &lt; ₹10,000/user/year</option>
+            <option value="cash" selected>Cash rewards (UPI payout)</option>
+          </select>
+        </label>
+        <div class="toggles">
+          <label class="tog"><input type="checkbox" id="mAccounts" checked> <span>Viewer accounts (login)<small>Adds full DPDP consent stack; email-only login avoids the SMS/DLT vendor entirely</small></span></label>
+          <label class="tog"><input type="checkbox" id="mUgc"> <span>Comments / user posts<small>Adds IT Rules intermediary duties: grievance officer, takedown SLAs, monthly reports</small></span></label>
+          <label class="tog"><input type="checkbox" id="mReferral"> <span>Referral rewards<small>One-time fixed gift only — never % of a referee's earnings (Ponzi law)</small></span></label>
+          <label class="tog"><input type="checkbox" id="mWallet"> <span>On-platform wallet / balance<small>RBI PPI + deposit optics — prefer instant redemption</small></span></label>
+          <label class="tog"><input type="checkbox" id="mForeign"> <span>Foreign creators<small>Adds FEMA + GST export zero-rating paperwork</small></span></label>
+          <label class="tog"><input type="checkbox" id="mMinors"> <span>Allow under-18 viewers<small>DPDP: verifiable parental consent + ban on behavioural tracking of children</small></span></label>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="eyebrow">Remaining compliance stack</span>
+        <div class="loadline"><b id="mLoad">Standard</b><span id="mPct"></span></div>
+        <ul class="stack" id="mStack"></ul>
+        <div id="mWarn"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Quick law map</h2></div>
+    <table>
+      <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+      <tbody>
+        <tr><td>Is watch-to-earn gambling?</td><td>No — as long as visitors never pay or stake anything to participate. No stake ⇒ no betting, no money game.</td></tr>
+        <tr><td>Does the 2025 Gaming Act ban it?</td><td>No — it bans games where the <em>user</em> pays fees/deposits/stakes expecting winnings, skill or chance irrelevant. Viewers pay nothing ⇒ permitted no-stakes territory. Criminal trap if you ever charge viewers.</td></tr>
+        <tr><td>Is pay-to-rank legal?</td><td>Yes — paid placement is advertising. But bought slots must be visibly disclosed; hiding them is a misleading advertisement (fines ₹10–50 lakh).</td></tr>
+        <tr><td>Tax on viewer rewards?</td><td>30% TDS (Sec. 194B) once a user's winnings cross ₹10,000/financial year; flat 30% tax for the user. Creator fees: 18% GST.</td></tr>
+        <tr><td>Can we skip GST?</td><td><strong>Yes, legally — below ₹20 lakh/year turnover.</strong> Inter-state <em>services</em> don't force early registration (Notification 10/2017-IT). No GST charged, no monthly returns; register within 30 days of crossing; QRMP = quarterly filings under ₹5 crore.</td></tr>
+        <tr><td>Biggest residual risks?</td><td>Viewer monetization creep, undisclosed paid rankings, prize-competition licensing (16 states), Ponzi law if you take deposits/referral chains, minors + DPDP, gig-work recharacterization.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Compliance calendar (after launch)</h2></div>
+    <table class="calendar">
+      <thead><tr><th>Cadence</th><th>Tasks</th></tr></thead>
+      <tbody>
+        <tr><td>Monthly · 7th</td><td>Deposit TDS withheld on rewards.</td></tr>
+        <tr><td>Monthly · 11th / 20th</td><td>GSTR-1 / GSTR-3B — <strong>only if GST-registered</strong>. Skip entirely below ₹20 lakh turnover; QRMP makes both quarterly under ₹5 crore.</td></tr>
+        <tr><td>Monthly</td><td>Payout reconciliation · grievance log review · reward-denial audit · intermediary compliance data.</td></tr>
+        <tr><td>Quarterly</td><td>TDS return Form 26Q · issue Form 16A · board meeting minutes (Pvt Ltd).</td></tr>
+        <tr><td>Annual</td><td>ITR · ROC filings (AOC-4, MGT-7, DIR-3 KYC) · trademark status check · renewals.</td></tr>
+        <tr><td>Continuous</td><td>DPDP rights requests · 72-hour breach runbook · watchlist: Gaming Authority social-game registration, Karnataka/Rajasthan gig rules, DPDP SDF list, CCPA actions on paid rankings.</td></tr>
+      </tbody>
+    </table>
+    <div class="panel disclaimer"><p><strong>Disclaimer:</strong> research, not legal advice — have an Indian gaming/consumer lawyer sign off on the final reward structure before launch. Full analysis with sources: <a href="docs/blogrank-india-legal-compliance.md">docs/blogrank-india-legal-compliance.md</a>. Prepared 27 Aug 2026.</p></div>
+  </section>
+</main>
+
+<script>
+const GROUPS=[
+ {id:"red",name:"Red lines",meta:"Product guardrails — check and keep checked",items:[
+  ["Viewers can never pay or stake","No entry fees, paid retries, coins/boosts, deposit-to-withdraw, or staking earned balances. One paid retry = banned online money game."],
+  ["No earnings from recruiting","No referral chains or % of downline. At most a one-time fixed signup gift — otherwise Ponzi law (PCMCSA 1978)."],
+  ["Every paid slot labelled Sponsored/Paid","Visible on the card at first glance, never buried in T&Cs. If there is no organic ranking, say all positions are paid."],
+  ["Published reward rules are honoured","Plain-language: how time spent is measured, payout timelines, caps; denials logged and appealable."],
+  ["18+ only, KYC at payout","Age gate at signup, enforced hard at payout KYC (PAN + penny-drop). Kills the DPDP minors problem."]]},
+ {id:"p0",name:"Phase 0 · Lock identity",meta:"Week 1 · ₹6k–12k",items:[
+  ["Trademark clearance searched","IP India TM search, classes 35/41/42, for BlogRank conflicts; 2–3 fallback names shortlisted."],
+  ["Domains bought","blogrank.in + blogrank.com; 2FA, registrar lock and auto-renew enabled."],
+  ["Social handles reserved","X, Instagram, YouTube, LinkedIn, Telegram — even unused."],
+  ["Trademark application filed","Form TM-O online (~₹4.5k/class for startups). Priority date starts now."]]},
+ {id:"p1",name:"Phase 1 · Entity & money rails",meta:"Weeks 1–3 · ₹7k–15k",items:[
+  ["Pvt Ltd incorporated","SPICe+ → COI, CIN, company PAN/TAN, MOA/AOA. Two directors, DSC + DIN."],
+  ["Registered office set","Home address works; virtual office if you want privacy."],
+  ["Current account opened","In the company's name — gateway and payouts depend on it."],
+  ["GST plan set","No registration needed below ₹20 lakh/year turnover (services, incl. inter-state). Track monthly, register within 30 days of crossing; then 18% + quarterly QRMP filings."],
+  ["Optional registrations done","DPIIT Startup (free), Udyam/MSME (free)."],
+  ["Shops & Establishment / professional tax","If you have an office or employees (state-dependent)."]]},
+ {id:"p2",name:"Phase 2 · Vendors",meta:"Weeks 2–4 · ₹1k–6k setup",items:[
+  ["DLT registration done","Principal Entity on Jio/Airtel/Vi portals; sender ID + OTP templates approved. No DLT = no SMS login."],
+  ["Payment gateway KYC cleared","Razorpay/Cashfree. Needs live website with pricing, T&C, refund policy and contact page."],
+  ["Payout rails ready","RazorpayX/Cashfree Payouts: UPI transfers + penny-drop name-match verification."],
+  ["YouTube Data/Player API key","Google Cloud project + quota request. Use official embeds only."],
+  ["India-region hosting chosen","AWS Mumbai / DO Bangalore — simplifies DPDP data-residency posture."],
+  ["Ops stack connected","GA4 behind consent banner, Sentry, transactional email."]]},
+ {id:"p3",name:"Phase 3 · Build MVP",meta:"Weeks 3–7 · ₹0–2k/mo infra",items:[
+  ["Landing + pricing live","Unblocks payment-gateway KYC. Disclose that all slots are paid placements."],
+  ["Creator pay-to-rank flow","Submit link → PG checkout → sponsored-slot board, every slot labelled."],
+  ["Viewer watch page with attention tracking","Dwell timer, Page Visibility API (tab-switch), scroll depth."],
+  ["Quiz engine built","Comprehension/knowledge questions only — never anagram or word-puzzle formats (Prize Competitions Act). Unlocked after time threshold."],
+  ["Wallet + reward ledger","Immutable entries, daily/user caps, 18+ age gate."],
+  ["TDS engine wired","PAN capture at first payout; 194B 30% above ₹10,000/FY; 20% u/s 206AA without PAN."],
+  ["UPI payout queue + statements","Payout approvals, monthly statements for the CA."],
+  ["Anti-fraud built","Device fingerprint, IP/velocity caps, duplicate detection, manual review queue, denial audit log."],
+  ["Admin console built","Content review (reject betting/RMG), question moderation, reward config, refunds, takedowns."],
+  ["Legal pages published","T&C (creators + viewers), standalone DPDP consent notice, privacy policy, Rewards T&Cs with measurement methodology, refund policy, Grievance Officer page (15-day SLA)."]]},
+ {id:"p4",name:"Phase 4 · Legal dry-run",meta:"Week 7 · ₹25k–75k one-time",items:[
+  ["Counsel sign-off on reward structure","Free-entry quiz, zero viewer stakes, no 194BA exposure — documented."],
+  ["State prize-law opinion","Prize Competitions Act 1955 exposure + Tamil Nadu Prize Schemes Act structuring per launch state."],
+  ["Reward instrument decided","Cash vs voucher — different GST treatment."],
+  ["Creator agreement finalized","Paid placement T&Cs, content standards, takedown rights, refunds."],
+  ["Grievance officer appointed and published","Named person, India address, 15-day SLA."],
+  ["CA retained","Monthly GST/TDS calendar (₹2.5k–5k/mo)."],
+  ["Evidence pack archived","Screenshots of free entry, reward funding source, question design rationale — your answer to 'is this betting?'."]]},
+ {id:"p5",name:"Phase 5 · Private beta",meta:"Week 8",items:[
+  ["5–10 creators, 50–100 viewers onboarded","Rewards capped small (₹5–20/day/user)."],
+  ["Full money loop tested once","Creator pays → GST invoice → reward credited → TDS withheld → UPI payout lands → books reconcile."],
+  ["Self-attack completed","Bots, multi-accounts, VMs, tab-idle; time thresholds and velocity limits tuned."]]},
+ {id:"p6",name:"Phase 6 · Public launch",meta:"Weeks 9–10",items:[
+  ["Board seeded","Founding-creator slots filled; announcement drafted (screenshot, promise, CTA)."],
+  ["Marketing compliant","#ad on paid promos; 'rewards programme' wording only — never an 'earning app'; no under-18 ad targeting."],
+  ["Day-1 runbook ready","Support channel, refund path, takedown path, 72-hour DPDP breach escalation."]]}
+];
+const KEY="blogrank-legal-";
+const groupsEl=document.getElementById("groups"),score=document.getElementById("score"),fill=document.getElementById("fill"),scoreText=document.getElementById("scoreText");
+function render(){
+  let idx=0;let html="";
+  for(const g of GROUPS){
+    html+=`<div class="group"><div class="group-head"><h3>${g.name}</h3><span class="meta">${g.meta}</span><span class="count" data-count="${g.id}">0/${g.items.length}</span></div><div class="tasks">`;
+    for(const [t,d] of g.items){
+      const danger=g.id==="red"?" danger":"";
+      html+=`<label class="task${danger}" data-task="${idx}"><input type="checkbox" data-i="${idx}"><div><strong>${t}</strong><span>${d}</span></div></label>`;
+      idx++;
+    }
+    html+=`</div></div>`;
+  }
+  groupsEl.innerHTML=html;
+  document.querySelectorAll('input[type=checkbox]').forEach(box=>{
+    box.checked=localStorage.getItem(KEY+box.dataset.i)==="1";
+    box.addEventListener("change",update);
+  });
+  update();
+}
+function update(){
+  const boxes=[...document.querySelectorAll('input[type=checkbox]')];
+  boxes.forEach(b=>localStorage.setItem(KEY+b.dataset.i,b.checked?"1":"0"));
+  boxes.forEach(b=>b.closest(".task").classList.toggle("done",b.checked));
+  // per-group counts
+  let cursor=0;
+  for(const g of GROUPS){
+    const slice=boxes.slice(cursor,cursor+g.items.length);
+    const done=slice.filter(b=>b.checked).length;
+    const el=document.querySelector(`[data-count="${g.id}"]`);
+    if(el)el.textContent=`${done}/${g.items.length}`;
+    cursor+=g.items.length;
+  }
+  const total=boxes.length,done=boxes.filter(b=>b.checked).length,p=total?Math.round(done/total*100):0;
+  score.textContent=p+"%";fill.style.width=p+"%";
+  scoreText.textContent=p===0?"Nothing checked yet.":p<15?"Paperwork stage — identity and entity first.":p<45?"Foundations down. Vendors and the build next.":p<70?"Build shaping up — legal pages before beta money moves.":p<90?"Close now. Legal dry-run and the beta money loop remain.":p<100?"Final stretch — launch runbook and red lines.":"Cleared for launch. Now run the monthly calendar.";
+}
+document.getElementById("exportJson").onclick=()=>{
+  const data=[];
+  for(const g of GROUPS)for(const [t,d] of g.items)data.push({group:g.name,task:t,done:localStorage.getItem(KEY+data.length)==="1"});
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="blogrank-india-legal-checklist.json";a.click();URL.revokeObjectURL(a.href);
+};
+document.getElementById("reset").onclick=()=>{Object.keys(localStorage).filter(k=>k.startsWith(KEY)).forEach(k=>localStorage.removeItem(k));render()};
+render();
+</script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const BASE=[
+    ["ENTITY","Indian entity + ITR/ROC — <strong>GST only above ₹20 lakh/year</strong> turnover (18% + quarterly QRMP once registered)"],
+    ["ADS","<strong>Sponsored / Paid labels</strong> on every bought slot (CCPA fines ₹10–50 lakh)"],
+    ["ADS","Ad-acceptance screening — reject betting / real-money-game advertisers"],
+    ["DATA","DPDP basics: notice, security safeguards, 72-hour breach runbook"],
+    ["IP","Links + official embeds only; creator agreement + T&C"]
+  ];
+  function item(t,txt){return"<li><em>"+t+"</em><div>"+txt+"</div></li>"}
+  function warn(txt){return"<div class='warn'>⚠ "+txt+"</div>"}
+  function update(){
+    const reward=$("mReward").value, acc=$("mAccounts").checked, ugc=$("mUgc").checked,
+          ref=$("mReferral").checked, wallet=$("mWallet").checked, frn=$("mForeign").checked, minors=$("mMinors").checked;
+    let items=BASE.slice(), warns=[], score=2;
+    if(reward==="coupon"){
+      score+=2;
+      items.push(["PRIZE","Prize-law opinion for launch states — coupons are prizes \u201cin cash or otherwise\u201d (PCA 1955, TN Act)"]);
+      items.push(["TAX","No TDS while each user stays <strong>&lt; ₹10,000/year</strong> in coupons — track the cap per user; collect PAN at the threshold"]);
+      items.push(["FRAUD","Rewards T&Cs (measurement, caps, clawback), single-use codes, velocity limits, 18+ recommended"]);
+    }
+    if(reward==="cash"){
+      score+=4;
+      items.push(["PRIZE","Prize-law opinion for launch states (PCA 1955, TN Prize Schemes Act)"]);
+      items.push(["TAX","<strong>TDS engine</strong>: 194B at 30% once winnings cross ₹10,000/FY; PAN capture; 20% u/s 206AA without PAN; Form 26Q + 16A"]);
+      items.push(["PAYOUT","Payout rails + penny-drop KYC + AML-lite controls; monthly reconciliation"]);
+      items.push(["LABOUR","Gig-work mitigations: \u201crewards, not wages\u201d T&Cs, no assignment workflow, watch Rajasthan/Karnataka rules"]);
+    }
+    if(acc){score+=1;items.push(["DATA","Full DPDP consent flow: standalone notice, erasure rights, retention limits"])}
+    if(ugc){score+=1;items.push(["IT RULES","Intermediary duties: published guidelines, grievance officer (15-day SLA), 24h urgent takedown, monthly compliance report"])}
+    if(ref){
+      score+=1;warns.push("Referral rewards: keep it a <strong>one-time fixed gift</strong>. Paying a % of a referee's earnings = money-circulation scheme (PCMCSA) — criminal.");
+      items.push(["FRAUD","Referral programme T&Cs + duplicate-account controls"]);
+    }
+    if(wallet){
+      score+=1;warns.push("On-platform balance: stored value redeemable in money = <strong>RBI PPI territory</strong> + \u201cdeposit\u201d optics under Ponzi law. Redeem instantly instead — no wallet.");
+    }
+    if(frn){score+=1;items.push(["FEMA","Export-of-service GST zero-rating (LUT), FX invoicing, FEMA reporting"])}
+    if(minors){
+      score+=2;warns.push("Under-18 access + your attention/anti-fraud tracking = <strong>banned behavioural monitoring of children</strong> under DPDP unless you have verifiable parental consent. Cleanest: 18+ only.");
+      items.push(["DATA","Children's regime: verifiable parental consent, no targeted ads to minors"]);
+    }
+    warns.push("Always illegal, every variant: charging viewers anything — entry fees, paid retries, coins/boosts, deposit-to-withdraw. One button turns BlogRank into a banned online money game (3 yrs / ₹1 crore).");
+    $("mStack").innerHTML=items.map(i=>item(i[0],i[1])).join("");
+    $("mWarn").innerHTML=warns.map(warn).join("");
+    $("mLoad").textContent=score<5?"Light":score<8?"Standard":"Heavy";
+    $("mPct").textContent=score<5?"≈ ad-platform level (Level 0)":score<8?"≈ coupon economy (Level 1)":"≈ full reward economy (Level 2)";
+    $("mLoad").style.color=score<5?"var(--green)":score<8?"var(--lime)":"var(--red)";
+  }
+  ["mReward","mAccounts","mUgc","mReferral","mWallet","mForeign","mMinors"].forEach(id=>{const el=$(id);el.addEventListener(el.tagName==="SELECT"?"change":"change",update)});
+  update();
+})();
+</script>
+<script src="assets/site-enhancements.js"></script>
+</body>
+</html>
