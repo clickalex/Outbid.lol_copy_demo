@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Report 002 — updated 27 August 2026. A self-contained list of website ideas nobody has built yet: pay-to-rank vertical gaps found in the live inventory, plus brand-new mechanics. Static page, no bot, no daily runs.">
+  <meta name="description" content="A bot-monitored list of pay-to-rank website ideas, with daily collision checks against the latest verified market inventory.">
   <meta property="og:title" content="Idea List — Outbid OS">
   <meta property="og:description" content="Outbid OS: market audit, idea lab, simulator, launch checklist and revenue tools for pay-to-rank websites.">
   <meta property="og:type" content="website">
@@ -677,7 +677,7 @@
   </header>
 
 
-  <nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a></div></nav>
+  <nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a><a href="about.html" data-page="about">About</a></div></nav>
   <nav class="mobile-bottom-nav" aria-label="Quick mobile navigation"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a></nav>
 
 
@@ -701,8 +701,8 @@
         <a href="entry-simulator.html">Entry simulator <em>↗</em></a>
       </nav>
       <div class="side-note">
-        This page makes no network calls and is never refreshed by the daily bot. It is a one-time, hand-written idea list. Figures cited come from the inventory snapshot dated 26 August 2026.
-        <strong>Static · human-only</strong>
+        The daily bot checks every new verified board against a conservative watchlist of defining idea phrases. Matches are review flags—not automatic proof that an idea is fully built.
+        <strong>Bot checked: <span data-stat="ideas-bot-updated">Awaiting first run</span></strong>
       </div>
     </aside>
 
@@ -710,7 +710,7 @@
       <p class="eyebrow">Report 002 · Idea list · updated 27 August 2026</p>
       <h1>Websites nobody has built yet — <span class="accent">pick one, ship it.</span></h1>
       <p class="lede">
-        The live market inventory tracks <strong>415 verified pay-to-rank boards</strong> across
+        The live market inventory tracks <strong><span data-stat="ideas-boards-total">415</span> verified pay-to-rank boards</strong> across
         <strong>8 categories</strong>. Most of them are clones of each other. This page lists the
         ideas that are <strong>still open</strong>: verticals where no pay-to-rank board exists, and
         brand-new mechanics nobody has shipped. Read them, choose one, build it as a pay-to-rank
@@ -725,8 +725,16 @@
         <div class="stat-pill"><strong>12</strong> vertical gaps (zero boards today)</div>
         <div class="stat-pill"><strong>11</strong> new mechanics incl. visitor-earn</div>
         <div class="stat-pill"><strong>25+4</strong> of your ideas verified in section 01</div>
-        <div class="stat-pill"><strong>0</strong> bots or scheduled runs on this page</div>
+        <div class="stat-pill"><strong data-stat="ideas-collision-count">0</strong> automated review flags</div>
       </div>
+
+      <section id="idea-watch">
+        <div class="sec-head"><span class="sec-num">LIVE</span><h2>Automated idea collision watch</h2></div>
+        <p class="sec-sub">Every daily run checks <strong data-stat="ideas-watch-count">24</strong> structured ideas against the names and descriptions of <strong data-stat="ideas-boards-total">415</strong> verified boards. Conservative phrase matches appear below for human review. This avoids silently calling a broad idea “built” because of a weak keyword overlap. Last scan: <strong data-stat="ideas-bot-updated">Awaiting first run</strong>.</p>
+        <!--bot:idea-collision-watch-->
+          <article class="idea featured"><div class="idea-top"><span class="idea-id">AUTOMATED SCAN · READY</span></div><h3>Waiting for the next directory scan</h3><p class="pitch">The daily bot will replace this card with current collision evidence from the live inventory.</p><div class="badges"><span class="badge status-new">Watch enabled ✓</span></div></article>
+        <!--/bot:idea-collision-watch-->
+      </section>
 
       <section id="attachment">
         <div class="sec-head"><span class="sec-num">01</span><h2>Imported ideas — checked against the market</h2></div>
@@ -1212,8 +1220,8 @@
       </section>
 
       <footer>
-        <span>Report 002 · idea list · updated 27 August 2026 · static, human-maintained</span>
-        <span>Gap claims verified against data/outbid-market-inventory.csv (415 boards, CC BY 4.0 outoutbid.lol snapshot)</span>
+        <span>Report 002 · editorial idea list with a daily automated collision watch</span>
+        <span>Latest bot scan: <span data-stat="ideas-bot-updated">Awaiting first run</span> · <span data-stat="ideas-boards-total">415</span> boards checked</span>
       </footer>
     </main>
   </div>
