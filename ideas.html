@@ -227,6 +227,19 @@
     .no { color: var(--red-dark); font-weight: 700; }
     .half { color: var(--amber); font-weight: 700; }
 
+    .idea.mini { padding: 14px 16px; gap: 6px; box-shadow: none; }
+    .idea.mini h3 { font-size: 15px; }
+    .idea.mini .pitch { font-size: 13px; }
+    .idea.mini .evidence { margin: 0; font: 11px/1.5 var(--mono); color: var(--muted); }
+    .verdict-label { margin: 26px 0 10px; font: 700 12px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+    .verdict-label.v-new { color: var(--green); }
+    .verdict-label.v-mark { color: var(--amber); }
+    .verdict-label.v-taken { color: var(--red-dark); }
+
+    .how { margin: 4px 0 0; padding: 0 0 0 18px; font-size: 13px; color: #444138; }
+    .how li { margin-bottom: 4px; }
+    .featured { border: 2px solid var(--green); background: linear-gradient(180deg, rgba(217,255,101,.28), var(--card) 46%); }
+
     .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 20px; }
     .filters input {
       flex: 1 1 240px; max-width: 340px;
@@ -337,10 +350,10 @@
         <a class="btn ghost" href="#pick">How to pick one</a>
       </div>
       <div class="stat-strip">
-        <div class="stat-pill"><strong>18</strong> open ideas listed below</div>
+        <div class="stat-pill"><strong>23</strong> open ideas below + BlogRank featured</div>
         <div class="stat-pill"><strong>12</strong> vertical gaps (zero boards today)</div>
-        <div class="stat-pill"><strong>6</strong> brand-new mechanics</div>
-        <div class="stat-pill"><strong>4</strong> of your demo ideas verified in section 01</div>
+        <div class="stat-pill"><strong>11</strong> new mechanics incl. visitor-earn</div>
+        <div class="stat-pill"><strong>25+4</strong> of your ideas verified in section 01</div>
         <div class="stat-pill"><strong>0</strong> bots or scheduled runs on this page</div>
       </div>
 
@@ -351,7 +364,29 @@
           arrived (committed to <code>main</code>). Its 4 hosted-demo ideas are checked below against all 415 boards
           in the 26 Aug 2026 inventory — <strong>new ideas kept, already-built ones marked, nothing added twice</strong>.
           Two further cards (A-01, A-02) extend your open themes and were verified the same way.
+          The <code>pay-to-rank-new-ideas.csv</code> arrived too — all 25 ideas from it are verified at the bottom of this section.
         </p>
+
+        <article class="idea featured" style="margin-bottom:18px">
+          <div class="idea-top"><span class="idea-id">YOUR FLAGSHIP IDEA · VERIFIED NEW ✓</span></div>
+          <h3>BlogRank — pay to rank, watch to earn</h3>
+          <p class="pitch">Bloggers &amp; YouTubers post a link and pay to rank. Visitors click, watch or read, come back and answer a question about the content — correct answer + enough real time spent = reward. Wrong answer = nothing.</p>
+          <dl>
+            <dt>How it works</dt>
+            <dd>
+              <ol class="how">
+                <li><b>Poster side — no profile needed:</b> paste the blog/video link, pay to rank, exactly like every other pay-to-rank board.</li>
+                <li><b>Visitor side — profile needed (to stop fraud):</b> visitor clicks through; the click time is captured.</li>
+                <li>When the visitor returns, the timer stops and the site compares time spent against the content’s real read-time / watch-time.</li>
+                <li>Time is enough → answer the content question. Correct = reward paid. Incorrect = nothing.</li>
+              </ol>
+            </dd>
+            <dt>Verification vs all 415 boards</dt><dd>quiz, question, answer, watch-time, read-time, proof-of-attention reward: <strong>0 matches</strong>. Existing boards sell attention one-way; none verifies it and pays the visitor for it.</dd>
+            <dt>Why it matters</dt><dd>Kills the #1 problem of pay-to-rank (fake/empty clicks) and adds the visitor-benefit trend your CrownRank spotted — in one product.</dd>
+          </dl>
+          <div class="badges"><span class="badge status-new">New — keep ✓</span><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★★</span></div>
+        </article>
+
         <div class="cards">
 
           <article class="idea">
@@ -412,9 +447,53 @@
           </tbody>
         </table>
 
-        <div class="notice" style="margin-top:18px">
-          <strong>⚠ One file is still missing from your upload</strong>
-          <p>Your page loads its 26 idea cards from <code>pay-to-rank-new-ideas.csv</code>, but only the <code>.html</code> viewer was committed to <code>main</code> — the CSV is not in the repo, so the other 22 idea details can’t be read yet. Add <code>pay-to-rank-new-ideas.csv</code> next to it in <code>docs/</code> and say “check again” — every remaining idea will be verified and merged here with the same rule: keep the new, mark the already-built.</p>
+        <p class="sec-sub" style="margin-top:30px">
+          <strong>The 25 ideas from your CSV — each one keyword-checked against all 415 boards.</strong>
+          Rule applied exactly as you asked: <span class="ok">new ideas kept</span>,
+          <span class="half">borderline ones kept with a mark</span> (similar board exists, twist is new),
+          <span class="no">already-built ones marked and not added</span>.
+        </p>
+
+        <p class="verdict-label v-new">✓ New — kept (11 ideas, zero matches in the market)</p>
+        <div class="cards">
+          <article class="idea mini"><h3>CollegeRank.lol</h3><p class="pitch">Pay to be #1 startup in your college; own board per college, monthly reset, .edu verify.</p><p class="evidence">college / university / campus / student: 0 boards. Adjacent on this page: I-06 CampusClash (pride angle, not startups).</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>HarbergerRank.lol</h3><p class="pitch">Own #1 but pay a daily Harberger tax at your own self-assessed price; anyone can buy you out at it.</p><p class="evidence">harberger / buyout: 0 boards. claim.town has a crown tax and topple.lol melts bids, but forced buy-out pricing is unbuilt.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>FoodRank Delhi</h3><p class="pitch">₹200 to rank your dish today; the bid becomes ₹10 coupons for first 20 orders.</p><p class="evidence">food / dish / restaurant / coupon: 0 boards. Adjacent on this page: I-01 RankMyDish. Coupon twist = visitor benefit ✓.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>ShaadiRank.lol</h3><p class="pitch">₹500 to rank a matrimony profile in city/age filter for 24h; female profiles free.</p><p class="evidence">matrimony / shaadi / matchmaking: 0 boards. Adjacent on this page: A-01 MatrimonyWall.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>GigRank.lol</h3><p class="pitch">Clients post a brief; freelancers pay $5 to rank their proposal; client gets 50% of bids back as discount.</p><p class="evidence">brief / proposal / freelance: 0 boards. hire-me.lol showcases talent but runs no reverse-brief marketplace.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>OpenSourceRank.lol</h3><p class="pitch">Sponsor an OSS repo to rank it; bid money goes straight to the maintainer’s GitHub sponsorship.</p><p class="evidence">open source / repo / oss: 0 boards. GitFlex flexes GitHub stats but routes no sponsorship money.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>EventHijack.lol</h3><p class="pitch">Board only lives during IPL / WWDC / Demo Day; 100 slots, event attention is 100× normal.</p><p class="evidence">event / ipl / conference / match: 0 boards. LaunchWars ranks launches, not live events.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>NegativeBid — Pay to Bury</h3><p class="pitch">Pay $2 to push a competitor down one spot; they get notified and can pay to recover. Drama = virality.</p><p class="evidence">bury / downvote / sabotage: 0 boards. Steal boards (WARMAP, Steal My Spot) take spots — nobody sells burials.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>RentMyInbox.lol</h3><p class="pitch">Recruiters pay $5 to rank their DM to a candidate; candidate earns $2 per read. Inbox spam, reversed.</p><p class="evidence">recruiter-DM ranking: 0 boards. Bonus: candidate-gets-paid makes this a visitor-earn board too.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>ReviewRank.lol</h3><p class="pitch">Rank = bid × average rating. 1-star reviews tank you even if you paid $1000; verified buyers only.</p><p class="evidence">review / rating / quality multiplier: 0 boards. Decay exists (OutbidRank) but never tied to reviews.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>WaitlistJump.lol</h3><p class="pitch">Startups post waitlists; users pay $1–10 to jump the queue; startup keeps 70%.</p><p class="evidence">waitlist / queue: 0 boards. The queue economy has no pay-to-rank product yet.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+        </div>
+
+        <p class="verdict-label v-mark">⚠ Kept with a mark (10 ideas — the twist is new, but a related board exists)</p>
+        <div class="cards">
+          <article class="idea mini"><h3>LeaseRank — TimeSlot Bid</h3><p class="pitch">Rent #1 for 60 peak minutes; 24 slots/day sold like ad inventory.</p><p class="evidence">Fixed leases: unbuilt. But time rounds exist — undercut.lol runs hourly auctions, OutPace/BUYTHETOP decay hourly.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>PromptRank.lol</h3><p class="pitch">AI-prompt marketplace ranked by bid + sales.</p><p class="evidence">topagent.lol mentions prompts (“you cannot prompt your way to the top”) but ranks agents, not a prompt market. Marketplace angle: open.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>NewsletterBid.lol</h3><p class="pitch">Pay to be the sponsor inside a bundle of 5 top newsletters, ranked by open rate.</p><p class="evidence">topnewsletters.lol already ranks newsletters. The sponsorship-bundle twist is the new part.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>BillboardIRL.lol</h3><p class="pitch">Pay online → your QR shows for 1 hour on a real Gurgaon LED board with live camera.</p><p class="evidence">IRL boards exist: Two Girls One Billboard, lamborghini.lol. Hourly QR + live cam angle is new.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>ResumeRank.lol</h3><p class="pitch">$10 to rank a resume in the recruiter feed for 7 days, AI feedback included.</p><p class="evidence">No resume board — but outbid.work already covers jobs + LinkedIn promotion. Closest live competitor of the 25.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>DomainBid.lol</h3><p class="pitch">Expired domains ranked by bid, escrow built in.</p><p class="evidence">rankdomains.net already ranks domains for sale. Expired-domain + escrow twist is new.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>PodcastRank.lol</h3><p class="pitch">30-sec clip plays on landing; #1 clip of the day chosen by listener time.</p><p class="evidence">TopCast.lol already ranks podcasts by genre bids. Clip + listen-time voting is the new part.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>WhaleHunter — SquadBid</h3><p class="pitch">100 small founders pool bids; if the pool beats #1 they share it as a carousel.</p><p class="evidence">Squad pooling for rank: unbuilt. But BidFootball already pools fans to take a shared crown.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>CharityBid 2.0 — ESG Rank</h3><p class="pitch">Corporate ESG leaderboard: 100% to NGO + 80G tax receipt + CSR badge.</p><p class="evidence">Your CSV says 1 charity board — actually 5 exist (Outcharity, charitybid, outdonate.lol, Goodbid, Rei de Portugal). The tax/CSR corporate angle itself: still unbuilt.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>MemeRank — Clip War</h3><p class="pitch">$1 to push a reel; top reel auto-posted to a 100k-follower IG page.</p><p class="evidence">clipwar.lol + ForcePlay already run clip fights; FYPbid/TikTok boards exist. The IG-distribution prize is new.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+        </div>
+
+        <p class="verdict-label v-taken">✗ Already built — marked, not added (4 ideas)</p>
+        <div class="cards">
+          <article class="idea mini"><h3>AgentRank — x402</h3><p class="pitch">AI agents autonomously bid USDC to rank API endpoints.</p><p class="evidence">Crowded: nohumans.lol, AgenticCommerce.lol, topagent.lol, AgentBid already run agent/x402 boards.</p><div class="badges"><span class="badge status-taken">Built ✗</span></div></article>
+          <article class="idea mini"><h3>KarmaPool — Lose to Win</h3><p class="pitch">Outbid? Get 50% back as karma credit for your next bid.</p><p class="evidence">getoutbid.lol already pays “50% back as credit” when you’re outbid from #1 or the top 10 — same core mechanic.</p><div class="badges"><span class="badge status-taken">Built ✗</span></div></article>
+          <article class="idea mini"><h3>ShopifyRank.lol</h3><p class="pitch">Shopify apps pay to rank for keywords like “email marketing”.</p><p class="evidence">topshopifyapp.lol exists (your CSV concedes it), plus app-store rankers BidYourApp and appmog.</p><div class="badges"><span class="badge status-taken">Built ✗</span></div></article>
+          <article class="idea mini"><h3>MapMyBlock Delhi</h3><p class="pitch">Claim Delhi blocks; anyone can steal for 1.5×.</p><p class="evidence">WARMAP already sells territory with the exact 1.5× steal rule; claim.town and mapbid.lol cover blocks/maps. Your CSV calls it a “Warmap.lol clone” — a Delhi skin, not a new idea.</p><div class="badges"><span class="badge status-taken">Built ✗</span></div></article>
+        </div>
+
+        <div class="notice" style="margin-top:18px;border-color:var(--green);background:rgba(217,255,101,.18)">
+          <strong>✓ CSV received and fully verified</strong>
+          <p><code>docs/pay-to-rank-new-ideas.csv</code> (25 ideas) was checked line-by-line against the 415-board inventory on 27 August 2026. Result: 11 kept · 10 kept-with-mark · 4 marked as already built. Nothing was added twice.</p>
         </div>
       </section>
 
@@ -429,7 +508,7 @@
         </p>
         <div class="filters" role="group" aria-label="Filter ideas">
           <input id="ideaSearch" type="search" placeholder="Search ideas…" aria-label="Search ideas">
-          <button class="chip" data-filter="all" aria-pressed="true">All 18</button>
+          <button class="chip" data-filter="all" aria-pressed="true">All 23</button>
           <button class="chip" data-filter="gap" aria-pressed="false">Vertical gaps</button>
           <button class="chip" data-filter="mech" aria-pressed="false">New mechanics</button>
         </div>
@@ -651,16 +730,78 @@
             <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
           </article>
 
+          <article class="idea" data-type="mech" data-keywords="visitor earn attention dividend revenue share pays you get paid attentiondividend">
+            <div class="idea-top"><span class="idea-id">V-01 · VISITOR-EARN</span></div>
+            <h3>AttentionDividend</h3>
+            <p class="pitch">The board shares revenue with its visitors: 30% of every bid is split between the people who actually viewed that entry today. Bidders buy real eyeballs; visitors get paid for looking.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>dividend / profit-share / visitor revenue share: 0 boards. universebid literally advertises “No revenue share” — nobody has flipped that switch.</dd>
+              <dt>Model</dt><dd>House keeps 70%; viewers accrue daily micro-payouts with a minimum withdrawal.</dd>
+              <dt>Reach</dt><dd>“The leaderboard that pays you to look” is a headline that shares itself.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="visitor earn cashback click paid to visit micro payout cashbackclick">
+            <div class="idea-top"><span class="idea-id">V-02 · VISITOR-EARN</span></div>
+            <h3>CashbackClick</h3>
+            <p class="pitch">Every visitor who clicks an entry gets instant micro-cashback funded from the bid pool. Clicks stop being free, and bidders finally get provable traffic.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>cashback / paid-to-visit / get-paid: 0 boards. outhustle pays in rank, NextOutBid pays in free slots — nobody pays visitors money.</dd>
+              <dt>Model</dt><dd>10% of each bid feeds the click-pool; payout over UPI fits the India angle perfectly.</dd>
+              <dt>Reach</dt><dd>Visitors become promoters — every shared link is “click this, you get paid”.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="insurance protect shield defend rank shieldbid">
+            <div class="idea-top"><span class="idea-id">M-01</span></div>
+            <h3>ShieldBid — rank insurance</h3>
+            <p class="pitch">Pay a premium to shield your rank: the first outbid attempt bounces off, and the attacker must pay twice to break through.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>insurance / shield / protect-a-rank: 0 boards (flexwall.lol says “defend it” as flavour text, not as a purchasable mechanic).</dd>
+              <dt>Model</dt><dd>Shield costs 40% of your current bid, single-use; creates a double-pay game against whales.</dd>
+              <dt>Reach</dt><dd>Every blocked takeover attempt is a drama post waiting to happen.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="season pass battle pass streak retention seasonpass">
+            <div class="idea-top"><span class="idea-id">M-02</span></div>
+            <h3>SeasonPass</h3>
+            <p class="pitch">Ranks wipe every season (month). Pass holders get badges, streaks and discounted bids; the final #1 of the season takes the season pot.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>season pass / battle pass / streak: 0 boards. Dethrone resets weekly but sells no pass, no streaks, no season prize.</dd>
+              <dt>Model</dt><dd>$9 pass per season; recurring revenue instead of one-off bids — attacks the churn behind the $19 median take.</dd>
+              <dt>Reach</dt><dd>Season finales are launch events; every ending writes the next season’s announcement.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="predict prediction pool visitors earn bet odds predictwall">
+            <div class="idea-top"><span class="idea-id">M-03 · VISITOR-EARN</span></div>
+            <h3>PredictWall</h3>
+            <p class="pitch">Visitors pay $1 to predict who holds #1 when the week closes. Correct predictors split the prediction pot — visitors earn, and everyone has a reason to return daily.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>predict / odds-on-rank: 0 boards. GambleBid ranks gambling sites; nobody lets visitors bet on the board itself.</dd>
+              <dt>Model</dt><dd>House takes 20% of the prediction pot; predictions double as an attention metric for bidders.</dd>
+              <dt>Reach</dt><dd>Weekly “who called it” winner posts are endless content.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
         </div>
         <p class="empty-msg" id="noMatch">No ideas match that search — try another word, or clear the filter.</p>
       </section>
 
       <section id="pick">
-        <div class="sec-head"><span class="sec-num">03</span><h2>New mechanics — from this report’s author</h2></div>
+        <div class="sec-head" id="mechanics"><span class="sec-num">03</span><h2>New mechanics — from this report’s author</h2></div>
         <p class="sec-sub">
-          Ideas I-11 through I-16 above were added by me, per your request: not just new verticals,
-          but mechanics none of the 415 existing boards uses. The quick filter buttons above let you
-          view only the vertical gaps or only these new mechanics.
+          Ideas I-11…16 were added by me in report 002’s first edition; this update adds the
+          <strong>visitor-earn family</strong> you asked for — V-01 AttentionDividend, V-02 CashbackClick,
+          M-03 PredictWall (visitors get paid or win) — plus M-01 ShieldBid (rank insurance) and
+          M-02 SeasonPass (retention). Every card was keyword-checked against all 415 boards first;
+          your BlogRank flagship sits featured in section 01. The buttons above filter gaps vs mechanics.
         </p>
         <div class="sec-head" style="margin-top:34px"><span class="sec-num">04</span><h2>How to pick your one idea</h2></div>
         <p class="sec-sub">Score every idea against three questions. Ship the first one that answers “yes” to at least two.</p>

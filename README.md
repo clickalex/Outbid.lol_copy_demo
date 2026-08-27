@@ -25,9 +25,9 @@ Every figure on it is computed from the committed inventory snapshot and refresh
 
 The audit shows *what exists*; this page lists *what doesn't*. It is a dated, one-time idea list for choosing the next pay-to-rank site to build and launch for reach —
 
-- **from your attachment** (section 01): the four hosted-demo ideas from `docs/pay-to-rank-new-ideas.html` verified against the inventory — new ones kept, already-built ones marked, plus a keyword verdict for each of its five gap themes;
+- **from your attachment** (section 01): the flagship **BlogRank** idea (pay to rank, watch/read to earn), the four hosted-demo ideas, and all **25 ideas from `docs/pay-to-rank-new-ideas.csv`** — every one keyword-verified against the inventory: new ones kept, borderline ones kept with a mark, already-built ones marked and excluded;
 - **vertical gaps**: pay-to-rank board niches with zero entries among the 415 verified boards (food, books, freelancers, fitness, image-memes, campuses, barbers, weddings, coffee & bars, nightlife, matrimony, performing arts);
-- **new mechanics**: brand-new twists none of the existing boards ships (text-box hill with pot, auction-the-site's-name, anonymous wall, pay-vote duels, time capsules, idea voting);
+- **new mechanics**: brand-new twists none of the existing boards ships — including the **visitor-earn family** (AttentionDividend, CashbackClick, PredictWall), rank insurance, season passes, the text-box hill with pot, auction-the-site's-name and the anonymous wall;
 - a three-question **pick test**, the build-and-launch plan, and a filtered/searchable card list.
 
 By design this page is **static and human-maintained**: no `data-stat` attributes, no bot sentinels, no network calls, and the daily bot never touches it. Idea-checking stays manual — the point is to pick one idea, build it as pay-to-rank, and launch it for reach, not to monitor it on a schedule.
