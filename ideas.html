@@ -1232,7 +1232,9 @@
   </dialog>
 
   <script>
-    // Static page helpers only — no network calls, no timers, no bot.
+    // Keep the written report useful offline, but refresh visible board totals from
+    // the same directory API used by index.html when the live source is available.
+    const IDEAS_API_URL = 'https://outoutbid.lol/api/directory.json?pageSize=500&sort=new';
     const cards = Array.from(document.querySelectorAll('#ideaCards .idea'));
     const chips = Array.from(document.querySelectorAll('.chip'));
     const search = document.getElementById('ideaSearch');
@@ -1339,6 +1341,27 @@
     document.getElementById('dialogClose').addEventListener('click', () => dialog.close());
     dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
     updateCompare();
+
+    async function refreshIdeasBoardCount() {
+      try {
+        const response = await fetch(IDEAS_API_URL, {
+          cache: 'no-store',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        const total = Number(payload.meta?.total) || (Array.isArray(payload.boards) ? payload.boards.length : 0);
+        if (!total) throw new Error('No board total returned');
+        document.querySelectorAll('[data-stat="ideas-boards-total"]').forEach(el => {
+          el.textContent = total.toLocaleString();
+        });
+      } catch (error) {
+        // The bot-generated values in the HTML remain as the offline snapshot.
+        console.warn('Ideas count API unavailable; keeping snapshot:', error);
+      }
+    }
+
+    refreshIdeasBoardCount();
   </script>
 
 
