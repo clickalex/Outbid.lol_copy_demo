@@ -1,6 +1,16 @@
-# Outbid.lol market analysis
+# Outbid.lol market analysis → launch kit
 
-Three self-contained HTML pages, no build step.
+Static by design: **no build step, no framework, no backend** — open any file directly or serve the folder.
+
+Three layers, one repository:
+
+1. **Research** — `index.html` (market audit 001), `entry-simulator.html` (001b), `ideas.html` (002), driven by the
+   bot-maintained inventory in `data/`.
+2. **Decision tools** — `tools.html` and the picker / calculator / fee / checklist / generator pages around it, plus
+   the shared responsive shell in `assets/nav.css`.
+3. **The thing you ship** — `launch/`, a real pay-to-rank board that deploys on its own domain, and
+   `docs/level0-launch-pack/`, the nine documents that make taking money for it lawful. The report site links it as
+   **Launch** in every nav; it does not otherwise depend on the report, and it works with or without this repo.
 
 **`index.html` — report 001, the market audit:**
 
@@ -32,6 +42,23 @@ The audit shows *what exists*; this page lists *what doesn't*. It is a dated, on
 
 By design the **idea cards** on this page are **static and human-maintained** — the daily bot never rewrites an idea or a verification verdict. The bot does refresh the page's live counters (`data-stat` spans), the automated collision-watch block (`<!--bot:idea-collision-watch-->` sentinel) and the "last scan" stamps, and a small in-page script fetches the current board count at runtime; everything else is a dated, hand-verified snapshot. Idea-checking stays manual — the point is to pick one idea, build it as pay-to-rank, and launch it for reach, not to monitor it on a schedule.
 
+**`launch/` — the product, not a report:**
+
+A shippable pay-to-rank board in three files: `index.html` (board, outbid form that computes the minimum valid bid,
+free reference list built from the inventory, browser-only owner console), `entries.json` (the paid slots — this is
+the whole CMS) and `build_data.py` (regenerates `data.js` from both). `legal.html` publishes the terms, privacy
+notice, refund policy and paid-placement disclosure next to it. Static, no server, no database, no login; the paid
+board **ships empty** because an empty #1 is the pitch. Deploy by dragging the folder to any static host. See
+[`launch/README.md`](launch/README.md).
+
+**`docs/level0-launch-pack/` — the paperwork for Level 0:**
+
+Nine documents, written out rather than listed: terms of service, DPDP-shaped privacy notice, refund policy, ad
+content policy with the 10-point screening checklist, paid-placement disclosure spec, invoicing/books/tax, entity +
+bank + payment-processor + trademark setup, ops SOP with a pre-launch go/no-go gate, and the scope-lock guardrails.
+The pack is what makes "no GST below ₹20 lakh, no TDS engine, no payout KYC, no crypto accounting" a *decision*
+with a paper trail instead of an accident.
+
 Open any file directly, or serve the repository locally:
 
 ```bash
@@ -40,6 +67,34 @@ python3 -m http.server 4173 --bind 0.0.0.0
 
 The written snapshot is dated **26 August 2026**. The inventory figures inside it are refreshed automatically every day by the update bot (see below), so the counters stay current even though the qualitative analysis keeps its original date. Live inventory data is attributed to [outoutbid.lol](https://outoutbid.lol/) under CC BY 4.0. Public traffic and revenue numbers are source-reported and not independently audited.
 
+## Site navigation
+
+One shared layer: **`assets/nav.css`**, linked *last* in every page's `<head>` so it wins over the older per-page
+nav rules without editing 17 inline `<style>` blocks. Behaviour, and what each tier is for:
+
+| Width | What you get |
+| --- | --- |
+| ≥ 1241px | full nav row, no wrapping |
+| 901–1240px | horizontally scrollable pill rail with an edge fade — 11 links never stack into rows on a laptop |
+| ≤ 900px | hamburger + anchored dropdown panel (own scroll, capped at 68% of the dynamic viewport, dimming scrim) **and** the fixed bottom quick-bar |
+
+Device details baked in: 44–46px tap targets, `env(safe-area-inset-*)` padding for notched phones, `dvh` heights so
+mobile browser chrome doesn't clip the panel, `@media (hover:none)` tap states, 16px form fields under 900px (stops
+iOS zoom-on-focus from shoving the sticky bar around), landscape-phone rules, and nav hidden entirely in print.
+`assets/site-enhancements.js` owns behaviour: `aria-controls`/`aria-expanded`, `aria-current="page"` from the page's
+`data-page`, Escape closes and restores focus, tapping a link or the scrim closes it, resizing out of panel mode
+closes and unlocks scroll.
+
+The nav now carries 11 destinations: Audit · Ideas · Tools · Search · Picker · Simulator · Checklist · Calculator ·
+**Launch** · Changelog · About — with Audit / Ideas / Tools / Search / **Launch** in the phone quick-bar.
+
+**Adding a page?** Four places, and all four are mechanical:
+
+1. the link in `.site-links` **and** `.mobile-bottom-nav` (copy an existing `<a …data-page="…">`);
+2. `<link rel="stylesheet" href="assets/nav.css">` as the *last* thing in `<head>`, after any inline `<style>`;
+3. an entry in the `pages` array in `search.html`, or it is invisible to search;
+4. a row in the table below and an entry in `changelog.html`.
+
 ## Repository contents
 
 | Path | What it is |
@@ -47,13 +102,24 @@ The written snapshot is dated **26 August 2026**. The inventory figures inside i
 | `index.html` | The full report (001). Open it in a browser; no build step. |
 | `entry-simulator.html` | The entry simulator (001b). Same theme, same data, no build step and no network needed. |
 | `ideas.html` | The idea list (002) — websites nobody has built yet. **Idea cards are hand-written** (offline, human-edited); only the live counters and collision watch are bot-refreshed. |
+| `tools.html` | The hub for every tool below; also links the launch kit. |
+| `idea-picker.html`, `compare.html`, `mvp-builder.html`, `launch-copy-generator.html`, `name-generator.html`, `revenue-calculator.html`, `fees.html`, `build-plan.html`, `launch-checklist.html`, `legal-checklist.html`, `search.html`, `changelog.html`, `about.html` | The decision tools: constraint-based picking, side-by-side comparison, MVP spec, launch copy, names, revenue model, payment-fee maths, the 7-day plan, the persistent ship checklist, the India legal checklist, site search, project record, maker bio. |
+| `assets/os.css` | Shared theme for the pages that link it (seven pages keep their own inline copy of the theme instead — a known duplication). |
+| **`assets/nav.css`** | **Shared responsive navigation layer** — see *Site navigation*. Linked last in every page. |
+| `assets/site-enhancements.js` | Nav behaviour, theme toggle, skip link, idea-card tools. Loaded by every report page. |
 | `data/outbid-market-inventory.csv` | **Bot-maintained CSV** — the complete inventory snapshot (one row per verified board, newest first), regenerated on every bot run. |
-| `data/stats.json` | **Bot-maintained summary** of the latest run: totals, claimed amounts, category counts, top-10 boards, route checks, and an `entrySimulator` block with the percentiles and per-category medians behind report 001b. |
-| `assets/nav.css` | **Shared responsive navigation layer.** Loaded last in every page's `<head>` so it overrides the older per-page nav rules: full nav row above 1240px, scrollable pill rail 901–1240px, hamburger panel + bottom quick-bar ≤900px (44px targets, safe-area insets, panel scroll, `Escape`/tap-outside/`aria-expanded` via `assets/site-enhancements.js`). Any new page must include this link *after* its own `<style>` block. |
-| `docs/level0-launch-pack/` | **The Level 0 legal/ops pack** — 9 files: pack index, Terms of Service, DPDP-shaped privacy notice, refund policy, ad content policy + 10-point screening checklist, paid-placement disclosure spec, invoicing/books/tax, entity-bank-PG-trademark setup, ops SOP + pre-launch gate, and the scope-lock guardrails. Written for BlogRank, niche-agnostic. |
-| `launch/legal.html` | The public legal page for the product (terms + privacy + refunds + disclosure), served alongside the board so policies deploy with it. |
+| `data/stats.json` | **Bot-maintained summary** of the latest run: totals, claimed amounts, category counts, top-10 boards, route checks, and the `entrySimulator` block behind report 001b. |
+| `data/ideas.json`, `data/ideas.csv`, `docs/pay-to-rank-new-ideas.csv` | The structured idea data the tools read, and the source CSV for report 002. |
+| `docs/blogrank-india-legal-compliance.md` | The long-form India compliance analysis for the BlogRank concept (gaming law, GST, TDS, DPDP, payments). `01`–`09` in the pack are its Level 0 subset, made operational. |
+| **`launch/index.html`** | **The product:** a live pay-to-rank board. Board + outbid form + reference list + owner console, self-contained responsive nav, `CONFIG` block at the top of the script. |
+| `launch/legal.html` | Its public terms, privacy notice, refund policy and disclosure spec — deployed with the board, linked from the footer and the order form's acceptance tick. |
+| `launch/entries.json` | The paid slots. The entire CMS; ships empty. |
+| `launch/entries.sample.json` | A worked example (three slots) so the ranking and outbid maths can be seen working. |
+| `launch/data.js` | Generated — paid slots + reference rows. Do not hand-edit. |
+| `launch/build_data.py` | Regenerates `data.js` from `entries.json` + the inventory; degrades to an empty board instead of breaking on malformed JSON. |
+| `launch/README.md` | Deploy steps, pricing maths, day-1 legal posture, first-20-bidders outreach, the week-one kill metric, and how to re-point the kit at BlogRank. |
+| **`docs/level0-launch-pack/`** | **The Level 0 document set** (9 files): pack index → terms → privacy → refunds → ad content policy & screening → disclosure spec → invoicing/books/tax → entity/bank/PG/trademark → ops SOP & pre-launch gate → guardrails. Niche-agnostic, written for BlogRank. |
 | `scripts/update_report.py` | The update bot (Python 3.9+, standard library only). |
-| **`launch/`** | **The product, not a report.** A shippable pay-to-rank board (`index.html` + `entries.json` + `build_data.py`). Static, no backend, deploys on its own domain. See `launch/README.md`. |
 | `docs/daily-update.yml` | The GitHub Actions workflow for the bot. **One-time activation:** a repo admin copies it to `.github/workflows/daily-update.yml` (see below). |
 
 ## The daily update bot
@@ -83,6 +149,7 @@ Failure behaviour is conservative: if the API or a check fails after retries, th
 | outbid.lol route statuses, About counters (revenue, visitors, top bid) | Recommendations and risk register |
 | **001b:** baseline odds, percentiles, outcome bands, category ladder, the two written call-outs and the embedded simulator dataset | **001b:** the readiness checklist weights, the three paths and the assumptions section |
 | *(nothing — `ideas.html` is excluded by design)* | **002:** the entire idea list — static, human-maintained, never refreshed by the bot |
+| *(nothing — untouched)* | **The whole site chrome and product:** `assets/nav.css`, `assets/site-enhancements.js`, every tool page, all of `launch/` and all of `docs/level0-launch-pack/`. The bot patches only the three report files and `data/`; the board's own data is refreshed on demand with `python3 launch/build_data.py` |
 
 ### Running the bot yourself
 
@@ -129,7 +196,14 @@ The automation ships as [`docs/daily-update.yml`](docs/daily-update.yml). Becaus
 
 ## GitHub Pages
 
-The report is ready for branch-based GitHub Pages hosting: `index.html` and `entry-simulator.html` are in the repository root and need no build step. The two pages link to each other with relative URLs, so they work identically from a local file, a local server or Pages.
+The whole site is ready for branch-based GitHub Pages hosting — every report page, the tools, `assets/` and `data/`
+are in the repository root and need no build step. Pages link each other with relative URLs, so the navigation works
+identically from a local file, a local server or Pages.
+
+**Do not ship the product from here.** `launch/` will render fine at `/launch/`, but a pay-to-rank board needs its own
+domain: bidders check the URL, payment processors check the WHOIS behind the link, and a board living under a
+research site's path inherits all of its traffic patterns. Deploy `launch/` (with `data.js` regenerated and
+`legal.html` present) as the *root* of its own static host — see `launch/README.md`.
 
 To activate it, a repository administrator must:
 

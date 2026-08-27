@@ -68,8 +68,9 @@
 
   /* bottom quick-bar: bigger targets, safe-area aware, hidden while the panel is open */
   .mobile-bottom-nav{display:grid !important;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));
-    padding:7px 7px calc(7px + env(safe-area-inset-bottom));gap:6px}
-  .mobile-bottom-nav a{min-height:46px;font:800 12px/1 var(--sans,sans-serif);-webkit-tap-highlight-color:transparent}
+    grid-template-columns:repeat(5,minmax(0,1fr));padding:7px 7px calc(7px + env(safe-area-inset-bottom));gap:6px}
+  .mobile-bottom-nav a{min-height:46px;font:800 11.5px/1 var(--sans,sans-serif);-webkit-tap-highlight-color:transparent;
+    text-align:center}
   body.nav-open .mobile-bottom-nav{display:none !important}
   body{padding-bottom:calc(86px + env(safe-area-inset-bottom))}
 
@@ -86,7 +87,9 @@
   .theme-toggle{min-height:44px;padding:8px 11px;font-size:10px}
   .site-nav{gap:8px}
   .site-logo strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .mobile-bottom-nav{gap:4px;border-radius:18px}
+  .mobile-bottom-nav{gap:4px;border-radius:18px;grid-template-columns:repeat(5,minmax(0,1fr))}
+  .mobile-bottom-nav a{font-size:10px;letter-spacing:-.01em;padding:6px 2px;min-height:46px}
+  .site-nav .site-links{max-height:min(62vh,60dvh)}
   h1{font-size:clamp(38px,12vw,56px) !important}
   .grid{gap:10px !important}
 }
@@ -115,6 +118,13 @@
 .site-nav a:focus-visible,.site-nav button:focus-visible,.mobile-bottom-nav a:focus-visible{
   outline:2px solid var(--lime,#d9ff65);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.site-nav .site-links,.nav-toggle{animation:none !important;transition:none !important}}
+
+/* ---------- current page: works on every page, including the ones with per-page inline rules ---------- */
+.site-links a[aria-current="page"],.mobile-bottom-nav a[aria-current="page"]{color:#080806;border-color:transparent;background:var(--lime,#d9ff65)}
+body.light-theme .site-links a[aria-current="page"],body.light-theme .mobile-bottom-nav a[aria-current="page"]{color:#080806;background:var(--lime,#d9ff65)}
+/* the product page is not part of the report's own data-page scheme, so mark it from the host page */
+.site-links a[href^="launch/"]{border-color:rgba(217,255,101,.45);color:var(--lime,#d9ff65)}
+.mobile-bottom-nav a[href^="launch/"]{color:var(--lime,#d9ff65)}
 
 /* ---------- print: nav is noise ---------- */
 @media print{.site-nav,.mobile-bottom-nav,.topline,.nav-toggle{display:none !important}body{padding-bottom:0}}
