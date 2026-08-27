@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Report 002 — a dated list of website ideas nobody has built yet: pay-to-rank vertical gaps found in the live inventory, plus brand-new mechanics. Static page, no bot, no daily runs.">
+  <title>Idea List — websites nobody has built yet (Report 002)</title>
+  <!--
+    This page is intentionally NOT bot-maintained.
+    No data-stat attributes, no bot sentinels, no scheduled refresh, no network calls.
+    It is a hand-written, one-time idea list: read it, pick one idea, build it, launch it.
+  -->
+  <style>
+    :root {
+      --ink: #171714;
+      --paper: #f4f0e7;
+      --paper-deep: #e9e2d4;
+      --card: #fffdf7;
+      --line: #c9c1b3;
+      --muted: #67645e;
+      --red: #f04d35;
+      --red-dark: #bb2f21;
+      --lime: #d9ff65;
+      --green: #18724c;
+      --amber: #9a6212;
+      --blue: #345bc4;
+      --shadow: 0 18px 50px rgba(37, 31, 20, .09);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --serif: Iowan Old Style, Baskerville, "Times New Roman", serif;
+      --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 1%, rgba(240, 77, 53, .11), transparent 24rem),
+        linear-gradient(90deg, rgba(23, 23, 20, .025) 1px, transparent 1px),
+        var(--paper);
+      background-size: auto, 32px 32px, auto;
+      font-family: var(--sans);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-underline-offset: 3px; }
+    a:hover { color: var(--red-dark); }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+    .topline {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 7px 24px;
+      color: #fff;
+      background: var(--ink);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .live-label { display: inline-flex; align-items: center; gap: 8px; }
+    .live-dot {
+      width: 8px; height: 8px; border-radius: 999px;
+      background: var(--lime);
+      box-shadow: 0 0 0 4px rgba(217, 255, 101, .15);
+    }
+
+    .shell {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 246px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      align-self: start;
+      padding: 30px 24px;
+      border-right: 1px solid var(--line);
+      background: rgba(244, 240, 231, .86);
+      backdrop-filter: blur(12px);
+      overflow: auto;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; margin-bottom: 34px; }
+    .brand-mark {
+      display: grid; place-items: center;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--red); color: #fff;
+      font: 800 19px/1 var(--mono);
+      transform: rotate(-7deg);
+    }
+    .brand strong { display: block; font-size: 14px; letter-spacing: -.02em; }
+    .brand span { color: var(--muted); font: 10px/1.3 var(--mono); text-transform: uppercase; }
+
+    .nav-title {
+      margin: 24px 0 8px;
+      color: var(--muted);
+      font: 10px/1.2 var(--mono);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .side-nav { display: grid; gap: 2px; }
+    .side-nav a {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+      padding: 7px 10px; border-radius: 10px;
+      text-decoration: none; font-size: 13px; color: var(--ink);
+    }
+    .side-nav a:hover { color: var(--ink); background: rgba(255, 255, 255, .6); }
+    .side-nav em { font: normal 10px/1 var(--mono); color: #99948a; }
+
+    .side-note {
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .side-note strong { display: block; margin-top: 8px; font: 600 10px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--green); }
+
+    main { padding: 44px 46px 90px; min-width: 0; }
+
+    .eyebrow {
+      display: inline-block;
+      margin: 0 0 10px;
+      padding: 5px 12px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--lime);
+      font: 600 10px/1 var(--mono);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1 { margin: 0 0 14px; font-size: clamp(30px, 4.2vw, 54px); line-height: 1.04; letter-spacing: -.03em; }
+    h1 .accent { color: var(--red); }
+    .lede { max-width: 860px; font: 400 19px/1.6 var(--serif); color: #35342f; }
+    .lede strong { color: var(--ink); }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 26px 0 8px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 20px; border-radius: 999px;
+      border: 1px solid var(--ink);
+      background: var(--ink); color: #fff;
+      font: 600 13px/1 var(--sans);
+      text-decoration: none;
+      transition: transform .12s ease;
+    }
+    .btn:hover { transform: translateY(-1px); color: var(--lime); }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn.ghost:hover { color: var(--red-dark); }
+
+    section { margin-top: 58px; scroll-margin-top: 24px; }
+    .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
+    .sec-num { font: 800 13px/1 var(--mono); color: var(--red); letter-spacing: .1em; }
+    h2 { margin: 0; font-size: clamp(22px, 2.6vw, 32px); letter-spacing: -.02em; }
+    .sec-sub { max-width: 860px; margin: 8px 0 24px; color: var(--muted); font-size: 14.5px; }
+
+    .notice {
+      display: grid; gap: 10px;
+      padding: 20px 22px;
+      border: 1.5px dashed var(--amber);
+      border-radius: var(--radius);
+      background: rgba(217, 255, 101, .25);
+      font-size: 14.5px;
+    }
+    .notice strong { font-size: 15px; }
+    .notice p { margin: 0; color: #4a4436; }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; }
+
+    .idea {
+      display: flex; flex-direction: column; gap: 10px;
+      padding: 20px 20px 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      transition: transform .14s ease, box-shadow .14s ease;
+    }
+    .idea:hover { transform: translateY(-3px); }
+    .idea-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .idea-id { font: 800 11px/1 var(--mono); color: var(--red); letter-spacing: .1em; }
+    .idea h3 { margin: 0; font-size: 19px; letter-spacing: -.01em; }
+    .idea .pitch { margin: 0; font: 400 14.5px/1.55 var(--serif); color: #3c3a33; }
+    .idea dl { margin: 2px 0 0; display: grid; gap: 6px; }
+    .idea dt { font: 600 9.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+    .idea dd { margin: 0; font-size: 13px; color: #444138; }
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 12px; }
+    .badge {
+      padding: 4px 10px; border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--paper-deep);
+      font: 600 10px/1.3 var(--mono);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .badge.effort-S { background: #dff0e6; border-color: var(--green); color: var(--green); }
+    .badge.effort-M { background: #f6ead2; border-color: var(--amber); color: var(--amber); }
+    .badge.effort-L { background: #f6d9d3; border-color: var(--red-dark); color: var(--red-dark); }
+    .badge.reach { background: var(--ink); color: var(--lime); border-color: var(--ink); }
+    .badge.status-new { background: var(--green); border-color: var(--green); color: #fff; }
+    .badge.status-taken { background: var(--red-dark); border-color: var(--red-dark); color: #fff; }
+    .badge.status-mix { background: var(--amber); border-color: var(--amber); color: #fff; }
+
+    .idea.from-attachment { border-left: 4px solid var(--green); }
+
+    .theme-table { width: 100%; border-collapse: collapse; margin: 4px 0 0; font-size: 13.5px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+    .theme-table th, .theme-table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .theme-table th { font: 600 10px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); background: var(--paper-deep); }
+    .theme-table tr:last-child td { border-bottom: none; }
+    .ok { color: var(--green); font-weight: 700; }
+    .no { color: var(--red-dark); font-weight: 700; }
+    .half { color: var(--amber); font-weight: 700; }
+
+    .idea.mini { padding: 14px 16px; gap: 6px; box-shadow: none; }
+    .idea.mini h3 { font-size: 15px; }
+    .idea.mini .pitch { font-size: 13px; }
+    .idea.mini .evidence { margin: 0; font: 11px/1.5 var(--mono); color: var(--muted); }
+    .verdict-label { margin: 26px 0 10px; font: 700 12px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+    .verdict-label.v-new { color: var(--green); }
+    .verdict-label.v-mark { color: var(--amber); }
+    .verdict-label.v-taken { color: var(--red-dark); }
+
+    .how { margin: 4px 0 0; padding: 0 0 0 18px; font-size: 13px; color: #444138; }
+    .how li { margin-bottom: 4px; }
+    .featured { border: 2px solid var(--green); background: linear-gradient(180deg, rgba(217,255,101,.28), var(--card) 46%); }
+
+    .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 20px; }
+    .filters input {
+      flex: 1 1 240px; max-width: 340px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--card);
+      font-size: 13.5px;
+    }
+    .chip {
+      padding: 9px 16px; border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      font: 600 12px/1 var(--sans);
+    }
+    .chip[aria-pressed="true"] { background: var(--ink); color: var(--lime); border-color: var(--ink); }
+    .empty-msg { display: none; padding: 18px 0; color: var(--muted); font-size: 14px; }
+
+    .steps { counter-reset: step; display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; max-width: 860px; }
+    .steps li {
+      display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start;
+      padding: 16px 18px;
+      border: 1px solid var(--line); border-radius: 14px;
+      background: var(--card);
+      font-size: 14.5px;
+    }
+    .steps li::before {
+      counter-increment: step;
+      content: counter(step, decimal-leading-zero);
+      display: grid; place-items: center;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--lime); border: 1px solid var(--ink);
+      font: 800 14px/1 var(--mono);
+    }
+    .steps b { display: block; font-size: 15px; letter-spacing: -.01em; }
+    .steps span { color: var(--muted); }
+
+    .stat-strip { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0 0; }
+    .stat-pill {
+      padding: 12px 18px;
+      border: 1px solid var(--line); border-radius: 14px;
+      background: var(--card);
+      font-size: 13px; color: var(--muted);
+    }
+    .stat-pill strong { display: block; font: 800 22px/1.1 var(--mono); color: var(--ink); }
+
+    footer {
+      margin-top: 70px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;
+      color: var(--muted);
+      font: 11px/1.6 var(--mono);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .topline, .sidebar { display: none; }
+      main { padding: 30px 18px 70px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topline">
+    <span class="live-label"><span class="live-dot"></span> Idea lab / 26 Aug 2026 / UTC · static page · no bot · no daily runs</span>
+    <span>Read → pick one → build pay-to-rank → launch for reach</span>
+  </header>
+
+  <div class="shell">
+    <aside class="sidebar" aria-label="Page navigation">
+      <a class="brand" href="#top">
+        <span class="brand-mark">?!</span>
+        <span><strong>Idea Lab</strong><span>Outbid / report 002</span></span>
+      </a>
+      <p class="nav-title">On this page</p>
+      <nav class="side-nav">
+        <a href="#attachment">Your attachment <em>01</em></a>
+        <a href="#gaps">Vertical gaps <em>02</em></a>
+        <a href="#mechanics">New mechanics <em>03</em></a>
+        <a href="#pick">How to pick <em>04</em></a>
+        <a href="#plan">The plan <em>05</em></a>
+      </nav>
+      <p class="nav-title">Companions</p>
+      <nav class="side-nav">
+        <a href="index.html">Market audit <em>↗</em></a>
+        <a href="entry-simulator.html">Entry simulator <em>↗</em></a>
+      </nav>
+      <div class="side-note">
+        This page makes no network calls and is never refreshed by the daily bot. It is a one-time, hand-written idea list. Figures cited come from the inventory snapshot dated 26 August 2026.
+        <strong>Static · human-only</strong>
+      </div>
+    </aside>
+
+    <main id="top">
+      <p class="eyebrow">Report 002 · Idea list · 26 August 2026</p>
+      <h1>Websites nobody has built yet — <span class="accent">pick one, ship it.</span></h1>
+      <p class="lede">
+        The live market inventory tracks <strong>415 verified pay-to-rank boards</strong> across
+        <strong>8 categories</strong>. Most of them are clones of each other. This page lists the
+        ideas that are <strong>still open</strong>: verticals where no pay-to-rank board exists, and
+        brand-new mechanics nobody has shipped. Read them, choose one, build it as a pay-to-rank
+        site, then launch it for reach.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="#gaps">Browse the open ideas →</a>
+        <a class="btn ghost" href="#pick">How to pick one</a>
+      </div>
+      <div class="stat-strip">
+        <div class="stat-pill"><strong>23</strong> open ideas below + BlogRank featured</div>
+        <div class="stat-pill"><strong>12</strong> vertical gaps (zero boards today)</div>
+        <div class="stat-pill"><strong>11</strong> new mechanics incl. visitor-earn</div>
+        <div class="stat-pill"><strong>25+4</strong> of your ideas verified in section 01</div>
+        <div class="stat-pill"><strong>0</strong> bots or scheduled runs on this page</div>
+      </div>
+
+      <section id="attachment">
+        <div class="sec-head"><span class="sec-num">01</span><h2>From your attachment — checked against the market</h2></div>
+        <p class="sec-sub">
+          Your file <a href="docs/pay-to-rank-new-ideas.html"><code>docs/pay-to-rank-new-ideas.html</code></a>
+          arrived (committed to <code>main</code>). Its 4 hosted-demo ideas are checked below against all 415 boards
+          in the 26 Aug 2026 inventory — <strong>new ideas kept, already-built ones marked, nothing added twice</strong>.
+          Two further cards (A-01, A-02) extend your open themes and were verified the same way.
+          The <code>pay-to-rank-new-ideas.csv</code> arrived too — all 25 ideas from it are verified at the bottom of this section.
+        </p>
+
+        <article class="idea featured" style="margin-bottom:18px">
+          <div class="idea-top"><span class="idea-id">YOUR FLAGSHIP IDEA · VERIFIED NEW ✓</span></div>
+          <h3>BlogRank — pay to rank, watch to earn</h3>
+          <p class="pitch">Bloggers &amp; YouTubers post a link and pay to rank. Visitors click, watch or read, come back and answer a question about the content — correct answer + enough real time spent = reward. Wrong answer = nothing.</p>
+          <dl>
+            <dt>How it works</dt>
+            <dd>
+              <ol class="how">
+                <li><b>Poster side — no profile needed:</b> paste the blog/video link, pay to rank, exactly like every other pay-to-rank board.</li>
+                <li><b>Visitor side — profile needed (to stop fraud):</b> visitor clicks through; the click time is captured.</li>
+                <li>When the visitor returns, the timer stops and the site compares time spent against the content’s real read-time / watch-time.</li>
+                <li>Time is enough → answer the content question. Correct = reward paid. Incorrect = nothing.</li>
+              </ol>
+            </dd>
+            <dt>Verification vs all 415 boards</dt><dd>quiz, question, answer, watch-time, read-time, proof-of-attention reward: <strong>0 matches</strong>. Existing boards sell attention one-way; none verifies it and pays the visitor for it.</dd>
+            <dt>Why it matters</dt><dd>Kills the #1 problem of pay-to-rank (fake/empty clicks) and adds the visitor-benefit trend your CrownRank spotted — in one product.</dd>
+          </dl>
+          <div class="badges"><span class="badge status-new">New — keep ✓</span><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★★</span></div>
+        </article>
+
+        <div class="cards">
+
+          <article class="idea">
+            <div class="idea-top"><span class="idea-id">YOUR DEMO</span></div>
+            <h3>MohallaRank</h3>
+            <p class="pitch">Hyper-local board ranking streets, mohallas and neighbourhoods against each other.</p>
+            <dl>
+              <dt>Verification</dt><dd>mohalla / neighbourhood / street / ward / colony / village / district / pincode — <strong>zero matches</strong> across all 415 boards.</dd>
+              <dt>Closest existing</dt><dd>claim.town sells $1 city <em>blocks</em> (an ad grid, not a neighbourhood rivalry board); kingbid.lol and Bidwall do country/region lists — none goes street-level.</dd>
+            </dl>
+            <div class="badges"><span class="badge status-new">Still new — keep ✓</span></div>
+          </article>
+
+          <article class="idea">
+            <div class="idea-top"><span class="idea-id">YOUR DEMO</span></div>
+            <h3>GuiltRank</h3>
+            <p class="pitch">Rank driven by guilt — pay up or be publicly named as the one who didn’t.</p>
+            <dl>
+              <dt>Verification</dt><dd>guilt / shame / embarrass — <strong>zero matches</strong> across all 415 boards. No board uses social pressure as the bid engine.</dd>
+              <dt>Closest existing</dt><dd>None. Dare mechanics appear once (OUTBID EARTH) but not guilt framing.</dd>
+            </dl>
+            <div class="badges"><span class="badge status-new">Still new — keep ✓</span></div>
+          </article>
+
+          <article class="idea">
+            <div class="idea-top"><span class="idea-id">YOUR DEMO</span></div>
+            <h3>OneThrone</h3>
+            <p class="pitch">A single throne: pay more, take it, defend it.</p>
+            <dl>
+              <dt>Verification</dt><dd>throne / king / crown / hill / dethrone — <strong>11+ matching boards</strong>: throne.clicks.is, AI THRONE, Dethrone (weekly), Dethrone, Kingme, hill.bid, King of the Web, firstpage.lol, topple.lol, UNBID, Richie Rich, BidFootball.</dd>
+              <dt>Result</dt><dd>This is the most crowded mechanic in the whole market. Per your rule it is <strong>marked, not added</strong>.</dd>
+            </dl>
+            <div class="badges"><span class="badge status-taken">Already built — marked ✗</span></div>
+          </article>
+
+          <article class="idea">
+            <div class="idea-top"><span class="idea-id">YOUR DEMO</span></div>
+            <h3>CrownRank</h3>
+            <p class="pitch">Visitor-benefits board: visitors themselves get something, not just the bidder.</p>
+            <dl>
+              <dt>Verification</dt><dd>The mechanic — visitor / benefit / reward / cashback / giveaway / prize — has <strong>zero matches</strong>. That combination is genuinely unbuilt.</dd>
+              <dt>Watch out</dt><dd>The word “crown” is already used by 5 boards (Richie Rich, TopGoblin, claim.town, BidFootball, Worstbid). Keep the mechanic, consider renaming.</dd>
+            </dl>
+            <div class="badges"><span class="badge status-mix">Mechanic new ✓ · name crowded ⚠</span></div>
+          </article>
+
+        </div>
+
+        <p class="sec-sub" style="margin-top:26px">Your attachment also named five gap themes. Each theme was keyword-checked against the inventory:</p>
+        <table class="theme-table">
+          <thead><tr><th>Theme from your list</th><th>Status</th><th>Evidence from the 415-board inventory</th></tr></thead>
+          <tbody>
+            <tr><td><b>Matrimony</b></td><td class="ok">OPEN — keep</td><td>matrimony, marriage, matchmaking, bride, groom, wedding: 0 boards. Big India angle, zero competition.</td></tr>
+            <tr><td><b>Hyper-local</b></td><td class="half">PARTIAL — niche down</td><td>City/country boards exist (claim.town, indiecity, kingbid.lol, Bidwall, toplocal), but street/mohalla/pincode level is empty → your MohallaRank sits exactly in the open part.</td></tr>
+            <tr><td><b>Talent</b></td><td class="half">PARTIAL — niche down</td><td>hire-me.lol already runs a general talent leaderboard. Singer, dance, acting, skill boards: still 0 → performing-arts niches are open (see A-02).</td></tr>
+            <tr><td><b>Visitor benefits</b></td><td class="ok">OPEN — keep</td><td>No board rewards visitors (see CrownRank card above). A real new trend you spotted first.</td></tr>
+            <tr><td><b>Mechanic innovations</b></td><td class="ok">See section 03</td><td>Six new mechanics listed below, each checked the same way.</td></tr>
+          </tbody>
+        </table>
+
+        <p class="sec-sub" style="margin-top:30px">
+          <strong>The 25 ideas from your CSV — each one keyword-checked against all 415 boards.</strong>
+          Rule applied exactly as you asked: <span class="ok">new ideas kept</span>,
+          <span class="half">borderline ones kept with a mark</span> (similar board exists, twist is new),
+          <span class="no">already-built ones marked and not added</span>.
+        </p>
+
+        <p class="verdict-label v-new">✓ New — kept (11 ideas, zero matches in the market)</p>
+        <div class="cards">
+          <article class="idea mini"><h3>CollegeRank.lol</h3><p class="pitch">Pay to be #1 startup in your college; own board per college, monthly reset, .edu verify.</p><p class="evidence">college / university / campus / student: 0 boards. Adjacent on this page: I-06 CampusClash (pride angle, not startups).</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>HarbergerRank.lol</h3><p class="pitch">Own #1 but pay a daily Harberger tax at your own self-assessed price; anyone can buy you out at it.</p><p class="evidence">harberger / buyout: 0 boards. claim.town has a crown tax and topple.lol melts bids, but forced buy-out pricing is unbuilt.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>FoodRank Delhi</h3><p class="pitch">₹200 to rank your dish today; the bid becomes ₹10 coupons for first 20 orders.</p><p class="evidence">food / dish / restaurant / coupon: 0 boards. Adjacent on this page: I-01 RankMyDish. Coupon twist = visitor benefit ✓.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>ShaadiRank.lol</h3><p class="pitch">₹500 to rank a matrimony profile in city/age filter for 24h; female profiles free.</p><p class="evidence">matrimony / shaadi / matchmaking: 0 boards. Adjacent on this page: A-01 MatrimonyWall.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>GigRank.lol</h3><p class="pitch">Clients post a brief; freelancers pay $5 to rank their proposal; client gets 50% of bids back as discount.</p><p class="evidence">brief / proposal / freelance: 0 boards. hire-me.lol showcases talent but runs no reverse-brief marketplace.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>OpenSourceRank.lol</h3><p class="pitch">Sponsor an OSS repo to rank it; bid money goes straight to the maintainer’s GitHub sponsorship.</p><p class="evidence">open source / repo / oss: 0 boards. GitFlex flexes GitHub stats but routes no sponsorship money.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>EventHijack.lol</h3><p class="pitch">Board only lives during IPL / WWDC / Demo Day; 100 slots, event attention is 100× normal.</p><p class="evidence">event / ipl / conference / match: 0 boards. LaunchWars ranks launches, not live events.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>NegativeBid — Pay to Bury</h3><p class="pitch">Pay $2 to push a competitor down one spot; they get notified and can pay to recover. Drama = virality.</p><p class="evidence">bury / downvote / sabotage: 0 boards. Steal boards (WARMAP, Steal My Spot) take spots — nobody sells burials.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>RentMyInbox.lol</h3><p class="pitch">Recruiters pay $5 to rank their DM to a candidate; candidate earns $2 per read. Inbox spam, reversed.</p><p class="evidence">recruiter-DM ranking: 0 boards. Bonus: candidate-gets-paid makes this a visitor-earn board too.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>ReviewRank.lol</h3><p class="pitch">Rank = bid × average rating. 1-star reviews tank you even if you paid $1000; verified buyers only.</p><p class="evidence">review / rating / quality multiplier: 0 boards. Decay exists (OutbidRank) but never tied to reviews.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+          <article class="idea mini"><h3>WaitlistJump.lol</h3><p class="pitch">Startups post waitlists; users pay $1–10 to jump the queue; startup keeps 70%.</p><p class="evidence">waitlist / queue: 0 boards. The queue economy has no pay-to-rank product yet.</p><div class="badges"><span class="badge status-new">New ✓</span></div></article>
+        </div>
+
+        <p class="verdict-label v-mark">⚠ Kept with a mark (10 ideas — the twist is new, but a related board exists)</p>
+        <div class="cards">
+          <article class="idea mini"><h3>LeaseRank — TimeSlot Bid</h3><p class="pitch">Rent #1 for 60 peak minutes; 24 slots/day sold like ad inventory.</p><p class="evidence">Fixed leases: unbuilt. But time rounds exist — undercut.lol runs hourly auctions, OutPace/BUYTHETOP decay hourly.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>PromptRank.lol</h3><p class="pitch">AI-prompt marketplace ranked by bid + sales.</p><p class="evidence">topagent.lol mentions prompts (“you cannot prompt your way to the top”) but ranks agents, not a prompt market. Marketplace angle: open.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>NewsletterBid.lol</h3><p class="pitch">Pay to be the sponsor inside a bundle of 5 top newsletters, ranked by open rate.</p><p class="evidence">topnewsletters.lol already ranks newsletters. The sponsorship-bundle twist is the new part.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>BillboardIRL.lol</h3><p class="pitch">Pay online → your QR shows for 1 hour on a real Gurgaon LED board with live camera.</p><p class="evidence">IRL boards exist: Two Girls One Billboard, lamborghini.lol. Hourly QR + live cam angle is new.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>ResumeRank.lol</h3><p class="pitch">$10 to rank a resume in the recruiter feed for 7 days, AI feedback included.</p><p class="evidence">No resume board — but outbid.work already covers jobs + LinkedIn promotion. Closest live competitor of the 25.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>DomainBid.lol</h3><p class="pitch">Expired domains ranked by bid, escrow built in.</p><p class="evidence">rankdomains.net already ranks domains for sale. Expired-domain + escrow twist is new.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>PodcastRank.lol</h3><p class="pitch">30-sec clip plays on landing; #1 clip of the day chosen by listener time.</p><p class="evidence">TopCast.lol already ranks podcasts by genre bids. Clip + listen-time voting is the new part.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>WhaleHunter — SquadBid</h3><p class="pitch">100 small founders pool bids; if the pool beats #1 they share it as a carousel.</p><p class="evidence">Squad pooling for rank: unbuilt. But BidFootball already pools fans to take a shared crown.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>CharityBid 2.0 — ESG Rank</h3><p class="pitch">Corporate ESG leaderboard: 100% to NGO + 80G tax receipt + CSR badge.</p><p class="evidence">Your CSV says 1 charity board — actually 5 exist (Outcharity, charitybid, outdonate.lol, Goodbid, Rei de Portugal). The tax/CSR corporate angle itself: still unbuilt.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+          <article class="idea mini"><h3>MemeRank — Clip War</h3><p class="pitch">$1 to push a reel; top reel auto-posted to a 100k-follower IG page.</p><p class="evidence">clipwar.lol + ForcePlay already run clip fights; FYPbid/TikTok boards exist. The IG-distribution prize is new.</p><div class="badges"><span class="badge status-mix">Twist new ⚠</span></div></article>
+        </div>
+
+        <p class="verdict-label v-taken">✗ Already built — marked, not added (4 ideas)</p>
+        <div class="cards">
+          <article class="idea mini"><h3>AgentRank — x402</h3><p class="pitch">AI agents autonomously bid USDC to rank API endpoints.</p><p class="evidence">Crowded: nohumans.lol, AgenticCommerce.lol, topagent.lol, AgentBid already run agent/x402 boards.</p><div class="badges"><span class="badge status-taken">Built ✗</span></div></article>
+          <article class="idea mini"><h3>KarmaPool — Lose to Win</h3><p class="pitch">Outbid? Get 50% back as karma credit for your next bid.</p><p class="evidence">getoutbid.lol already pays “50% back as credit” when you’re outbid from #1 or the top 10 — same core mechanic.</p><div class="badges"><span class="badge status-taken">Built ✗</span></div></article>
+          <article class="idea mini"><h3>ShopifyRank.lol</h3><p class="pitch">Shopify apps pay to rank for keywords like “email marketing”.</p><p class="evidence">topshopifyapp.lol exists (your CSV concedes it), plus app-store rankers BidYourApp and appmog.</p><div class="badges"><span class="badge status-taken">Built ✗</span></div></article>
+          <article class="idea mini"><h3>MapMyBlock Delhi</h3><p class="pitch">Claim Delhi blocks; anyone can steal for 1.5×.</p><p class="evidence">WARMAP already sells territory with the exact 1.5× steal rule; claim.town and mapbid.lol cover blocks/maps. Your CSV calls it a “Warmap.lol clone” — a Delhi skin, not a new idea.</p><div class="badges"><span class="badge status-taken">Built ✗</span></div></article>
+        </div>
+
+        <div class="notice" style="margin-top:18px;border-color:var(--green);background:rgba(217,255,101,.18)">
+          <strong>✓ CSV received and fully verified</strong>
+          <p><code>docs/pay-to-rank-new-ideas.csv</code> (25 ideas) was checked line-by-line against the 415-board inventory on 27 August 2026. Result: 11 kept · 10 kept-with-mark · 4 marked as already built. Nothing was added twice.</p>
+        </div>
+      </section>
+
+      <section id="gaps">
+        <div class="sec-head"><span class="sec-num">02</span><h2>Vertical gaps — pay-to-rank boards nobody has launched</h2></div>
+        <p class="sec-sub">
+          Every one of these niches has <strong>zero boards</strong> in today’s inventory of 415 verified sites
+          (categories that exist: Websites &amp; products 230, X accounts 52, Ads &amp; billboards 31,
+          Crypto &amp; tokens 27, AI tools &amp; agents 24, Games &amp; clips 21, Regional currencies 18,
+          Directories 12). Same proven model — post an amount, take your rank, defend it — pointed at an
+          audience that has no board of its own yet.
+        </p>
+        <div class="filters" role="group" aria-label="Filter ideas">
+          <input id="ideaSearch" type="search" placeholder="Search ideas…" aria-label="Search ideas">
+          <button class="chip" data-filter="all" aria-pressed="true">All 23</button>
+          <button class="chip" data-filter="gap" aria-pressed="false">Vertical gaps</button>
+          <button class="chip" data-filter="mech" aria-pressed="false">New mechanics</button>
+        </div>
+        <div class="cards" id="ideaCards">
+
+          <article class="idea from-attachment" data-type="gap" data-keywords="matrimony marriage matchmaking bride groom wedding india">
+            <div class="idea-top"><span class="idea-id">A-01 · FROM YOUR LIST</span></div>
+            <h3>MatrimonyWall</h3>
+            <p class="pitch">A pay-to-rank matrimony board: profiles, matchmakers and wedding services bid for the top slot in their community and city.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>matrimony, marriage, matchmaking, bride, groom, wedding: 0 boards across all 415 — the whole theme from your attachment is unclaimed.</dd>
+              <dt>Model</dt><dd>₹99+ entry bids in INR (regional rails are the proven unlock); city + community sub-walls; verified-profile badge as premium.</dd>
+              <dt>Reach</dt><dd>Wedding-season virality + community group sharing; matrimony is a high-spend category in India.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea from-attachment" data-type="gap" data-keywords="talent singer dance acting performer stage show talentstage">
+            <div class="idea-top"><span class="idea-id">A-02 · FROM YOUR LIST</span></div>
+            <h3>TalentStage</h3>
+            <p class="pitch">Performing-arts leaderboard: singers, dancers and actors bid to rank their act. The video link is the entry; the rank is the stage.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>Your talent theme is real but hire-me.lol already took the generic “talent leaderboard”. Singer, dance, acting, skill: still 0 boards — so this card takes the open niches only.</dd>
+              <dt>Model</dt><dd>$3 min bid per act; weekly “headline slot” for the #1 act; audience clicks counted as applause.</dd>
+              <dt>Reach</dt><dd>Every performer recruits their own fans to defend the rank — built-in distribution.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: hire-me.lol (generic only)</span></div>
+          </article>
+
+          <article class="idea" data-type="gap" data-keywords="food restaurant city local dish rankmydish">
+            <div class="idea-top"><span class="idea-id">I-01</span></div>
+            <h3>RankMyDish</h3>
+            <p class="pitch">A city-by-city pay-to-rank board for restaurants and street food. Every eatery can buy its way up the wall for its own city.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>Food &amp; hospitality: 0 boards out of 415 — keyword-verified against the 26 Aug 2026 inventory.</dd>
+              <dt>Model</dt><dd>Min bid per city (e.g. $10); restaurants defend their rank; “top dish in town” framing.</dd>
+              <dt>Reach</dt><dd>Local food content is the most shareable niche on X/TikTok — each entry markets itself.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="gap" data-keywords="jobs hiring candidates recruiters resumeradar">
+            <div class="idea-top"><span class="idea-id">I-02</span></div>
+            <h3>ShelfRank</h3>
+            <p class="pitch">A pay-to-rank wall for books and indie authors. Bid to rank your book above the others in your genre; the cover is the entry.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>Books, authors, novels, poems, quotes: 0 boards across all 415 — keyword-verified against the 26 Aug 2026 inventory.</dd>
+              <dt>Model</dt><dd>$5 min bid per title; genre sub-walls (thriller, romance, sci-fi); link straight to the store page.</dd>
+              <dt>Reach</dt><dd>BookTok and bookstagram communities promote everything that promotes them back — a ready-made army.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="gap" data-keywords="freelancer gig designer developer services gigwall">
+            <div class="idea-top"><span class="idea-id">I-03</span></div>
+            <h3>GigWall</h3>
+            <p class="pitch">A public wall ranking freelancers — designers, coders, video editors — by bid. The portfolio entry is the ad.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>Freelance services: 0 boards out of 415.</dd>
+              <dt>Model</dt><dd>$5 min bid; each entry links one portfolio piece; clients hire straight off the wall.</dd>
+              <dt>Reach</dt><dd>Freelancers share their own rank posts to attract clients — built-in referral loop.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="gap" data-keywords="gym fitness trainers coaches workout fitladder">
+            <div class="idea-top"><span class="idea-id">I-04</span></div>
+            <h3>FitLadder</h3>
+            <p class="pitch">Gyms, personal trainers and fitness coaches bid to rank above the other coaches in their city. The transformation photo is the entry.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>Gym, fitness, yoga, trainers: 0 boards across all 415 — keyword-verified against the 26 Aug 2026 inventory.</dd>
+              <dt>Model</dt><dd>$5 min bid per coach, city sub-walls; before/after photo entries double as testimonials.</dd>
+              <dt>Reach</dt><dd>Fitness content is a top-3 engagement niche; every coach reposts their rank to recruit clients.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="gap" data-keywords="memes funny daily stand memestand">
+            <div class="idea-top"><span class="idea-id">I-05</span></div>
+            <h3>MemeStand</h3>
+            <p class="pitch">Meme creators pay to pin their meme image on a ranked wall. Daily rounds; yesterday’s wall freezes forever.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>Seven boards already use the word “meme” — but every one of them ranks memecoins, not meme images. No board runs daily image-meme rounds.</dd>
+              <dt>Model</dt><dd>$1–$5 micro-bids, high volume; daily reset creates urgency and repeat visits.</dd>
+              <dt>Reach</dt><dd>Memes are the most re-shared format on the internet; each entry is shareable content.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★★</span><span class="badge">Competition: memecoins only</span></div>
+          </article>
+
+          <article class="idea" data-type="gap" data-keywords="university students campus rivalry college campusclash">
+            <div class="idea-top"><span class="idea-id">I-06</span></div>
+            <h3>CampusClash</h3>
+            <p class="pitch">Universities ranked by what their students bid. Campus vs campus, pride as the product.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>Education: 0 boards out of 415.</dd>
+              <dt>Model</dt><dd>$1 min bid aggregated per campus; live “campus of the week” crown.</dd>
+              <dt>Reach</dt><dd>Campus rivalries spread themselves through student group chats and societies.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="gap" data-keywords="barber salon stylist hair beauty chairrank">
+            <div class="idea-top"><span class="idea-id">I-07</span></div>
+            <h3>ChairRank</h3>
+            <p class="pitch">Barbers, salons and stylists bid to hold the top chair in their city. Fresh-cut photos are the entries; bookings are the payoff.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>Barber, salon, beauty, hair: 0 boards across all 415 — keyword-verified against the 26 Aug 2026 inventory.</dd>
+              <dt>Model</dt><dd>$2 min bid per chair; city walls; each entry links a booking page.</dd>
+              <dt>Reach</dt><dd>Barber content is huge on short video; stylists will tag the wall to flex their rank.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="gap" data-keywords="wedding bride vendors photographer venue planner vowwall">
+            <div class="idea-top"><span class="idea-id">I-08</span></div>
+            <h3>VowWall</h3>
+            <p class="pitch">Wedding vendors ranked by bid: photographers, venues, planners, DJs and caterers compete for the top of the big-day wall.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>Wedding &amp; bridal: 0 boards across all 415 — keyword-verified against the 26 Aug 2026 inventory.</dd>
+              <dt>Model</dt><dd>$10+ min bid (this industry spends on visibility daily); city walls; portfolio photo entries.</dd>
+              <dt>Reach</dt><dd>Wedding content spreads through highly active planning groups and hashtag communities.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="gap" data-keywords="coffee bar brewery beer wine cocktail cafe pourrank">
+            <div class="idea-top"><span class="idea-id">I-09</span></div>
+            <h3>PourRank</h3>
+            <p class="pitch">Coffee shops, bars and breweries bid to be the top pour in town. The drink photo is the entry; the crown is bragging rights.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>Coffee, beer, wine, bars, cocktails: 0 boards across all 415 — keyword-verified against the 26 Aug 2026 inventory.</dd>
+              <dt>Model</dt><dd>$5 min bid per venue, per city; weekly “top pour” badge venues print and frame.</dd>
+              <dt>Reach</dt><dd>Cafés and bars already live on social — rank screenshots become their marketing.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="gap" data-keywords="dj party nightclub events nightlife promoters nightboard">
+            <div class="idea-top"><span class="idea-id">I-10</span></div>
+            <h3>NightBoard</h3>
+            <p class="pitch">DJs, promoters and clubs bid to top tonight’s wall. The flyer is the entry; the rank is who the city sees first on a Friday.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>DJ, party, club, nightlife, events: 0 boards across all 415 — keyword-verified against the 26 Aug 2026 inventory.</dd>
+              <dt>Model</dt><dd>Per-night rounds that reset daily ($3 min); promoters pay to own the weekend slot.</dd>
+              <dt>Reach</dt><dd>Nightlife audiences are the most active sharers on a Saturday morning — every flyer repost is distribution.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="last word king hill timer pot auction thelastword">
+            <div class="idea-top"><span class="idea-id">I-11</span></div>
+            <h3>The Last Word</h3>
+            <p class="pitch">One single text box on the whole site. Every new message must outbid the previous one and resets a 24-hour timer. Whoever holds the box when the timer dies wins the pot.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>Hill boards exist (hill.bid, Dethrone weekly, payordie.lol’s death-clock), but they all sell an ad slot. Here the text itself is the product, the timer resets on every bid, and the pot goes to the last writer — that exact combination is unbuilt.</dd>
+              <dt>Model</dt><dd>Each bid is split: 70% pot, 30% house. Timer drama drives repeat visits and notifications.</dd>
+              <dt>Reach</dt><dd>“Someone has held the word for 23 hours — 60 minutes left” posts write themselves.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="name rename site weekly namebid">
+            <div class="idea-top"><span class="idea-id">I-12</span></div>
+            <h3>NameBid</h3>
+            <p class="pitch">A website that auctions its own name every week. The highest bidder renames the site — header, logo, everything — until the next round.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>Nobody in the inventory sells the site itself as the product.</dd>
+              <dt>Model</dt><dd>Weekly auction with a reserve; winner gets a “named by” credit link.</dd>
+              <dt>Reach</dt><dd>“I literally named that website” is a brag people screenshot and share unprompted.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="anonymous ghost identity mask secret wall ghostwall">
+            <div class="idea-top"><span class="idea-id">I-13</span></div>
+            <h3>GhostWall</h3>
+            <p class="pitch">The fully anonymous leaderboard: each entry is just an amount and a 60-character message. No names, no links, no faces — identity only if you pay extra to unmask.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>All 415 existing boards sell exposure — this one sells mystery. Anonymous, ghost, mask: zero boards found. (Note: falling-price auctions already exist — underbid.lol, undercut.lol — so this idea takes the other untouched axis instead.)</dd>
+              <dt>Model</dt><dd>Standard min bids to rank; premium “unmask” fee reveals your identity and link publicly.</dd>
+              <dt>Reach</dt><dd>“Who is #1?” speculation threads generate the marketing for you.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="debate duel vote split pot debatepot">
+            <div class="idea-top"><span class="idea-id">I-14</span></div>
+            <h3>DebatePot</h3>
+            <p class="pitch">Two options. One pot. You pay to back a side; when the round closes, the winning side splits the pot pro-rata.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>Pay-to-rank boards sell visibility — none sells being right, with money back on the line.</dd>
+              <dt>Model</dt><dd>House takes a fixed cut of each pot; rounds can be about anything (tabs vs spaces, best city…).</dd>
+              <dt>Reach</dt><dd>Arguments are the most engaging content format; every duel is a shareable fight.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-L">Effort L</span><span class="badge reach">Reach ★★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="time capsule future message unlock timecapsule">
+            <div class="idea-top"><span class="idea-id">I-15</span></div>
+            <h3>TimeCapsule Rank</h3>
+            <p class="pitch">Pay to lock a message for a future date — 1 year, 10 years, 50 years. The deeper your message’s date, the higher your rank on the wall.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>No board in the inventory sells time itself as the ranked good.</dd>
+              <dt>Model</dt><dd>Price scales with years locked; messages unlock publicly with a countdown page.</dd>
+              <dt>Reach</dt><dd>“I wrote a letter to 2050” posts are emotional, personal, and screenshot-ready.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="ideas makers ship vote pitch shiporskip">
+            <div class="idea-top"><span class="idea-id">I-16</span></div>
+            <h3>ShipOrSkip</h3>
+            <p class="pitch">Makers pitch an idea in 140 characters. The crowd pays to vote SHIP or SKIP. Ideas with the strongest paid “ship” vote get featured and tracked until they launch.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>No board in the inventory ranks ideas themselves — they all rank things that already exist.</dd>
+              <dt>Model</dt><dd>$1 per vote; pitchers pay a small listing fee; a “shipped” wall shows winners that got built.</dd>
+              <dt>Reach</dt><dd>Builders love judging ideas, and every pitch owner recruits their own voters.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="visitor earn attention dividend revenue share pays you get paid attentiondividend">
+            <div class="idea-top"><span class="idea-id">V-01 · VISITOR-EARN</span></div>
+            <h3>AttentionDividend</h3>
+            <p class="pitch">The board shares revenue with its visitors: 30% of every bid is split between the people who actually viewed that entry today. Bidders buy real eyeballs; visitors get paid for looking.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>dividend / profit-share / visitor revenue share: 0 boards. universebid literally advertises “No revenue share” — nobody has flipped that switch.</dd>
+              <dt>Model</dt><dd>House keeps 70%; viewers accrue daily micro-payouts with a minimum withdrawal.</dd>
+              <dt>Reach</dt><dd>“The leaderboard that pays you to look” is a headline that shares itself.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="visitor earn cashback click paid to visit micro payout cashbackclick">
+            <div class="idea-top"><span class="idea-id">V-02 · VISITOR-EARN</span></div>
+            <h3>CashbackClick</h3>
+            <p class="pitch">Every visitor who clicks an entry gets instant micro-cashback funded from the bid pool. Clicks stop being free, and bidders finally get provable traffic.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>cashback / paid-to-visit / get-paid: 0 boards. outhustle pays in rank, NextOutBid pays in free slots — nobody pays visitors money.</dd>
+              <dt>Model</dt><dd>10% of each bid feeds the click-pool; payout over UPI fits the India angle perfectly.</dd>
+              <dt>Reach</dt><dd>Visitors become promoters — every shared link is “click this, you get paid”.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="insurance protect shield defend rank shieldbid">
+            <div class="idea-top"><span class="idea-id">M-01</span></div>
+            <h3>ShieldBid — rank insurance</h3>
+            <p class="pitch">Pay a premium to shield your rank: the first outbid attempt bounces off, and the attacker must pay twice to break through.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>insurance / shield / protect-a-rank: 0 boards (flexwall.lol says “defend it” as flavour text, not as a purchasable mechanic).</dd>
+              <dt>Model</dt><dd>Shield costs 40% of your current bid, single-use; creates a double-pay game against whales.</dd>
+              <dt>Reach</dt><dd>Every blocked takeover attempt is a drama post waiting to happen.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="season pass battle pass streak retention seasonpass">
+            <div class="idea-top"><span class="idea-id">M-02</span></div>
+            <h3>SeasonPass</h3>
+            <p class="pitch">Ranks wipe every season (month). Pass holders get badges, streaks and discounted bids; the final #1 of the season takes the season pot.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>season pass / battle pass / streak: 0 boards. Dethrone resets weekly but sells no pass, no streaks, no season prize.</dd>
+              <dt>Model</dt><dd>$9 pass per season; recurring revenue instead of one-off bids — attacks the churn behind the $19 median take.</dd>
+              <dt>Reach</dt><dd>Season finales are launch events; every ending writes the next season’s announcement.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea" data-type="mech" data-keywords="predict prediction pool visitors earn bet odds predictwall">
+            <div class="idea-top"><span class="idea-id">M-03 · VISITOR-EARN</span></div>
+            <h3>PredictWall</h3>
+            <p class="pitch">Visitors pay $1 to predict who holds #1 when the week closes. Correct predictors split the prediction pot — visitors earn, and everyone has a reason to return daily.</p>
+            <dl>
+              <dt>Why it’s new</dt><dd>predict / odds-on-rank: 0 boards. GambleBid ranks gambling sites; nobody lets visitors bet on the board itself.</dd>
+              <dt>Model</dt><dd>House takes 20% of the prediction pot; predictions double as an attention metric for bidders.</dd>
+              <dt>Reach</dt><dd>Weekly “who called it” winner posts are endless content.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+        </div>
+        <p class="empty-msg" id="noMatch">No ideas match that search — try another word, or clear the filter.</p>
+      </section>
+
+      <section id="pick">
+        <div class="sec-head" id="mechanics"><span class="sec-num">03</span><h2>New mechanics — from this report’s author</h2></div>
+        <p class="sec-sub">
+          Ideas I-11…16 were added by me in report 002’s first edition; this update adds the
+          <strong>visitor-earn family</strong> you asked for — V-01 AttentionDividend, V-02 CashbackClick,
+          M-03 PredictWall (visitors get paid or win) — plus M-01 ShieldBid (rank insurance) and
+          M-02 SeasonPass (retention). Every card was keyword-checked against all 415 boards first;
+          your BlogRank flagship sits featured in section 01. The buttons above filter gaps vs mechanics.
+        </p>
+        <div class="sec-head" style="margin-top:34px"><span class="sec-num">04</span><h2>How to pick your one idea</h2></div>
+        <p class="sec-sub">Score every idea against three questions. Ship the first one that answers “yes” to at least two.</p>
+        <ol class="steps">
+          <li><div><b>One-sentence test</b><span>Can you explain the site in one sentence to a stranger? “Pay to put your dog on the podium.” If it needs a paragraph, skip it.</span></div></li>
+          <li><div><b>Five-dollar test</b><span>Can you name a real person who would pay $5 today to be on it? Not “people” — one person. If yes, there is a market.</span></div></li>
+          <li><div><b>Screenshot test</b><span>Would a screenshot of the board make someone tap share? Rank walls with faces, cities, memes or pets pass; plain link lists usually fail.</span></div></li>
+        </ol>
+      </section>
+
+      <section id="plan">
+        <div class="sec-head"><span class="sec-num">05</span><h2>The plan — and why this page has no bot</h2></div>
+        <p class="sec-sub">
+          Per your instruction, this page is <strong>100% static</strong>: no bot, no scheduled run, no daily
+          refresh, no network calls. The daily update bot that maintains the market audit
+          (<code>scripts/update_report.py</code>) does not touch this file. Idea-checking is manual,
+          because the next step is to build, not to monitor.
+        </p>
+        <ol class="steps">
+          <li><div><b>Read the list above</b><span>16 open ideas, each verified against the 26 August 2026 inventory of 415 boards.</span></div></li>
+          <li><div><b>Pick one idea</b><span>Use the three tests. One idea, one builder — no parallel projects.</span></div></li>
+          <li><div><b>Build it as pay-to-rank</b><span>Public wall, minimum bid, rank = bid, entry visible only when the payment clears. That model is proven across all 415 existing boards.</span></div></li>
+          <li><div><b>Launch for reach</b><span>Post the launch where the niche already lives (local food accounts, campus groups, artist communities), then submit it to the bid-site directories so it gets indexed like every other board.</span></div></li>
+          <li><div><b>Check manually, when you choose</b><span>No automation on the idea. When you want a freshness check, ask for it and the list will be re-verified by hand against the inventory of that day.</span></div></li>
+        </ol>
+      </section>
+
+      <footer>
+        <span>Report 002 · idea list · written 26 August 2026 · static, human-maintained</span>
+        <span>Gap claims verified against data/outbid-market-inventory.csv (415 boards, CC BY 4.0 outoutbid.lol snapshot)</span>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // Static page helpers only — no network calls, no timers, no bot.
+    const cards = Array.from(document.querySelectorAll('#ideaCards .idea'));
+    const chips = Array.from(document.querySelectorAll('.chip'));
+    const search = document.getElementById('ideaSearch');
+    const noMatch = document.getElementById('noMatch');
+    let activeFilter = 'all';
+
+    function applyFilters() {
+      const q = search.value.trim().toLowerCase();
+      let visible = 0;
+      cards.forEach(card => {
+        const typeOk = activeFilter === 'all' || card.dataset.type === activeFilter;
+        const text = (card.textContent + ' ' + (card.dataset.keywords || '')).toLowerCase();
+        const searchOk = !q || q.split(/\s+/).every(term => text.includes(term));
+        const show = typeOk && searchOk;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      noMatch.style.display = visible ? 'none' : 'block';
+    }
+
+    chips.forEach(chip => chip.addEventListener('click', () => {
+      activeFilter = chip.dataset.filter;
+      chips.forEach(c => c.setAttribute('aria-pressed', String(c === chip)));
+      applyFilters();
+    }));
+    search.addEventListener('input', applyFilters);
+  </script>
+</body>
+</html>
