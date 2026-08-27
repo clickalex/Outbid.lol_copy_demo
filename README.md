@@ -26,11 +26,11 @@ Every figure on it is computed from the committed inventory snapshot and refresh
 The audit shows *what exists*; this page lists *what doesn't*. It is a dated, one-time idea list for choosing the next pay-to-rank site to build and launch for reach —
 
 - **from your attachment** (section 01): the flagship **BlogRank** idea (pay to rank, watch/read to earn), the four hosted-demo ideas, and all **25 ideas from `docs/pay-to-rank-new-ideas.csv`** — every one keyword-verified against the inventory: new ones kept, borderline ones kept with a mark, already-built ones marked and excluded;
-- **vertical gaps**: pay-to-rank board niches with zero entries among the 415 verified boards (food, books, freelancers, fitness, image-memes, campuses, barbers, weddings, coffee & bars, nightlife, matrimony, performing arts);
+- **vertical gaps**: pay-to-rank board niches with zero entries among the 444 verified boards (food, books, freelancers, fitness, image-memes, campuses, barbers, weddings, coffee & bars, nightlife, matrimony, performing arts);
 - **new mechanics**: brand-new twists none of the existing boards ships — including the **visitor-earn family** (AttentionDividend, CashbackClick, PredictWall), rank insurance, season passes, the text-box hill with pot, auction-the-site's-name and the anonymous wall;
 - a three-question **pick test**, the build-and-launch plan, and a filtered/searchable card list.
 
-By design this page is **static and human-maintained**: no `data-stat` attributes, no bot sentinels, no network calls, and the daily bot never touches it. Idea-checking stays manual — the point is to pick one idea, build it as pay-to-rank, and launch it for reach, not to monitor it on a schedule.
+By design the **idea cards** on this page are **static and human-maintained** — the daily bot never rewrites an idea or a verification verdict. The bot does refresh the page's live counters (`data-stat` spans), the automated collision-watch block (`<!--bot:idea-collision-watch-->` sentinel) and the "last scan" stamps, and a small in-page script fetches the current board count at runtime; everything else is a dated, hand-verified snapshot. Idea-checking stays manual — the point is to pick one idea, build it as pay-to-rank, and launch it for reach, not to monitor it on a schedule.
 
 Open any file directly, or serve the repository locally:
 
@@ -46,7 +46,7 @@ The written snapshot is dated **26 August 2026**. The inventory figures inside i
 | --- | --- |
 | `index.html` | The full report (001). Open it in a browser; no build step. |
 | `entry-simulator.html` | The entry simulator (001b). Same theme, same data, no build step and no network needed. |
-| `ideas.html` | The idea list (002) — websites nobody has built yet. **Not bot-maintained:** static, offline, human-edited only. |
+| `ideas.html` | The idea list (002) — websites nobody has built yet. **Idea cards are hand-written** (offline, human-edited); only the live counters and collision watch are bot-refreshed. |
 | `data/outbid-market-inventory.csv` | **Bot-maintained CSV** — the complete inventory snapshot (one row per verified board, newest first), regenerated on every bot run. |
 | `data/stats.json` | **Bot-maintained summary** of the latest run: totals, claimed amounts, category counts, top-10 boards, route checks, and an `entrySimulator` block with the percentiles and per-category medians behind report 001b. |
 | `scripts/update_report.py` | The update bot (Python 3.9+, standard library only). |
