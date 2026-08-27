@@ -9,7 +9,9 @@ What it does
    snapshot committed next to the report.
 3. Re-checks outbid.lol itself (public routes + the About-page counters)
    and refreshes every bot-managed figure in ``index.html``.
-4. Writes ``data/stats.json`` with the computed summary and prints it,
+4. Scans verified boards against structured ideas and refreshes the collision
+   watch in ``ideas.html`` so newly built concepts are flagged for review.
+5. Writes ``data/stats.json`` with the computed summary and prints it,
    so a CI log shows exactly what changed.
 
 Figures owned by the bot are marked in index.html with ``data-stat="…"``
@@ -42,6 +44,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 HTML_PATH = REPO / "index.html"
 SIM_PATH = REPO / "entry-simulator.html"
+IDEAS_PATH = REPO / "ideas.html"
 CSV_PATH = REPO / "data" / "outbid-market-inventory.csv"
 STATS_PATH = REPO / "data" / "stats.json"
 
@@ -704,6 +707,93 @@ def render_fallback_boards(newest: list[dict]) -> str:
 
 
 # --------------------------------------------------------------------------- #
+# ideas.html — automated collision watch
+# --------------------------------------------------------------------------- #
+
+# Deliberately conservative phrases. A match means "review this idea", not that
+# two products are certainly identical. Keeping the vocabulary here makes the
+# bot deterministic and its decisions auditable in Git.
+IDEA_WATCH = [
+    ("BlogRank", ("proof of attention", "watch to earn", "read to earn", "attention quiz")),
+    ("MatrimonyWall", ("matrimony", "matchmaking", "shaadi", "bride", "groom")),
+    ("TalentStage", ("singer", "dancer", "performing arts", "talent leaderboard")),
+    ("RankMyDish / FoodRank Delhi", ("rank a dish", "dish leaderboard", "restaurant leaderboard", "street food")),
+    ("ShelfRank", ("book leaderboard", "authors bid", "rank books", "indie authors")),
+    ("GigWall", ("freelancer leaderboard", "rank portfolios", "freelancers bid")),
+    ("FitLadder", ("gym leaderboard", "trainers bid", "fitness coach leaderboard")),
+    ("MemeStand", ("meme leaderboard", "rank memes", "meme creators")),
+    ("CampusClash", ("campus leaderboard", "universities ranked", "student bids", "college leaderboard")),
+    ("ChairRank", ("barber leaderboard", "salon leaderboard", "stylists bid")),
+    ("VowWall", ("wedding vendor", "wedding leaderboard", "venues bid")),
+    ("PourRank", ("coffee shop leaderboard", "brewery leaderboard", "top pour")),
+    ("NightBoard", ("nightlife leaderboard", "clubs bid", "djs bid")),
+    ("The Last Word", ("last word wins", "final message wins", "message countdown")),
+    ("NameBid", ("auction its name", "website naming auction", "highest bidder names")),
+    ("GhostWall", ("anonymous leaderboard", "pay to reveal", "paid unmask")),
+    ("DebatePot", ("debate pot", "paid vote", "winners split the pot")),
+    ("TimeCapsule Rank", ("time capsule leaderboard", "future message", "message unlock")),
+    ("ShipOrSkip", ("ship or skip", "paid votes", "pay to vote")),
+    ("AttentionDividend", ("visitor rewards", "pay visitors", "attention dividend")),
+    ("CashbackClick", ("click cashback", "cashback per click", "paid clicks for visitors")),
+    ("ShieldBid", ("rank insurance", "bid shield", "outbid protection")),
+    ("SeasonPass", ("season pass leaderboard", "monthly rank reset", "ranking seasons")),
+    ("PredictWall", ("predict the winner", "leaderboard prediction", "predict number one")),
+]
+
+
+def scan_idea_collisions(boards: list[dict]) -> list[dict]:
+    """Return conservative idea/board phrase matches, newest evidence first."""
+    results = []
+    for idea, phrases in IDEA_WATCH:
+        matches = []
+        for board in boards:
+            haystack = " ".join(str(x or "") for x in (
+                board.get("name"), board.get("host"), board.get("tagline"),
+                (board.get("category") or {}).get("name"),
+            )).lower()
+            signals = [phrase for phrase in phrases if phrase in haystack]
+            if signals:
+                matches.append({"board": board, "signals": signals})
+        if matches:
+            matches.sort(key=lambda item: item["board"].get("listedAt") or "", reverse=True)
+            results.append({"idea": idea, "matches": matches})
+    return results
+
+
+def render_idea_watch(collisions: list[dict], board_total: int) -> str:
+    if not collisions:
+        return (
+            '\n          <article class="idea featured"><div class="idea-top">'
+            '<span class="idea-id">AUTOMATED SCAN · CLEAR</span></div>'
+            '<h3>No high-confidence collisions detected</h3>'
+            f'<p class="pitch">The bot checked {fmt_int(board_total)} verified boards against '
+            f'{len(IDEA_WATCH)} structured ideas. Broad concepts can still overlap; this scan only '
+            'flags explicit phrase evidence.</p><div class="badges">'
+            '<span class="badge status-new">No review flags ✓</span></div></article>\n        '
+        )
+    cards = []
+    for collision in collisions:
+        evidence_rows = []
+        for item in collision["matches"][:3]:
+            board = item["board"]
+            host = board.get("host") or board.get("name") or "Unknown board"
+            evidence_rows.append(
+                f'<a href="{esc(board.get("url") or "#")}" target="_blank" rel="noopener">'
+                f'{esc(host)}</a> ({esc(", ".join(item["signals"]))})'
+            )
+        cards.append(
+            '\n          <article class="idea mini"><div class="idea-top">'
+            '<span class="idea-id">BOT COLLISION WATCH</span></div>'
+            f'<h3>{esc(collision["idea"])}</h3>'
+            '<p class="pitch">A new or existing board now uses one of this idea’s defining phrases.</p>'
+            f'<p class="evidence">Evidence: {"; ".join(evidence_rows)}. Human review is required '
+            'before marking the idea as built.</p><div class="badges">'
+            '<span class="badge status-mix">Review possible match ⚠</span></div></article>'
+        )
+    return "\n        <div class=\"cards\">" + "".join(cards) + "\n        </div>\n        "
+
+
+# --------------------------------------------------------------------------- #
 # CSV
 # --------------------------------------------------------------------------- #
 
@@ -840,6 +930,30 @@ def main() -> int:
         unpatched.extend(f"sim:{key}" for key in sim_unpatched)
     else:
         print(f"[bot] note - {SIM_PATH.name} not present; skipped", flush=True)
+
+    # ---- ideas.html: flag structured ideas when matching boards appear ------
+    if IDEAS_PATH.exists():
+        ideas_html = IDEAS_PATH.read_text(encoding="utf-8")
+        collisions = scan_idea_collisions(boards)
+        idea_values = {
+            "ideas-boards-total": fmt_int(stats["total"]),
+            "ideas-watch-count": str(len(IDEA_WATCH)),
+            "ideas-collision-count": str(len(collisions)),
+            "ideas-bot-updated": stamp_full,
+        }
+        ideas_html, ideas_unpatched = patch_scalars(ideas_html, idea_values)
+        ideas_html = replace_block(
+            ideas_html, "idea-collision-watch",
+            render_idea_watch(collisions, int(stats["total"])), where=IDEAS_PATH.name,
+        )
+        IDEAS_PATH.write_text(ideas_html, encoding="utf-8")
+        print(
+            f"[bot] patched {IDEAS_PATH} ({len(collisions)} idea review flags)",
+            flush=True,
+        )
+        unpatched.extend(f"ideas:{key}" for key in ideas_unpatched)
+    else:
+        print(f"[bot] note - {IDEAS_PATH.name} not present; skipped", flush=True)
 
     if unpatched:
         print(f"[bot] WARNING - markers not found: {', '.join(sorted(set(unpatched)))}", flush=True)
