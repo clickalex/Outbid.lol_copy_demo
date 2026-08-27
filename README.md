@@ -120,6 +120,7 @@ The nav now carries 11 destinations: Audit · Ideas · Tools · Search · Picker
 | `launch/README.md` | Deploy steps, pricing maths, day-1 legal posture, first-20-bidders outreach, the week-one kill metric, and how to re-point the kit at BlogRank. |
 | **`docs/level0-launch-pack/`** | **The Level 0 document set** (9 files): pack index → terms → privacy → refunds → ad content policy & screening → disclosure spec → invoicing/books/tax → entity/bank/PG/trademark → ops SOP & pre-launch gate → guardrails. Niche-agnostic, written for BlogRank. |
 | `scripts/update_report.py` | The update bot (Python 3.9+, standard library only; all writes atomic). |
+| `run-bot.sh` | Hands-off wrapper for manual/screen runs of the bot: `--loop` (daily, retries after failures), `--commit` (commit + push the bot files), `--log FILE` (default `bot.log`, git-ignored). |
 | `docs/daily-update.yml` | Reference copy of the GitHub Actions workflow. The live file is already committed at `.github/workflows/daily-update.yml` and active; only a fresh fork needs it copied (see below). |
 
 ## The daily update bot
@@ -178,11 +179,22 @@ python3 scripts/update_report.py 2>&1 | tee -a bot.log   # keep a log
 
 Then `Ctrl-A D` detaches (the run continues), `screen -r outbid-bot` reattaches, and `exit` (or `Ctrl-A K`) ends the session. If `screen` is not installed: `sudo apt install screen`, or use `tmux` (`tmux new -s outbid-bot` / `tmux attach -t outbid-bot`).
 
+For a hands-off session, use the wrapper instead of the raw command:
+
+```bash
+./run-bot.sh                 # one run, output appended to bot.log
+./run-bot.sh --loop          # run now, then every 24 h; retries every 15 min after failures (3 strikes)
+./run-bot.sh --commit        # also commit + push the five bot files after each successful run
+./run-bot.sh --loop --commit # both — a screen session that refreshes and ships by itself
+```
+
+`--commit` shares the push race described above, so avoid it around the 03:17 UTC job. `./run-bot.sh --help` prints the full usage; `bot.log` is git-ignored.
+
 **Cons of manual runs vs. the scheduled workflow** — worth knowing before you rely on one:
 
 | Manual run (screen/tmux) | Scheduled workflow |
 | --- | --- |
-| You must remember to rerun it (a reboot kills the session; use `while true; do python3 scripts/update_report.py; sleep 86400; done` for a crude loop) | Runs itself daily at 03:17 UTC |
+| You must keep the session alive (a reboot kills it; `run-bot.sh --loop` still needs the screen session to survive) | Runs itself daily at 03:17 UTC |
 | No commit/push — you do that by hand | Commits and pushes automatically |
 | Output is lost when the session dies unless you `tee` to a file or use `screen -L` | Output lives in the Actions log |
 | No overlap guard — **do not run it while the 03:17 UTC job is running** (both would write the same files and race the push); run it manually only when the last Action run has finished | Concurrency-guarded (`cancel-in-progress: false`) |
