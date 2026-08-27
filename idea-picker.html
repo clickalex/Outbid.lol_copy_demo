@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Interactive idea picker and comparison tool for pay-to-rank website concepts."><meta property="og:title" content="Idea Picker — Outbid OS"><meta property="og:description" content="Pick and compare pay-to-rank website ideas by budget, effort, audience and launch angle."><meta property="og:type" content="website">
+  <meta property="og:image" content="og-image.svg"><meta name="twitter:card" content="summary_large_image"><title>Idea Picker — Outbid OS</title>
+<style>
+:root{--ink:#f7f4ea;--paper:#070806;--card:rgba(255,252,239,.075);--line:rgba(247,244,234,.18);--muted:#b9b4a6;--lime:#d9ff65;--red:#ff5c3f;--green:#63e69d;--amber:#ffc768;--shadow:0 28px 90px rgba(0,0,0,.34);--radius:24px;--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;--serif:Iowan Old Style,Baskerville,Times New Roman,serif;--sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}body{margin:0;color:var(--ink);font-family:var(--sans);line-height:1.55;background:radial-gradient(circle at 8% -8%,rgba(217,255,101,.2),transparent 26rem),radial-gradient(circle at 94% 2%,rgba(255,92,63,.24),transparent 28rem),linear-gradient(135deg,#050604,#0b0d09 45%,#141008)}body:before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(247,244,234,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(247,244,234,.035) 1px,transparent 1px);background-size:38px 38px}.topline{min-height:38px;display:flex;align-items:center;justify-content:space-between;padding:7px 24px;background:#050604;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,244,234,.78);font:11px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase}.site-nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px clamp(18px,4vw,54px);border-bottom:1px solid rgba(255,255,255,.1);background:rgba(7,8,6,.78);backdrop-filter:blur(18px)}.site-logo,.site-links a,.btn{text-decoration:none}.site-logo{display:inline-flex;align-items:center;gap:11px;color:#fff}.site-logo span{display:grid;place-items:center;width:36px;height:36px;border-radius:14px;color:#080806;background:var(--lime);font:900 15px/1 var(--mono);transform:rotate(-6deg)}.site-links{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}.site-links a,.btn{display:inline-flex;align-items:center;min-height:34px;padding:7px 13px;border:1px solid rgba(255,255,255,.13);border-radius:999px;color:rgba(247,244,234,.74);background:rgba(255,255,255,.045);font:700 11px/1 var(--sans)}body[data-page=picker] .site-links a[data-page=picker],.btn.primary{color:#080806;border-color:var(--lime);background:var(--lime)}main{width:min(1180px,100%);margin:0 auto;padding:70px clamp(18px,4vw,54px) 90px}.eyebrow{color:var(--lime);font:800 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase}h1{margin:12px 0 18px;font:400 clamp(54px,9vw,112px)/.88 var(--serif);letter-spacing:-.065em}h1 i{color:transparent;background:linear-gradient(100deg,var(--lime),#fff1aa 38%,var(--red));-webkit-background-clip:text;background-clip:text;font-style:normal}.deck{max-width:760px;color:var(--muted);font-size:clamp(17px,2vw,22px)}.layout{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);gap:18px;margin-top:34px}.panel,.idea{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,rgba(255,255,255,.095),rgba(255,255,255,.055));box-shadow:var(--shadow);padding:22px}.form{display:grid;gap:14px}label span{display:block;color:var(--muted);font:800 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}select{width:100%;height:42px;border:1px solid rgba(255,255,255,.16);border-radius:12px;color:#fff;background:#111;padding:8px 11px}.results{display:grid;gap:14px}.idea h3{margin:6px 0;color:#fff}.idea p{color:var(--muted);margin:0}.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}.badge{color:#080806;background:var(--lime);border-radius:999px;padding:4px 9px;font:800 10px/1 var(--mono)}.score{float:right;color:var(--lime);font:500 42px/1 var(--serif)}table{width:100%;border-collapse:collapse;margin-top:18px;font-size:13px}th,td{padding:12px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--lime);font:800 10px/1 var(--mono);text-transform:uppercase}.checks{display:grid;gap:8px;margin-top:10px}.checks label{display:flex;gap:9px;align-items:center;color:var(--muted);font-size:13px}.checks input{accent-color:var(--lime)}@media(max-width:850px){.topline{display:none}.site-nav{align-items:flex-start;flex-direction:column}.layout{grid-template-columns:1fr}h1{font-size:58px}}
+
+    .mobile-bottom-nav { display: none; }
+    @media (max-width: 720px) {
+      body { padding-bottom: 78px; }
+      .mobile-bottom-nav {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        z-index: 90;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        padding: 7px;
+        border: 1px solid rgba(217,255,101,.32);
+        border-radius: 22px;
+        background: rgba(7,8,6,.88);
+        box-shadow: 0 20px 60px rgba(0,0,0,.46);
+        backdrop-filter: blur(16px);
+      }
+      .mobile-bottom-nav a {
+        display: grid;
+        place-items: center;
+        min-height: 38px;
+        border-radius: 16px;
+        color: rgba(247,244,234,.78);
+        text-decoration: none;
+        font: 800 11px/1 var(--sans);
+      }
+      body[data-page="audit"] .mobile-bottom-nav a[data-page="audit"],
+      body[data-page="ideas"] .mobile-bottom-nav a[data-page="ideas"],
+      body[data-page="picker"] .mobile-bottom-nav a[data-page="picker"],
+      body[data-page="calculator"] .mobile-bottom-nav a[data-page="calculator"] {
+        color: #080806;
+        background: var(--lime);
+      }
+    }
+
+    .nav-toggle { display: none; }
+    @media (max-width: 720px) {
+      .nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 7px 13px;
+        border: 1px solid rgba(255,255,255,.13);
+        border-radius: 999px;
+        color: #080806;
+        background: var(--lime);
+        font: 800 11px/1 var(--sans);
+      }
+      .site-nav { flex-direction: row; align-items: center; flex-wrap: wrap; }
+      .site-links { display: none; width: 100%; justify-content: flex-start; padding-top: 8px; }
+      .site-nav.is-open .site-links { display: flex; }
+    }
+</style>
+</head>
+<body data-page="picker"><header class="topline"><span>Idea picker / static decision tool</span><span>Choose one idea, then ship only that.</span></header><nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a></div></nav>
+  <nav class="mobile-bottom-nav" aria-label="Quick mobile navigation"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a></nav>
+
+<main><p class="eyebrow">Decision engine</p><h1>Pick the idea that fits <i>your unfair advantage.</i></h1><p class="deck">The best idea is not the cleverest one. It is the one where your budget, effort level and audience access make the first paid bids most likely.</p><div class="layout"><section class="panel"><div class="form"><label><span>Your budget</span><select id="budget"><option value="low">Under $100</option><option value="mid">$100–$500</option><option value="high">$500+</option></select></label><label><span>Build effort</span><select id="effort"><option value="S">Small weekend build</option><option value="M">Medium build</option><option value="L">Complex/game mechanic</option></select></label><label><span>Audience access</span><select id="audience"><option value="local">Local / India communities</option><option value="creator">Creators / performers</option><option value="founder">Founders / makers</option><option value="visitor">Visitors who want rewards</option></select></label><label><span>Risk appetite</span><select id="risk"><option value="safe">Safe/simple</option><option value="drama">Drama/viral</option><option value="money">Money movement/rewards</option></select></label><button class="btn primary" type="button" id="pick">Rank ideas</button><a class="btn" href="ideas.html">Open full idea list →</a></div></section><section class="results" id="results"></section></div><section class="panel" style="margin-top:24px"><p class="eyebrow">Compare shortlist</p><table><thead><tr><th>Idea</th><th>Best for</th><th>Why it wins</th><th>Next page</th></tr></thead><tbody id="compare"></tbody></table></section></main>
+<script>
+const IDEAS=[
+{name:'MatrimonyWall',effort:'M',budget:'mid',aud:'local',risk:'safe',why:'Huge India category, zero boards, clear community filters.'},
+{name:'TalentStage',effort:'S',budget:'low',aud:'creator',risk:'safe',why:'Performers bring their own fans and content is naturally shareable.'},
+{name:'RankMyDish / FoodRank Delhi',effort:'M',budget:'mid',aud:'local',risk:'safe',why:'Local food has buyer intent and every restaurant already markets socially.'},
+{name:'MemeStand',effort:'S',budget:'low',aud:'creator',risk:'drama',why:'Daily meme rounds are cheap, visual and highly shareable.'},
+{name:'AttentionDividend',effort:'M',budget:'high',aud:'visitor',risk:'money',why:'A clear headline: the board that pays visitors to look.'},
+{name:'CashbackClick',effort:'M',budget:'high',aud:'visitor',risk:'money',why:'Turns clicks into a visitor acquisition loop; ideal for UPI/local rails.'},
+{name:'ShieldBid',effort:'S',budget:'low',aud:'founder',risk:'drama',why:'Simple mechanic with takeover drama and low build complexity.'},
+{name:'The Last Word',effort:'M',budget:'mid',aud:'founder',risk:'drama',why:'One object, one timer, high narrative tension.'},
+{name:'ShipOrSkip',effort:'S',budget:'low',aud:'founder',risk:'safe',why:'Makers love judging ideas and owners recruit voters.'},
+{name:'ReviewRank',effort:'M',budget:'mid',aud:'founder',risk:'safe',why:'Quality multiplier fixes the trust problem in pay-to-rank.'}
+];
+const $=id=>document.getElementById(id);
+function scoreIdea(i){let s=40;if(i.effort===$('effort').value)s+=20;if(i.budget===$('budget').value||(i.budget==='low'&&$('budget').value!=='low'))s+=15;if(i.aud===$('audience').value)s+=20;if(i.risk===$('risk').value)s+=15;return Math.min(100,s)}
+function render(){let ranked=IDEAS.map(i=>({...i,score:scoreIdea(i)})).sort((a,b)=>b.score-a.score).slice(0,5);$('results').innerHTML=ranked.map((i,n)=>`<article class="idea"><span class="score">${i.score}</span><span class="badge">#${n+1}</span><h3>${i.name}</h3><p>${i.why}</p><div class="badges"><span class="badge">Effort ${i.effort}</span><span class="badge">${i.budget} budget</span><span class="badge">${i.aud}</span></div></article>`).join('');$('compare').innerHTML=ranked.slice(0,3).map(i=>`<tr><td><strong>${i.name}</strong></td><td>${i.aud} / ${i.risk}</td><td>${i.why}</td><td><a href="launch-checklist.html">Checklist →</a></td></tr>`).join('')}
+document.querySelectorAll('select').forEach(s=>s.addEventListener('change',render));$('pick').onclick=render;render();
+</script>
+
+  <script src="assets/site-enhancements.js"></script>
+</body></html>

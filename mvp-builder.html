@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Generate a practical MVP specification for a selected pay-to-rank idea.">
+<meta property="og:title" content="MVP Builder — Outbid OS"><meta property="og:description" content="Generate a practical MVP specification for a selected pay-to-rank idea."><meta property="og:type" content="website"><meta property="og:image" content="og-image.svg"><meta name="twitter:card" content="summary_large_image">
+<title>MVP Builder — Outbid OS</title><link rel="stylesheet" href="assets/os.css">
+</head>
+<body data-page="tools">
+<header class="topline"><span>Outbid OS / static toolkit</span><span>Audit → Pick → Model → Launch</span></header>
+<nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a></div></nav>
+<nav class="mobile-bottom-nav" aria-label="Quick mobile navigation"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a></nav>
+
+<main id="top">
+
+<p class="eyebrow">MVP spec</p><h1>Turn an idea into a <i>buildable spec.</i></h1><p class="deck">Pick an idea and set the commercial rules. The generator outputs scope, data fields, payment logic, moderation and launch copy.</p>
+<div class="two"><section class="panel form"><label><span>Idea</span><select id="idea"></select></label><label><span>Minimum bid</span><input id="bid" value="$5"></label><label><span>Reset cycle</span><select id="reset"><option>Never / all-time</option><option>Daily</option><option>Weekly</option><option>Monthly season</option></select></label><label><span>Payment rail</span><select id="rail"><option>Stripe/Card</option><option>UPI/INR</option><option>Crypto/manual</option></select></label><button class="btn primary" id="copy" type="button">Copy spec</button></section><section class="panel"><pre id="out" style="white-space:pre-wrap;color:var(--ink)"></pre></section></div>
+<script>let ideas=[];const $=id=>document.getElementById(id);fetch('data/ideas.json').then(r=>r.json()).then(d=>{ideas=d;$('idea').innerHTML=d.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');document.querySelectorAll('select,input').forEach(e=>e.oninput=render);render()});function render(){let x=ideas.find(i=>i.id===$('idea').value)||ideas[0];if(!x)return;out.textContent=`${x.name} MVP
+
+Promise: ${x.pitch}
+
+Core features:
+- Public ranked board
+- Entry form and validation
+- Rank = cleared paid amount
+- Minimum bid: ${bid.value}
+- Reset cycle: ${reset.value}
+- Payment rail: ${rail.value}
+- Shareable rank screenshot/card
+
+Suggested MVP from dataset:
+${x.mvp}
+
+Data fields:
+entry_id, title, url, image, bidder_contact, bid_amount, paid_at, rank, status, moderation_note, click_count
+
+Payment logic:
+Accept payment, verify webhook/manually, publish entry only after clearance, re-sort board by bid.
+
+Moderation rule:
+Block impersonation, illegal content, malware, adult content unless explicitly allowed, and any destination you cannot defend publicly.
+
+Week-one kill metric:
+10 paid bidders or $100 gross in 7 days.`}copy.onclick=()=>navigator.clipboard?.writeText(out.textContent)</script>
+</main>
+<script src="assets/site-enhancements.js"></script>
+</body></html>

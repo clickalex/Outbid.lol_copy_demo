@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Compare card, UPI/local and crypto/manual payment rails for small pay-to-rank bids.">
+<meta property="og:title" content="Payment Fee Comparison — Outbid OS"><meta property="og:description" content="Compare card, UPI/local and crypto/manual payment rails for small pay-to-rank bids."><meta property="og:type" content="website"><meta property="og:image" content="og-image.svg"><meta name="twitter:card" content="summary_large_image">
+<title>Payment Fee Comparison — Outbid OS</title><link rel="stylesheet" href="assets/os.css">
+</head>
+<body data-page="tools">
+<header class="topline"><span>Outbid OS / static toolkit</span><span>Audit → Pick → Model → Launch</span></header>
+<nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a></div></nav>
+<nav class="mobile-bottom-nav" aria-label="Quick mobile navigation"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a></nav>
+
+<main id="top">
+
+<p class="eyebrow">Fees</p><h1>The $1 bid is usually <i>a bad business.</i></h1><p class="deck">Fixed payment fees punish tiny bids. Compare what each rail keeps at different entry prices.</p><section class="panel"><label><span>Bid amount</span><input id="amt" type="number" value="5" min="1"></label><table><thead><tr><th>Rail</th><th>Fee model</th><th>Fee</th><th>Net kept</th><th>Drag</th></tr></thead><tbody id="rows"></tbody></table><p class="muted">Rule of thumb: if you use cards, avoid $1 minimum bids unless you have a strategic reason. Local rails like UPI make micro-bids more viable.</p></section><script>const rails=[['Card','2.9% + $0.30',.029,.30],['UPI/local','1.0% + $0.02',.01,.02],['Crypto/manual','1.5% + $0.05',.015,.05]];const $=id=>document.getElementById(id);function usd(n){return '$'+n.toFixed(2)}function render(){let a=+amt.value||1;rows.innerHTML=rails.map(r=>{let fee=a*r[2]+r[3],net=a-fee;return`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${usd(fee)}</td><td>${usd(net)}</td><td>${(fee/a*100).toFixed(1)}%</td></tr>`}).join('')}amt.oninput=render;render()</script>
+</main>
+<script src="assets/site-enhancements.js"></script>
+</body></html>
