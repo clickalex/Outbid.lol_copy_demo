@@ -79,7 +79,9 @@ const IDEAS=[
 {name:'ShieldBid',effort:'S',budget:'low',aud:'founder',risk:'drama',why:'Simple mechanic with takeover drama and low build complexity.'},
 {name:'The Last Word',effort:'M',budget:'mid',aud:'founder',risk:'drama',why:'One object, one timer, high narrative tension.'},
 {name:'ShipOrSkip',effort:'S',budget:'low',aud:'founder',risk:'safe',why:'Makers love judging ideas and owners recruit voters.'},
-{name:'ReviewRank',effort:'M',budget:'mid',aud:'founder',risk:'safe',why:'Quality multiplier fixes the trust problem in pay-to-rank.'}
+{name:'ReviewRank',effort:'M',budget:'mid',aud:'founder',risk:'safe',why:'Quality multiplier fixes the trust problem in pay-to-rank.'},
+{name:'EduRank',effort:'M',budget:'mid',aud:'local',risk:'safe',why:'Intake-season bidding, INR rails and zero education boards in 450.'},
+{name:'WanderRank',effort:'M',budget:'mid',aud:'local',risk:'safe',why:'The biggest ad-spend industry on earth still has no pay-to-rank board.'}
 ];
 const $=id=>document.getElementById(id);
 function scoreIdea(i){let s=40;if(i.effort===$('effort').value)s+=20;if(i.budget===$('budget').value||(i.budget==='low'&&$('budget').value!=='low'))s+=15;if(i.aud===$('audience').value)s+=20;if(i.risk===$('risk').value)s+=15;return Math.min(100,s)}

@@ -753,6 +753,12 @@ IDEA_WATCH = [
     ("ShieldBid", ("rank insurance", "bid shield", "outbid protection")),
     ("SeasonPass", ("season pass leaderboard", "monthly rank reset", "ranking seasons")),
     ("PredictWall", ("predict the winner", "leaderboard prediction", "predict number one")),
+    ("EduRank", ("course leaderboard", "tutor leaderboard", "coaching leaderboard", "rank tutors")),
+    ("ClinicRank", ("clinic leaderboard", "dentist leaderboard", "doctor leaderboard", "rank clinics")),
+    ("AdvocateRank", ("lawyer leaderboard", "advocate leaderboard", "law firm leaderboard", "rank lawyers")),
+    ("WanderRank", ("hotel leaderboard", "travel leaderboard", "tour leaderboard", "rank hotels")),
+    ("LensRank", ("photographer leaderboard", "photography leaderboard", "rank photographers")),
+    ("StudioRank", ("interior design leaderboard", "architect leaderboard", "design studio leaderboard")),
 ]
 
 
