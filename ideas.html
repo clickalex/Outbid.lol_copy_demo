@@ -213,6 +213,19 @@
     .badge.effort-M { background: #f6ead2; border-color: var(--amber); color: var(--amber); }
     .badge.effort-L { background: #f6d9d3; border-color: var(--red-dark); color: var(--red-dark); }
     .badge.reach { background: var(--ink); color: var(--lime); border-color: var(--ink); }
+    .badge.status-new { background: var(--green); border-color: var(--green); color: #fff; }
+    .badge.status-taken { background: var(--red-dark); border-color: var(--red-dark); color: #fff; }
+    .badge.status-mix { background: var(--amber); border-color: var(--amber); color: #fff; }
+
+    .idea.from-attachment { border-left: 4px solid var(--green); }
+
+    .theme-table { width: 100%; border-collapse: collapse; margin: 4px 0 0; font-size: 13.5px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+    .theme-table th, .theme-table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .theme-table th { font: 600 10px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); background: var(--paper-deep); }
+    .theme-table tr:last-child td { border-bottom: none; }
+    .ok { color: var(--green); font-weight: 700; }
+    .no { color: var(--red-dark); font-weight: 700; }
+    .half { color: var(--amber); font-weight: 700; }
 
     .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 20px; }
     .filters input {
@@ -324,18 +337,84 @@
         <a class="btn ghost" href="#pick">How to pick one</a>
       </div>
       <div class="stat-strip">
-        <div class="stat-pill"><strong>16</strong> open ideas listed below</div>
-        <div class="stat-pill"><strong>10</strong> vertical gaps (zero boards today)</div>
+        <div class="stat-pill"><strong>18</strong> open ideas listed below</div>
+        <div class="stat-pill"><strong>12</strong> vertical gaps (zero boards today)</div>
         <div class="stat-pill"><strong>6</strong> brand-new mechanics</div>
+        <div class="stat-pill"><strong>4</strong> of your demo ideas verified in section 01</div>
         <div class="stat-pill"><strong>0</strong> bots or scheduled runs on this page</div>
       </div>
 
       <section id="attachment">
-        <div class="sec-head"><span class="sec-num">01</span><h2>From your attachment</h2></div>
-        <p class="sec-sub">Your message mentioned an attached list of new ideas. The attachment did not arrive in the repository, so nothing was lost or skipped — it simply was not received.</p>
-        <div class="notice">
-          <strong>⚠ Attachment pending</strong>
-          <p>Please share the ideas list again (paste the text into the chat or attach the file). As soon as it arrives, every idea from it will be added here as numbered cards, checked against the 415-board inventory, and marked “built / open” so you can see which ones are still unclaimed.</p>
+        <div class="sec-head"><span class="sec-num">01</span><h2>From your attachment — checked against the market</h2></div>
+        <p class="sec-sub">
+          Your file <a href="docs/pay-to-rank-new-ideas.html"><code>docs/pay-to-rank-new-ideas.html</code></a>
+          arrived (committed to <code>main</code>). Its 4 hosted-demo ideas are checked below against all 415 boards
+          in the 26 Aug 2026 inventory — <strong>new ideas kept, already-built ones marked, nothing added twice</strong>.
+          Two further cards (A-01, A-02) extend your open themes and were verified the same way.
+        </p>
+        <div class="cards">
+
+          <article class="idea">
+            <div class="idea-top"><span class="idea-id">YOUR DEMO</span></div>
+            <h3>MohallaRank</h3>
+            <p class="pitch">Hyper-local board ranking streets, mohallas and neighbourhoods against each other.</p>
+            <dl>
+              <dt>Verification</dt><dd>mohalla / neighbourhood / street / ward / colony / village / district / pincode — <strong>zero matches</strong> across all 415 boards.</dd>
+              <dt>Closest existing</dt><dd>claim.town sells $1 city <em>blocks</em> (an ad grid, not a neighbourhood rivalry board); kingbid.lol and Bidwall do country/region lists — none goes street-level.</dd>
+            </dl>
+            <div class="badges"><span class="badge status-new">Still new — keep ✓</span></div>
+          </article>
+
+          <article class="idea">
+            <div class="idea-top"><span class="idea-id">YOUR DEMO</span></div>
+            <h3>GuiltRank</h3>
+            <p class="pitch">Rank driven by guilt — pay up or be publicly named as the one who didn’t.</p>
+            <dl>
+              <dt>Verification</dt><dd>guilt / shame / embarrass — <strong>zero matches</strong> across all 415 boards. No board uses social pressure as the bid engine.</dd>
+              <dt>Closest existing</dt><dd>None. Dare mechanics appear once (OUTBID EARTH) but not guilt framing.</dd>
+            </dl>
+            <div class="badges"><span class="badge status-new">Still new — keep ✓</span></div>
+          </article>
+
+          <article class="idea">
+            <div class="idea-top"><span class="idea-id">YOUR DEMO</span></div>
+            <h3>OneThrone</h3>
+            <p class="pitch">A single throne: pay more, take it, defend it.</p>
+            <dl>
+              <dt>Verification</dt><dd>throne / king / crown / hill / dethrone — <strong>11+ matching boards</strong>: throne.clicks.is, AI THRONE, Dethrone (weekly), Dethrone, Kingme, hill.bid, King of the Web, firstpage.lol, topple.lol, UNBID, Richie Rich, BidFootball.</dd>
+              <dt>Result</dt><dd>This is the most crowded mechanic in the whole market. Per your rule it is <strong>marked, not added</strong>.</dd>
+            </dl>
+            <div class="badges"><span class="badge status-taken">Already built — marked ✗</span></div>
+          </article>
+
+          <article class="idea">
+            <div class="idea-top"><span class="idea-id">YOUR DEMO</span></div>
+            <h3>CrownRank</h3>
+            <p class="pitch">Visitor-benefits board: visitors themselves get something, not just the bidder.</p>
+            <dl>
+              <dt>Verification</dt><dd>The mechanic — visitor / benefit / reward / cashback / giveaway / prize — has <strong>zero matches</strong>. That combination is genuinely unbuilt.</dd>
+              <dt>Watch out</dt><dd>The word “crown” is already used by 5 boards (Richie Rich, TopGoblin, claim.town, BidFootball, Worstbid). Keep the mechanic, consider renaming.</dd>
+            </dl>
+            <div class="badges"><span class="badge status-mix">Mechanic new ✓ · name crowded ⚠</span></div>
+          </article>
+
+        </div>
+
+        <p class="sec-sub" style="margin-top:26px">Your attachment also named five gap themes. Each theme was keyword-checked against the inventory:</p>
+        <table class="theme-table">
+          <thead><tr><th>Theme from your list</th><th>Status</th><th>Evidence from the 415-board inventory</th></tr></thead>
+          <tbody>
+            <tr><td><b>Matrimony</b></td><td class="ok">OPEN — keep</td><td>matrimony, marriage, matchmaking, bride, groom, wedding: 0 boards. Big India angle, zero competition.</td></tr>
+            <tr><td><b>Hyper-local</b></td><td class="half">PARTIAL — niche down</td><td>City/country boards exist (claim.town, indiecity, kingbid.lol, Bidwall, toplocal), but street/mohalla/pincode level is empty → your MohallaRank sits exactly in the open part.</td></tr>
+            <tr><td><b>Talent</b></td><td class="half">PARTIAL — niche down</td><td>hire-me.lol already runs a general talent leaderboard. Singer, dance, acting, skill boards: still 0 → performing-arts niches are open (see A-02).</td></tr>
+            <tr><td><b>Visitor benefits</b></td><td class="ok">OPEN — keep</td><td>No board rewards visitors (see CrownRank card above). A real new trend you spotted first.</td></tr>
+            <tr><td><b>Mechanic innovations</b></td><td class="ok">See section 03</td><td>Six new mechanics listed below, each checked the same way.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="notice" style="margin-top:18px">
+          <strong>⚠ One file is still missing from your upload</strong>
+          <p>Your page loads its 26 idea cards from <code>pay-to-rank-new-ideas.csv</code>, but only the <code>.html</code> viewer was committed to <code>main</code> — the CSV is not in the repo, so the other 22 idea details can’t be read yet. Add <code>pay-to-rank-new-ideas.csv</code> next to it in <code>docs/</code> and say “check again” — every remaining idea will be verified and merged here with the same rule: keep the new, mark the already-built.</p>
         </div>
       </section>
 
@@ -350,11 +429,35 @@
         </p>
         <div class="filters" role="group" aria-label="Filter ideas">
           <input id="ideaSearch" type="search" placeholder="Search ideas…" aria-label="Search ideas">
-          <button class="chip" data-filter="all" aria-pressed="true">All 16</button>
+          <button class="chip" data-filter="all" aria-pressed="true">All 18</button>
           <button class="chip" data-filter="gap" aria-pressed="false">Vertical gaps</button>
           <button class="chip" data-filter="mech" aria-pressed="false">New mechanics</button>
         </div>
         <div class="cards" id="ideaCards">
+
+          <article class="idea from-attachment" data-type="gap" data-keywords="matrimony marriage matchmaking bride groom wedding india">
+            <div class="idea-top"><span class="idea-id">A-01 · FROM YOUR LIST</span></div>
+            <h3>MatrimonyWall</h3>
+            <p class="pitch">A pay-to-rank matrimony board: profiles, matchmakers and wedding services bid for the top slot in their community and city.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>matrimony, marriage, matchmaking, bride, groom, wedding: 0 boards across all 415 — the whole theme from your attachment is unclaimed.</dd>
+              <dt>Model</dt><dd>₹99+ entry bids in INR (regional rails are the proven unlock); city + community sub-walls; verified-profile badge as premium.</dd>
+              <dt>Reach</dt><dd>Wedding-season virality + community group sharing; matrimony is a high-spend category in India.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-M">Effort M</span><span class="badge reach">Reach ★★★★★</span><span class="badge">Competition: none</span></div>
+          </article>
+
+          <article class="idea from-attachment" data-type="gap" data-keywords="talent singer dance acting performer stage show talentstage">
+            <div class="idea-top"><span class="idea-id">A-02 · FROM YOUR LIST</span></div>
+            <h3>TalentStage</h3>
+            <p class="pitch">Performing-arts leaderboard: singers, dancers and actors bid to rank their act. The video link is the entry; the rank is the stage.</p>
+            <dl>
+              <dt>Why it’s open</dt><dd>Your talent theme is real but hire-me.lol already took the generic “talent leaderboard”. Singer, dance, acting, skill: still 0 boards — so this card takes the open niches only.</dd>
+              <dt>Model</dt><dd>$3 min bid per act; weekly “headline slot” for the #1 act; audience clicks counted as applause.</dd>
+              <dt>Reach</dt><dd>Every performer recruits their own fans to defend the rank — built-in distribution.</dd>
+            </dl>
+            <div class="badges"><span class="badge effort-S">Effort S</span><span class="badge reach">Reach ★★★★</span><span class="badge">Competition: hire-me.lol (generic only)</span></div>
+          </article>
 
           <article class="idea" data-type="gap" data-keywords="food restaurant city local dish rankmydish">
             <div class="idea-top"><span class="idea-id">I-01</span></div>

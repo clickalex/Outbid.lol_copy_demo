@@ -25,8 +25,9 @@ Every figure on it is computed from the committed inventory snapshot and refresh
 
 The audit shows *what exists*; this page lists *what doesn't*. It is a dated, one-time idea list for choosing the next pay-to-rank site to build and launch for reach —
 
-- **vertical gaps**: pay-to-rank board niches with zero entries among the 415 verified boards (food, jobs, freelancers, music, memes, campuses, pets, city battles, charity, podcasts);
-- **new mechanics**: brand-new twists none of the existing boards ships (king-of-the-hill pot, auction-the-site's-name, reverse auction, pay-vote duels, time capsules, idea voting);
+- **from your attachment** (section 01): the four hosted-demo ideas from `docs/pay-to-rank-new-ideas.html` verified against the inventory — new ones kept, already-built ones marked, plus a keyword verdict for each of its five gap themes;
+- **vertical gaps**: pay-to-rank board niches with zero entries among the 415 verified boards (food, books, freelancers, fitness, image-memes, campuses, barbers, weddings, coffee & bars, nightlife, matrimony, performing arts);
+- **new mechanics**: brand-new twists none of the existing boards ships (text-box hill with pot, auction-the-site's-name, anonymous wall, pay-vote duels, time capsules, idea voting);
 - a three-question **pick test**, the build-and-launch plan, and a filtered/searchable card list.
 
 By design this page is **static and human-maintained**: no `data-stat` attributes, no bot sentinels, no network calls, and the daily bot never touches it. Idea-checking stays manual — the point is to pick one idea, build it as pay-to-rank, and launch it for reach, not to monitor it on a schedule.
