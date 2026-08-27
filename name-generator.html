@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Generate names and domain ideas for pay-to-rank websites.">
+<meta property="og:title" content="Name Generator — Outbid OS"><meta property="og:description" content="Generate names and domain ideas for pay-to-rank websites."><meta property="og:type" content="website"><meta property="og:image" content="og-image.svg"><meta name="twitter:card" content="summary_large_image">
+<title>Name Generator — Outbid OS</title><link rel="stylesheet" href="assets/os.css">
+</head>
+<body data-page="tools">
+<header class="topline"><span>Outbid OS / static toolkit</span><span>Audit → Pick → Model → Launch</span></header>
+<nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a></div></nav>
+<nav class="mobile-bottom-nav" aria-label="Quick mobile navigation"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a></nav>
+
+<main id="top">
+
+<p class="eyebrow">Names</p><h1>Generate a board name <i>before someone else buys it.</i></h1><p class="deck">Create rank/bid/wall/ladder names for any niche. Availability is not checked; use this as a creative shortlist.</p><section class="panel form"><div class="two"><label><span>Niche word</span><input id="niche" value="Food"></label><label><span>TLD/style</span><select id="tld"><option>.lol</option><option>.in</option><option>.club</option><option>.fun</option><option>.app</option></select></label></div><button class="btn primary" id="gen" type="button">Generate 30 names</button></section><section class="grid" id="names"></section><script>const $=id=>document.getElementById(id);function gen(){let n=niche.value.replace(/\s+/g,'');let prefixes=['Rank','Bid','Out','Top','Claim','Pay','Flex','Boost','Crown','First'];let suffixes=['Rank','Bid','Wall','Ladder','Board','Arena','Clash','Spot','Stage','List'];let arr=[];prefixes.forEach(p=>arr.push(p+n+tld.value));suffixes.forEach(s=>arr.push(n+s+tld.value));['The'+n+'Wall','My'+n+'Rank',n+'Wars',n+'Rush',n+'Seat',n+'Throne',n+'Signal',n+'Proof',n+'Prize',n+'Pulse'].forEach(x=>arr.push(x+tld.value));names.innerHTML=arr.slice(0,30).map(x=>`<button class="card" onclick="navigator.clipboard?.writeText('${x}')"><b>NAME</b><strong>${x}</strong><span>Click to copy</span></button>`).join('')}gen.onclick=gen;gen()</script>
+</main>
+<script src="assets/site-enhancements.js"></script>
+</body></html>

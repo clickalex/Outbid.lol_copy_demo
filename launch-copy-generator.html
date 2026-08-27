@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Generate launch posts, Product Hunt copy, community posts and cold DMs for a pay-to-rank website.">
+<meta property="og:title" content="Launch Copy Generator — Outbid OS"><meta property="og:description" content="Generate launch posts, Product Hunt copy, community posts and cold DMs for a pay-to-rank website."><meta property="og:type" content="website"><meta property="og:image" content="og-image.svg"><meta name="twitter:card" content="summary_large_image">
+<title>Launch Copy Generator — Outbid OS</title><link rel="stylesheet" href="assets/os.css">
+</head>
+<body data-page="tools">
+<header class="topline"><span>Outbid OS / static toolkit</span><span>Audit → Pick → Model → Launch</span></header>
+<nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a></div></nav>
+<nav class="mobile-bottom-nav" aria-label="Quick mobile navigation"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a></nav>
+
+<main id="top">
+
+<p class="eyebrow">Launch copy</p><h1>Write the launch in <i>one click.</i></h1><p class="deck">Template-based, no external API. Fill the basics and copy platform-specific launch text.</p><section class="panel form"><div class="two"><label><span>Project name</span><input id="name" value="RankMyDish"></label><label><span>Niche</span><input id="niche" value="Delhi restaurants"></label></div><div class="two"><label><span>Minimum bid</span><input id="bid" value="₹200"></label><label><span>Hook</span><input id="hook" value="the public wall for the best dish in Delhi"></label></div><button class="btn primary" id="gen" type="button">Generate copy</button></section><section class="panel"><textarea id="out" rows="18"></textarea><button class="btn" id="copy" type="button">Copy all</button></section>
+<script>const $=id=>document.getElementById(id);function gen(){out.value=`X launch post:
+I built ${name.value}: ${hook.value}. ${niche.value} can pay ${bid.value}+ to rank. Rank is the bid. First wall is live today. Who takes #1?
+
+Product Hunt tagline:
+${hook.value} — pay to rank, defend the top, and turn the leaderboard into marketing.
+
+Reddit/HN post:
+I made a tiny pay-to-rank experiment for ${niche.value}. The rule is simple: pay ${bid.value}+ and your entry ranks by bid amount. I am testing whether a narrow public leaderboard beats another generic directory. Feedback welcome.
+
+WhatsApp/Telegram:
+Launching ${name.value} today. If you know someone in ${niche.value}, send them this. First #1 spot is open from ${bid.value}.
+
+Cold DM:
+Hey — I’m launching ${name.value}, ${hook.value}. I thought of you because you already market to ${niche.value}. The first leaderboard is live and the top spot starts at ${bid.value}. Want the first position?`}$('gen').onclick=gen;$('copy').onclick=()=>navigator.clipboard?.writeText(out.value);gen()</script>
+</main>
+<script src="assets/site-enhancements.js"></script>
+</body></html>

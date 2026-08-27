@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Search across Outbid OS reports, tools, ideas, changelog and structured idea data.">
+<meta property="og:title" content="Site Search — Outbid OS"><meta property="og:description" content="Search across Outbid OS reports, tools, ideas, changelog and structured idea data."><meta property="og:type" content="website"><meta property="og:image" content="og-image.svg"><meta name="twitter:card" content="summary_large_image">
+<title>Site Search — Outbid OS</title><link rel="stylesheet" href="assets/os.css">
+</head>
+<body data-page="search">
+<header class="topline"><span>Outbid OS / static toolkit</span><span>Audit → Pick → Model → Launch</span></header>
+<nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a></div></nav>
+<nav class="mobile-bottom-nav" aria-label="Quick mobile navigation"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a></nav>
+
+<main id="top">
+
+<p class="eyebrow">Search</p><h1>Search the whole <i>Outbid OS.</i></h1><p class="deck">Client-side search across pages, tools and structured ideas.</p><section class="panel"><label><span>Search query</span><input id="q" type="search" placeholder="visitor earn, UPI, launch, fees, Matrimony..." autofocus></label></section><section class="grid" id="results"></section><script>
+const pages=[['Market audit','index.html','Main market analysis and live inventory'],['Idea list','ideas.html','Verified open ideas, filters, details and compare'],['Tools hub','tools.html','All calculators and generators'],['Idea picker','idea-picker.html','Pick ideas by constraints'],['Entry simulator','entry-simulator.html','Model clone-market odds'],['Launch checklist','launch-checklist.html','Persistent launch checklist'],['Revenue calculator','revenue-calculator.html','Gross/net calculator'],['MVP builder','mvp-builder.html','Generate a build spec'],['Launch copy generator','launch-copy-generator.html','Generate posts and DMs'],['Name generator','name-generator.html','Generate domain ideas'],['Fee comparison','fees.html','Compare payment rails'],['Build plan','build-plan.html','7-day roadmap'],['Changelog','changelog.html','Project history']];let ideas=[];const $=id=>document.getElementById(id);fetch('data/ideas.json').then(r=>r.json()).then(d=>{ideas=d.map(i=>[i.name,'ideas.html#'+i.id,i.pitch+' '+i.type+' '+i.mvp]);render()});q.oninput=render;function render(){let term=q.value.toLowerCase().trim();let all=[...pages,...ideas];let found=all.filter(x=>!term||x.join(' ').toLowerCase().includes(term));results.innerHTML=found.map(x=>`<a class="card" href="${x[1]}"><b>RESULT</b><strong>${x[0]}</strong><span>${x[2]}</span></a>`).join('')||'<p class="muted">No results.</p>'}</script>
+</main>
+<script src="assets/site-enhancements.js"></script>
+</body></html>

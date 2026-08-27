@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Compare pay-to-rank ideas by effort, reach, budget, audience, risk and MVP scope.">
+<meta property="og:title" content="Idea Comparison — Outbid OS"><meta property="og:description" content="Compare pay-to-rank ideas by effort, reach, budget, audience, risk and MVP scope."><meta property="og:type" content="website"><meta property="og:image" content="og-image.svg"><meta name="twitter:card" content="summary_large_image">
+<title>Idea Comparison — Outbid OS</title><link rel="stylesheet" href="assets/os.css">
+</head>
+<body data-page="tools">
+<header class="topline"><span>Outbid OS / static toolkit</span><span>Audit → Pick → Model → Launch</span></header>
+<nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a></div></nav>
+<nav class="mobile-bottom-nav" aria-label="Quick mobile navigation"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a></nav>
+
+<main id="top">
+
+<p class="eyebrow">Compare</p><h1>Put three ideas on the same <i>scorecard.</i></h1><p class="deck">Choose ideas from the structured dataset. The table updates instantly and stays fully client-side.</p>
+<section class="panel"><div class="two"><label><span>Idea A</span><select id="a"></select></label><label><span>Idea B</span><select id="b"></select></label></div><label style="display:block;margin-top:12px"><span>Idea C</span><select id="c"></select></label><table><thead><tr><th>Field</th><th id="ha">A</th><th id="hb">B</th><th id="hc">C</th></tr></thead><tbody id="rows"></tbody></table></section>
+<script>
+let ideas=[];const $=id=>document.getElementById(id);fetch('data/ideas.json').then(r=>r.json()).then(d=>{ideas=d;init()});
+function init(){['a','b','c'].forEach((id,i)=>{$(id).innerHTML=ideas.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');$(id).value=ideas[i]?.id;$(id).onchange=render});render()}
+function get(id){return ideas.find(x=>x.id===$(id).value)||ideas[0]}function render(){let xs=['a','b','c'].map(get);['ha','hb','hc'].forEach((h,i)=>$(h).textContent=xs[i].name);let fields=['pitch','type','effort','budget','audience','india','risk','reach','competition','mvp'];$('rows').innerHTML=fields.map(f=>`<tr><th>${f}</th>${xs.map(x=>`<td>${x[f]}</td>`).join('')}</tr>`).join('')}</script>
+</main>
+<script src="assets/site-enhancements.js"></script>
+</body></html>

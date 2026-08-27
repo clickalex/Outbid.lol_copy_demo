@@ -3,8 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Report 002 — a dated list of website ideas nobody has built yet: pay-to-rank vertical gaps found in the live inventory, plus brand-new mechanics. Static page, no bot, no daily runs.">
-  <title>Idea List — websites nobody has built yet (Report 002)</title>
+  <meta name="description" content="Report 002 — updated 27 August 2026. A self-contained list of website ideas nobody has built yet: pay-to-rank vertical gaps found in the live inventory, plus brand-new mechanics. Static page, no bot, no daily runs.">
+  <meta property="og:title" content="Idea List — Outbid OS">
+  <meta property="og:description" content="Outbid OS: market audit, idea lab, simulator, launch checklist and revenue tools for pay-to-rank websites.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="og-image.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Idea List — websites nobody has built yet (Report 002 · Updated)</title>
   <!--
     This page is intentionally NOT bot-maintained.
     No data-stat attributes, no bot sentinels, no scheduled refresh, no network calls.
@@ -302,13 +307,379 @@
       .topline, .sidebar { display: none; }
       main { padding: 30px 18px 70px; }
     }
-  </style>
+
+
+    /* ------------------------------------------------------------------
+       2026 site-wide redesign: dark command-center skin
+       These overrides intentionally sit after each page's original styles
+       so the report content and bot-managed data hooks remain untouched.
+    ------------------------------------------------------------------ */
+    :root {
+      --ink: #f7f4ea;
+      --paper: #070806;
+      --paper-deep: #11140f;
+      --card: rgba(255, 252, 239, .075);
+      --line: rgba(247, 244, 234, .18);
+      --muted: #b9b4a6;
+      --red: #ff5c3f;
+      --red-dark: #ff8a76;
+      --lime: #d9ff65;
+      --green: #63e69d;
+      --amber: #ffc768;
+      --blue: #8ea8ff;
+      --shadow: 0 28px 90px rgba(0, 0, 0, .34);
+      --radius: 24px;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 8% -8%, rgba(217, 255, 101, .20), transparent 26rem),
+        radial-gradient(circle at 94% 2%, rgba(255, 92, 63, .24), transparent 28rem),
+        radial-gradient(circle at 74% 76%, rgba(142, 168, 255, .14), transparent 30rem),
+        linear-gradient(135deg, #050604 0%, #0b0d09 45%, #141008 100%);
+      color: var(--ink);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(247,244,234,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(247,244,234,.035) 1px, transparent 1px);
+      background-size: 38px 38px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.9), rgba(0,0,0,.18));
+    }
+
+    a { color: var(--ink); }
+    a:hover { color: var(--lime); }
+    code { color: var(--lime); }
+
+    .topline {
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: #050604;
+      color: rgba(247,244,234,.78);
+    }
+
+    .topline a { color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.28); }
+    .topline a:hover { color: var(--lime); border-bottom-color: var(--lime); }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px clamp(18px, 4vw, 54px);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(7, 8, 6, .78);
+      backdrop-filter: blur(18px) saturate(150%);
+    }
+    .site-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: -.02em;
+    }
+    .site-logo span {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 14px;
+      color: #080806;
+      background: linear-gradient(135deg, var(--lime), #fff7a1);
+      box-shadow: 0 0 28px rgba(217,255,101,.28);
+      font: 900 15px/1 var(--mono);
+      transform: rotate(-6deg);
+    }
+    .site-logo strong { font-size: 14px; }
+    .site-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+    .site-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 13px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 999px;
+      color: rgba(247,244,234,.74);
+      background: rgba(255,255,255,.045);
+      text-decoration: none;
+      font: 700 11px/1 var(--sans);
+    }
+    body[data-page="audit"] .site-links a[data-page="audit"],
+    body[data-page="ideas"] .site-links a[data-page="ideas"],
+    body[data-page="tools"] .site-links a[data-page="tools"],
+    body[data-page="search"] .site-links a[data-page="search"],
+    body[data-page="picker"] .site-links a[data-page="picker"],
+    body[data-page="simulator"] .site-links a[data-page="simulator"],
+    body[data-page="checklist"] .site-links a[data-page="checklist"],
+    body[data-page="calculator"] .site-links a[data-page="calculator"],
+    body[data-page="changelog"] .site-links a[data-page="changelog"] {
+      color: #080806;
+      border-color: var(--lime);
+      background: var(--lime);
+      box-shadow: 0 0 26px rgba(217,255,101,.22);
+    }
+
+    .shell { width: min(1560px, 100%); }
+    .sidebar {
+      top: 64px;
+      height: calc(100vh - 64px);
+      border-right: 1px solid rgba(255,255,255,.11);
+      background: rgba(255,255,255,.045);
+      box-shadow: inset -1px 0 rgba(255,255,255,.04);
+    }
+    .brand-mark {
+      color: #080806;
+      background: linear-gradient(135deg, var(--red), var(--lime));
+      box-shadow: 0 0 34px rgba(255,92,63,.24);
+    }
+    .brand strong, .status strong, .audit-card .status strong { color: #fff; }
+    .brand span, .nav-title, .side-note, .side-note p, .section-intro, .micro, .deck, .lede, .sec-sub,
+    .panel p, .fact span, .metric .label, .metric .note, .domain, .table-status-note, .fresh-card p,
+    .idea .pitch, .idea dd, .route-list li, .method-grid p, .rec p, .path p, .path ul,
+    .control-stack .hint, .control .suffix, .readout span, .readout small, .bucket span, .peer span,
+    .check span, .check output, .gauge-head span, .source-link span, .footer, footer {
+      color: var(--muted) !important;
+    }
+    .side-nav a {
+      color: rgba(247,244,234,.70);
+      border: 1px solid transparent;
+    }
+    .side-nav a:hover {
+      color: #fff;
+      border-color: rgba(255,255,255,.12);
+      background: rgba(255,255,255,.08);
+    }
+
+    .hero, main#top > section:first-child {
+      border-bottom-color: rgba(255,255,255,.12);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.05), transparent 72%),
+        radial-gradient(circle at 50% 0%, rgba(217,255,101,.09), transparent 34rem);
+    }
+    .hero::after { color: rgba(255,255,255,.045); text-shadow: 0 0 70px rgba(217,255,101,.06); }
+    h1, h2, h3 { color: #fff; }
+    h1 i, h1 .accent {
+      color: transparent !important;
+      background: linear-gradient(100deg, var(--lime), #fff1aa 38%, var(--red) 82%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    .eyebrow { color: var(--lime); }
+
+    .btn, .chip {
+      border-color: rgba(255,255,255,.18);
+      color: #fff;
+      background: rgba(255,255,255,.055);
+      box-shadow: inset 0 1px rgba(255,255,255,.06);
+    }
+    .btn:hover, .chip:hover { color: #080806; background: var(--lime); border-color: var(--lime); }
+    .btn.primary, .btn:not(.ghost):first-child {
+      color: #080806;
+      border-color: var(--lime);
+      background: var(--lime);
+      box-shadow: 0 12px 40px rgba(217,255,101,.18);
+    }
+    .btn.primary:hover, .btn:not(.ghost):first-child:hover { background: #fff7a1; }
+    .btn.ghost { color: #fff; background: transparent; }
+
+    .finding-bar {
+      color: #080806;
+      background: linear-gradient(90deg, var(--lime), #fff7a1 52%, var(--red));
+    }
+    .finding-bar p, .finding-bar strong, .finding-bar span { color: #080806 !important; }
+
+    .panel, .metric, .audit-card, .fresh-card, .score, .flow-step, .control-stack, .verdict, .path,
+    .rec, .idea, .stat-pill, .notice, .steps li, .source-link, .theme-table, .table-wrap,
+    .filters, .side-note {
+      border-color: rgba(255,255,255,.14) !important;
+      background: linear-gradient(180deg, rgba(255,255,255,.095), rgba(255,255,255,.055)) !important;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .panel.dark, .metric.accent {
+      background: linear-gradient(180deg, rgba(217,255,101,.16), rgba(255,255,255,.06)) !important;
+      border-color: rgba(217,255,101,.34) !important;
+    }
+    .audit-card, .verdict { box-shadow: 10px 10px 0 rgba(217,255,101,.92), var(--shadow); }
+    .featured { border-color: rgba(217,255,101,.55) !important; }
+    .idea.from-attachment { border-left-color: var(--lime); }
+    .rec { border-top-color: var(--lime); }
+
+    .section-head, footer, .footer, .fact, .spot-item, .peer, .check,
+    .audit-card .status, .verdict-head, .route-list li, .readout, .readout > div,
+    .theme-table th, .theme-table td, td {
+      border-color: rgba(255,255,255,.13) !important;
+    }
+    th, .theme-table th { background: rgba(255,255,255,.08) !important; color: var(--lime) !important; }
+    tbody tr:hover { background: rgba(217,255,101,.045); }
+
+    input, select {
+      color: #fff !important;
+      border-color: rgba(255,255,255,.16) !important;
+      background: rgba(0,0,0,.24) !important;
+    }
+    input::placeholder { color: rgba(247,244,234,.45); }
+
+    .pill.up, .badge.effort-S, .badge.status-new { color: #092016 !important; background: var(--green) !important; border-color: var(--green) !important; }
+    .pill.warn, .badge.effort-M, .badge.status-mix { color: #211404 !important; background: var(--amber) !important; border-color: var(--amber) !important; }
+    .pill.new, .pill.neutral, .badge, .badge.reach { color: #080806 !important; background: var(--lime) !important; border-color: var(--lime) !important; }
+    .badge.effort-L, .badge.status-taken { color: #fff !important; background: var(--red) !important; border-color: var(--red) !important; }
+    .pill::before { background: currentColor; }
+
+    .track { background: rgba(255,255,255,.12); }
+    .fill { background: linear-gradient(90deg, var(--lime), var(--red)); }
+    .concentration { border-color: rgba(255,255,255,.18); }
+    .concentration .original { background: var(--red); }
+    .concentration .top-clones { color: #080806; background: var(--lime); }
+    .concentration .tail { background: rgba(255,255,255,.08); }
+
+    .cards { gap: 18px; }
+    .idea:hover, .fresh-card:hover, .source-link:hover, .path:hover, .rec:hover {
+      transform: translateY(-3px);
+      border-color: rgba(217,255,101,.42) !important;
+    }
+
+    .ok { color: var(--green) !important; }
+    .no { color: var(--red) !important; }
+    .half { color: var(--amber) !important; }
+
+    .idea-tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .idea-tools button, .compare-toggle {
+      min-height: 30px;
+      padding: 6px 10px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(255,255,255,.06);
+      font: 700 10px/1 var(--sans);
+    }
+    .compare-toggle { display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
+    .compare-toggle input { width:14px; height:14px; accent-color: var(--lime); }
+    .compare-tray {
+      position: sticky;
+      bottom: 18px;
+      z-index: 20;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top: 18px;
+      padding: 12px 14px;
+      border:1px solid rgba(217,255,101,.38);
+      border-radius:999px;
+      background:rgba(7,8,6,.86);
+      backdrop-filter:blur(16px);
+      box-shadow:var(--shadow);
+      color:var(--muted);
+      font-size:12px;
+    }
+    .idea-dialog {
+      width:min(760px, calc(100% - 28px));
+      max-height:86vh;
+      overflow:auto;
+      border:1px solid rgba(217,255,101,.38);
+      border-radius:24px;
+      color:var(--ink);
+      background:#0b0d09;
+      box-shadow:0 35px 100px rgba(0,0,0,.65);
+      padding:28px;
+    }
+    .idea-dialog::backdrop { background:rgba(0,0,0,.72); backdrop-filter:blur(6px); }
+    .dialog-close { position:absolute; right:16px; top:14px; width:34px; height:34px; border-radius:50%; border:1px solid var(--line); color:#fff; background:rgba(255,255,255,.08); }
+    .dialog-grid { display:grid; gap:14px; }
+    .dialog-grid h3 { margin:0; font-size:30px; }
+    .dialog-grid table { border:1px solid rgba(255,255,255,.14); border-radius:14px; overflow:hidden; }
+
+    @media (max-width: 900px) {
+      .site-nav { position: sticky; align-items: flex-start; flex-direction: column; padding: 12px 16px; }
+      .site-links { justify-content: flex-start; }
+      .topline { display: none; }
+      .compare-tray { border-radius:18px; }
+    }
+
+    @media print {
+      .site-nav { display: none !important; }
+      body { color: #111; background: #fff; }
+    }
+
+  
+    .mobile-bottom-nav { display: none; }
+    @media (max-width: 720px) {
+      body { padding-bottom: 78px; }
+      .mobile-bottom-nav {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        z-index: 90;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        padding: 7px;
+        border: 1px solid rgba(217,255,101,.32);
+        border-radius: 22px;
+        background: rgba(7,8,6,.88);
+        box-shadow: 0 20px 60px rgba(0,0,0,.46);
+        backdrop-filter: blur(16px);
+      }
+      .mobile-bottom-nav a {
+        display: grid;
+        place-items: center;
+        min-height: 38px;
+        border-radius: 16px;
+        color: rgba(247,244,234,.78);
+        text-decoration: none;
+        font: 800 11px/1 var(--sans);
+      }
+      body[data-page="audit"] .mobile-bottom-nav a[data-page="audit"],
+      body[data-page="ideas"] .mobile-bottom-nav a[data-page="ideas"],
+      body[data-page="picker"] .mobile-bottom-nav a[data-page="picker"],
+      body[data-page="calculator"] .mobile-bottom-nav a[data-page="calculator"] {
+        color: #080806;
+        background: var(--lime);
+      }
+    }
+
+    .nav-toggle { display: none; }
+    @media (max-width: 720px) {
+      .nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 7px 13px;
+        border: 1px solid rgba(255,255,255,.13);
+        border-radius: 999px;
+        color: #080806;
+        background: var(--lime);
+        font: 800 11px/1 var(--sans);
+      }
+      .site-nav { flex-direction: row; align-items: center; flex-wrap: wrap; }
+      .site-links { display: none; width: 100%; justify-content: flex-start; padding-top: 8px; }
+      .site-nav.is-open .site-links { display: flex; }
+    }
+</style>
 </head>
-<body>
+<body data-page="ideas">
   <header class="topline">
-    <span class="live-label"><span class="live-dot"></span> Idea lab / 26 Aug 2026 / UTC · static page · no bot · no daily runs</span>
+    <span class="live-label"><span class="live-dot"></span> Idea lab / 27 Aug 2026 / UTC · static page · no bot · no daily runs</span>
     <span>Read → pick one → build pay-to-rank → launch for reach</span>
   </header>
+
+
+  <nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a></div></nav>
+  <nav class="mobile-bottom-nav" aria-label="Quick mobile navigation"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a></nav>
+
 
   <div class="shell">
     <aside class="sidebar" aria-label="Page navigation">
@@ -336,7 +707,7 @@
     </aside>
 
     <main id="top">
-      <p class="eyebrow">Report 002 · Idea list · 26 August 2026</p>
+      <p class="eyebrow">Report 002 · Idea list · updated 27 August 2026</p>
       <h1>Websites nobody has built yet — <span class="accent">pick one, ship it.</span></h1>
       <p class="lede">
         The live market inventory tracks <strong>415 verified pay-to-rank boards</strong> across
@@ -358,13 +729,14 @@
       </div>
 
       <section id="attachment">
-        <div class="sec-head"><span class="sec-num">01</span><h2>From your attachment — checked against the market</h2></div>
+        <div class="sec-head"><span class="sec-num">01</span><h2>Imported ideas — checked against the market</h2></div>
         <p class="sec-sub">
-          Your file <a href="docs/pay-to-rank-new-ideas.html"><code>docs/pay-to-rank-new-ideas.html</code></a>
-          arrived (committed to <code>main</code>). Its 4 hosted-demo ideas are checked below against all 415 boards
-          in the 26 Aug 2026 inventory — <strong>new ideas kept, already-built ones marked, nothing added twice</strong>.
+          The old attachment page in <code>docs/</code> has been removed, so this section is now the
+          self-contained source of truth. The 4 hosted-demo ideas from that deleted document are preserved
+          and checked below against all 415 boards in the 26 Aug 2026 inventory —
+          <strong>new ideas kept, already-built ones marked, nothing added twice</strong>.
           Two further cards (A-01, A-02) extend your open themes and were verified the same way.
-          The <code>pay-to-rank-new-ideas.csv</code> arrived too — all 25 ideas from it are verified at the bottom of this section.
+          The remaining CSV attachment content is also folded into this page: all 25 ideas are verified at the bottom of this section.
         </p>
 
         <article class="idea featured" style="margin-bottom:18px">
@@ -492,8 +864,8 @@
         </div>
 
         <div class="notice" style="margin-top:18px;border-color:var(--green);background:rgba(217,255,101,.18)">
-          <strong>✓ CSV received and fully verified</strong>
-          <p><code>docs/pay-to-rank-new-ideas.csv</code> (25 ideas) was checked line-by-line against the 415-board inventory on 27 August 2026. Result: 11 kept · 10 kept-with-mark · 4 marked as already built. Nothing was added twice.</p>
+          <strong>✓ Imported content fully verified</strong>
+          <p>The deleted <code>docs/</code> attachment page is no longer required. Its ideas, plus the 25 CSV ideas, are now included directly in <code>ideas.html</code> and were checked line-by-line against the 415-board inventory on 27 August 2026. Result: 11 kept · 10 kept-with-mark · 4 marked as already built. Nothing was added twice.</p>
         </div>
       </section>
 
@@ -511,6 +883,11 @@
           <button class="chip" data-filter="all" aria-pressed="true">All 23</button>
           <button class="chip" data-filter="gap" aria-pressed="false">Vertical gaps</button>
           <button class="chip" data-filter="mech" aria-pressed="false">New mechanics</button>
+          <button class="chip" data-filter="visitor" aria-pressed="false">Visitor-earn</button>
+          <button class="chip" data-filter="india" aria-pressed="false">India angle</button>
+          <button class="chip" data-filter="effort-s" aria-pressed="false">Effort S</button>
+          <button class="chip" data-filter="effort-m" aria-pressed="false">Effort M</button>
+          <button class="chip" data-filter="effort-l" aria-pressed="false">Effort L</button>
         </div>
         <div class="cards" id="ideaCards">
 
@@ -792,6 +1169,11 @@
 
         </div>
         <p class="empty-msg" id="noMatch">No ideas match that search — try another word, or clear the filter.</p>
+        <div class="compare-tray" id="compareTray" aria-live="polite">
+          <span id="compareCount">Select up to 3 ideas to compare.</span>
+          <button class="btn" type="button" id="compareBtn" disabled>Compare selected</button>
+          <button class="btn ghost" type="button" id="clearCompare">Clear</button>
+        </div>
       </section>
 
       <section id="pick">
@@ -830,11 +1212,16 @@
       </section>
 
       <footer>
-        <span>Report 002 · idea list · written 26 August 2026 · static, human-maintained</span>
+        <span>Report 002 · idea list · updated 27 August 2026 · static, human-maintained</span>
         <span>Gap claims verified against data/outbid-market-inventory.csv (415 boards, CC BY 4.0 outoutbid.lol snapshot)</span>
       </footer>
     </main>
   </div>
+
+  <dialog class="idea-dialog" id="ideaDialog" aria-labelledby="dialogTitle">
+    <button class="dialog-close" type="button" id="dialogClose" aria-label="Close">×</button>
+    <div id="dialogBody"></div>
+  </dialog>
 
   <script>
     // Static page helpers only — no network calls, no timers, no bot.
@@ -842,21 +1229,96 @@
     const chips = Array.from(document.querySelectorAll('.chip'));
     const search = document.getElementById('ideaSearch');
     const noMatch = document.getElementById('noMatch');
+    const dialog = document.getElementById('ideaDialog');
+    const dialogBody = document.getElementById('dialogBody');
+    const compareBtn = document.getElementById('compareBtn');
+    const compareCount = document.getElementById('compareCount');
+    const clearCompare = document.getElementById('clearCompare');
     let activeFilter = 'all';
+
+    const clean = value => String(value || '').trim();
+    const esc = value => clean(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+
+    function matchesFilter(card) {
+      const text = (card.textContent + ' ' + (card.dataset.keywords || '')).toLowerCase();
+      if (activeFilter === 'all') return true;
+      if (activeFilter === 'gap' || activeFilter === 'mech') return card.dataset.type === activeFilter;
+      if (activeFilter === 'visitor') return /visitor|earn|reward|cashback|dividend|paid to visit|get paid/.test(text);
+      if (activeFilter === 'india') return /india|delhi|₹|upi|inr|shaadi|matrimony|campus|college/.test(text);
+      if (activeFilter === 'effort-s') return text.includes('effort s');
+      if (activeFilter === 'effort-m') return text.includes('effort m');
+      if (activeFilter === 'effort-l') return text.includes('effort l');
+      return true;
+    }
 
     function applyFilters() {
       const q = search.value.trim().toLowerCase();
       let visible = 0;
       cards.forEach(card => {
-        const typeOk = activeFilter === 'all' || card.dataset.type === activeFilter;
         const text = (card.textContent + ' ' + (card.dataset.keywords || '')).toLowerCase();
         const searchOk = !q || q.split(/\s+/).every(term => text.includes(term));
-        const show = typeOk && searchOk;
+        const show = matchesFilter(card) && searchOk;
         card.style.display = show ? '' : 'none';
         if (show) visible++;
       });
       noMatch.style.display = visible ? 'none' : 'block';
     }
+
+    function ideaData(card) {
+      const title = clean(card.querySelector('h3')?.textContent);
+      const pitch = clean(card.querySelector('.pitch')?.textContent);
+      const type = card.dataset.type === 'gap' ? 'Vertical gap' : 'New mechanic';
+      const effort = clean(card.querySelector('[class*="effort-"]')?.textContent) || 'Effort not set';
+      const reach = clean(card.querySelector('.reach')?.textContent) || 'Reach not set';
+      const why = clean(card.querySelector('dd')?.textContent) || clean(card.querySelector('.evidence')?.textContent);
+      return { title, pitch, type, effort, reach, why };
+    }
+
+    function openIdea(card) {
+      const data = ideaData(card);
+      const rows = Array.from(card.querySelectorAll('dt')).map(dt => {
+        const dd = dt.nextElementSibling;
+        return `<tr><th>${esc(dt.textContent)}</th><td>${esc(dd?.textContent)}</td></tr>`;
+      }).join('');
+      dialogBody.innerHTML = `<div class="dialog-grid">
+        <span class="badge reach">${esc(data.type)}</span>
+        <h3 id="dialogTitle">${esc(data.title)}</h3>
+        <p class="lede" style="margin:0">${esc(data.pitch)}</p>
+        <div class="badges"><span class="badge">${esc(data.effort)}</span><span class="badge reach">${esc(data.reach)}</span></div>
+        <table><tbody>${rows || `<tr><th>Evidence</th><td>${esc(data.why)}</td></tr>`}</tbody></table>
+        <p class="sec-sub" style="margin:0">MVP playbook: one public board, one entry form, one payment rule, one shareable rank screenshot, one manual moderation queue before scaling.</p>
+      </div>`;
+      dialog.showModal();
+    }
+
+    function updateCompare() {
+      const selected = cards.filter(card => card.querySelector('.compare-box')?.checked);
+      compareCount.textContent = selected.length ? `${selected.length} selected for comparison.` : 'Select up to 3 ideas to compare.';
+      compareBtn.disabled = selected.length < 2;
+      cards.forEach(card => {
+        const box = card.querySelector('.compare-box');
+        if (box && !box.checked) box.disabled = selected.length >= 3;
+      });
+    }
+
+    function openCompare() {
+      const selected = cards.filter(card => card.querySelector('.compare-box')?.checked).map(ideaData);
+      dialogBody.innerHTML = `<div class="dialog-grid"><h3 id="dialogTitle">Idea comparison</h3>
+        <table><thead><tr><th>Idea</th><th>Type</th><th>Effort</th><th>Reach</th><th>Reason to build</th></tr></thead><tbody>
+        ${selected.map(i => `<tr><td><strong>${esc(i.title)}</strong><br>${esc(i.pitch)}</td><td>${esc(i.type)}</td><td>${esc(i.effort)}</td><td>${esc(i.reach)}</td><td>${esc(i.why)}</td></tr>`).join('')}
+        </tbody></table>
+        <p class="sec-sub" style="margin:0">Pick the idea with the clearest buyer and the easiest first distribution channel — not merely the cleverest mechanic.</p></div>`;
+      dialog.showModal();
+    }
+
+    cards.forEach((card, index) => {
+      const tools = document.createElement('div');
+      tools.className = 'idea-tools';
+      tools.innerHTML = `<button type="button" data-open="${index}">View playbook</button><label class="compare-toggle"><input class="compare-box" type="checkbox"> Compare</label>`;
+      card.appendChild(tools);
+      tools.querySelector('button').addEventListener('click', () => openIdea(card));
+      tools.querySelector('input').addEventListener('change', updateCompare);
+    });
 
     chips.forEach(chip => chip.addEventListener('click', () => {
       activeFilter = chip.dataset.filter;
@@ -864,6 +1326,14 @@
       applyFilters();
     }));
     search.addEventListener('input', applyFilters);
+    compareBtn.addEventListener('click', openCompare);
+    clearCompare.addEventListener('click', () => { cards.forEach(card => { const box = card.querySelector('.compare-box'); if (box) { box.checked = false; box.disabled = false; } }); updateCompare(); });
+    document.getElementById('dialogClose').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+    updateCompare();
   </script>
+
+
+  <script src="assets/site-enhancements.js"></script>
 </body>
 </html>
