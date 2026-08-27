@@ -1,19 +1,19 @@
 {
-  "runAt": "2026-08-27T14:09:36+00:00",
+  "runAt": "2026-08-27T18:49:06+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-08-27T14:09:36.888Z",
-  "boardsTotal": 449,
-  "boardsMeasured": 314,
-  "cloneMeasured": 313,
-  "claimedTotalUsd": 1024531.97,
-  "cloneTotalUsd": 898374.97,
+  "apiGeneratedAt": "2026-08-27T18:49:06.945Z",
+  "boardsTotal": 450,
+  "boardsMeasured": 313,
+  "cloneMeasured": 312,
+  "claimedTotalUsd": 191307.32,
+  "cloneTotalUsd": 65150.32,
   "originalCollectedUsd": 126157.0,
-  "originalShare": 0.1231,
-  "cloneMedianUsd": 18.9,
-  "top10CloneShareOfCloneMoney": 0.973,
+  "originalShare": 0.6594,
+  "cloneMedianUsd": 18.95,
+  "top10CloneShareOfCloneMoney": 0.6556,
   "categories": {
     "Websites & products": 249,
-    "X accounts": 58,
+    "X accounts": 59,
     "Ads & billboards": 32,
     "AI tools & agents": 30,
     "Crypto & tokens": 27,
@@ -23,19 +23,9 @@
   },
   "top10Boards": [
     {
-      "host": "outbidsocial.com",
-      "name": "OutbidSocial",
-      "claimed": "$800,042"
-    },
-    {
       "host": "outbid.lol",
       "name": "outbid.lol",
       "claimed": "$126,157"
-    },
-    {
-      "host": "outfake.lol",
-      "name": "outfake.lol",
-      "claimed": "$34,005"
     },
     {
       "host": "lamborghini.lol",
@@ -71,6 +61,16 @@
       "host": "wintop.lol",
       "name": "Weekly Product Leaderboard",
       "claimed": "$1,699"
+    },
+    {
+      "host": "lugarcito.online",
+      "name": "Lugarcito",
+      "claimed": "$1,505.14"
+    },
+    {
+      "host": "melhorlance.dev",
+      "name": "melhor lance",
+      "claimed": "$1,411.38"
     }
   ],
   "primarySite": {
@@ -90,33 +90,33 @@
     "highestBidHost": null
   },
   "entrySimulator": {
-    "measuredClones": 313,
-    "meanUsd": 2870.21,
-    "medianUsd": 18.9,
+    "measuredClones": 312,
+    "meanUsd": 208.82,
+    "medianUsd": 18.95,
     "percentiles": {
       "p25": 5.0,
-      "p50": 18.9,
+      "p50": 18.95,
       "p75": 59.0,
-      "p90": 301.6,
-      "p95": 773.57,
-      "p99": 3402.28
+      "p90": 301.8,
+      "p95": 688.51,
+      "p99": 1809.34
     },
-    "shareOver100": 0.1821,
-    "shareOver1000": 0.0479,
-    "shareExactlyZero": 0.0927,
-    "bottomHalfShareOfMoney": 0.001,
-    "top10ShareOfCloneMoney": 0.973,
+    "shareOver100": 0.1795,
+    "shareOver1000": 0.0417,
+    "shareExactlyZero": 0.0929,
+    "bottomHalfShareOfMoney": 0.0141,
+    "top10ShareOfCloneMoney": 0.6556,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
-      "medianUsd": 111.5,
-      "hitRateOver100": 0.5
+      "medianUsd": 131.0,
+      "hitRateOver100": 0.5714
     },
     "categoryMedians": {
-      "Directories of bid sites": 111.5,
+      "Directories of bid sites": 131.0,
       "Regional & other currencies": 25.95,
-      "AI tools & agents": 24.0,
-      "Websites & products": 23.2,
-      "X accounts": 15.0,
+      "Websites & products": 24.0,
+      "AI tools & agents": 22.5,
+      "X accounts": 14.5,
       "Games & clips": 14.0,
       "Ads & billboards": 7.0,
       "Crypto & tokens": 6.0
