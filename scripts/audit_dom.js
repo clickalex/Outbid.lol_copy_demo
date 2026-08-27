@@ -53,6 +53,7 @@ function listPages(dir) {
 
   const pages = [...listPages(REPO), ...listPages(path.join(REPO, 'launch'))];
   const navSets = new Map(); // page -> normalized nav href set (report pages only)
+  const bottomSets = new Map(); // page -> normalized mobile-bottom-nav href set
 
   let activePage = '-';
   const unhandled = [];
@@ -135,6 +136,7 @@ function listPages(dir) {
 
     // shared nav present -> nav.css link + toggle button + consistent links
     const nav = doc.querySelector('nav.site-nav');
+    const bottomNav = doc.querySelector('nav.mobile-bottom-nav');
     if (nav) {
       const links = [...nav.querySelectorAll('.site-links a')].map(a => {
         const href = a.getAttribute('href') || '';
@@ -146,7 +148,19 @@ function listPages(dir) {
         .some(l => (l.getAttribute('href') || '').includes('nav.css'));
       if (!hasNavCss) add('ERROR', 'dom-nav', rel, 'page has .site-nav but never loads assets/nav.css');
       if (!nav.querySelector('.nav-toggle')) add('WARN', 'dom-nav', rel, 'shared nav has no .nav-toggle button');
-      if (!doc.body.getAttribute('data-page')) add('WARN', 'dom-nav', rel, 'body[data-page] missing (active-nav highlight + enhancements)');
+      const page = doc.body.getAttribute('data-page');
+      if (!page) add('WARN', 'dom-nav', rel, 'body[data-page] missing (active-nav highlight + enhancements)');
+      else if (!nav.querySelector(`.site-links a[data-page="${page}"]`)) {
+        add('ERROR', 'dom-nav', rel, `body data-page="${page}" has no matching top-nav link — active highlight can never fire`);
+      }
+    }
+    if (bottomNav) {
+      const links = [...bottomNav.querySelectorAll('a')].map(a => {
+        const href = a.getAttribute('href') || '';
+        const norm = path.normalize(path.join(path.dirname(rel), href)).split(path.sep).join('/');
+        return norm;
+      });
+      bottomSets.set(rel, new Set(links));
     }
 
     // empty required containers
@@ -245,6 +259,19 @@ function listPages(dir) {
       if (missing.length || extra.length) {
         add('WARN', 'dom-nav-set', p,
             `nav differs from ${basePage}: missing [${missing.join(', ')}] extra [${extra.join(', ')}]`);
+      }
+    }
+  }
+  // mobile bottom quick-bar set equality across report pages
+  const reportBottoms = [...bottomSets.entries()].filter(([p]) => !p.startsWith('launch/'));
+  if (reportBottoms.length > 1) {
+    const [basePage, baseSet] = reportBottoms[0];
+    for (const [p, set] of reportBottoms.slice(1)) {
+      const missing = [...baseSet].filter(x => !set.has(x));
+      const extra = [...set].filter(x => !baseSet.has(x));
+      if (missing.length || extra.length) {
+        add('WARN', 'dom-nav-set', p,
+            `mobile-bottom-nav differs from ${basePage}: missing [${missing.join(', ')}] extra [${extra.join(', ')}]`);
       }
     }
   }
