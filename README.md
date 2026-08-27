@@ -119,14 +119,14 @@ The nav now carries 11 destinations: Audit · Ideas · Tools · Search · Picker
 | `launch/build_data.py` | Regenerates `data.js` from `entries.json` + the inventory; degrades to an empty board instead of breaking on malformed JSON. |
 | `launch/README.md` | Deploy steps, pricing maths, day-1 legal posture, first-20-bidders outreach, the week-one kill metric, and how to re-point the kit at BlogRank. |
 | **`docs/level0-launch-pack/`** | **The Level 0 document set** (9 files): pack index → terms → privacy → refunds → ad content policy & screening → disclosure spec → invoicing/books/tax → entity/bank/PG/trademark → ops SOP & pre-launch gate → guardrails. Niche-agnostic, written for BlogRank. |
-| `scripts/update_report.py` | The update bot (Python 3.9+, standard library only). |
-| `docs/daily-update.yml` | The GitHub Actions workflow for the bot. **One-time activation:** a repo admin copies it to `.github/workflows/daily-update.yml` (see below). |
+| `scripts/update_report.py` | The update bot (Python 3.9+, standard library only; all writes atomic). |
+| `docs/daily-update.yml` | Reference copy of the GitHub Actions workflow. The live file is already committed at `.github/workflows/daily-update.yml` and active; only a fresh fork needs it copied (see below). |
 
 ## The daily update bot
 
 [![Daily market refresh](https://github.com/clickalex/Outbid.lol_copy_demo/actions/workflows/daily-update.yml/badge.svg)](https://github.com/clickalex/Outbid.lol_copy_demo/actions/workflows/daily-update.yml)
 
-*(The badge shows “no status” until the workflow is activated — see the one-time step below.)*
+*(The badge reflects the latest scheduled run — the workflow below is already committed and active.)*
 
 `scripts/update_report.py` runs every day at 03:17 UTC via GitHub Actions (`workflow_dispatch` also allows manual runs) and:
 
@@ -135,9 +135,10 @@ The nav now carries 11 destinations: Audit · Ideas · Tools · Search · Picker
 3. **Re-checks outbid.lol itself** — HTTP status of the public routes (`/`, `/today`, `/about`, `/rules`, `/terms`, `/privacy`, a category page, a product page, `/stats`) plus the About-page counters (self-reported revenue, visitors, highest bid).
 4. **Refreshes `index.html`** — every figure marked with a `data-stat="…"` attribute or a `<!--bot:…-->` sentinel is recomputed: headline totals, claimed-money concentration, clone median, zero/under-$10/under-$100 buckets, category bars, the top-10 table, route statuses, the offline fallback records, and the “last refreshed” stamps. `data/stats.json` records what the run produced.
 5. **Refreshes `entry-simulator.html`** — the same run recomputes the simulator's baseline figures, outcome bands, percentiles, concentration split, category ladder and both written call-outs, and re-embeds the per-category dataset the page's model runs on. Shared values (clone median, refresh stamps) are copied from the same run so the two pages can never drift apart. The page is skipped gracefully if the file is absent.
-6. **Commits and pushes** only when something actually changed.
+6. **Refreshes `ideas.html`** — only the live counters (`ideas-boards-total`, `ideas-watch-count`, `ideas-collision-count`, last-scan stamp) and the automated `<!--bot:idea-collision-watch-->` block. Idea cards and verification verdicts are never rewritten.
+7. **Commits and pushes** only when something actually changed.
 
-Failure behaviour is conservative: if the API or a check fails after retries, the bot keeps the previous value instead of writing blanks or zeroes, and logs a warning.
+Failure behaviour is conservative: if the directory API is unreachable after retries, the run **aborts before writing anything** (previous files stay intact, non-zero exit). If the About-page parse fails, the previous counter values are kept. If a bot marker is missing from a page, the bot logs a warning and records it in `data/stats.json` (`unpatchedMarkers`) without failing the run. Every file is written atomically (temp file + rename), so an interrupted run can never leave a truncated CSV or HTML behind — the worst case is a partially updated tree, fixed by simply running the bot again.
 
 ### What the bot updates vs. what stays written
 
@@ -154,28 +155,51 @@ Failure behaviour is conservative: if the API or a check fails after retries, th
 ### Running the bot yourself
 
 ```bash
-python3 scripts/update_report.py   # writes the CSV, stats.json and patches both HTML pages
+python3 scripts/update_report.py
 ```
 
-Then commit as usual. On GitHub you can also open **Actions → Daily market refresh → Run workflow** to trigger a run on any branch (available once the workflow is activated).
+A single run fetches the API, re-checks outbid.lol, and rewrites `data/outbid-market-inventory.csv`, `data/stats.json` and the bot-managed figures in `index.html`, `entry-simulator.html` and `ideas.html` (print statements show each step, and a summary JSON at the end). Details:
+
+- **Requirements:** Python 3.9+ (standard library only) and outbound HTTPS access to `outoutbid.lol` and `outbid.lol`. On networks that block those hosts the run fails early with a connection/TLS error and writes nothing — the script does not degrade to empty data.
+- **Run from anywhere:** the script resolves the repo root from its own path, so it does not matter which directory you run it from.
+- **It does not commit or push.** Committing and pushing happen in the GitHub Actions workflow only. A local run just updates your working tree — commit the changed files yourself afterwards (`git add data/outbid-market-inventory.csv data/stats.json index.html entry-simulator.html ideas.html && git commit …`), or use **Actions → Daily market refresh → Run workflow** (`workflow_dispatch`) for a hands-off run on any branch.
+- **Duration:** one run takes a minute or two (pagination + 8 route checks + the About page, each with retries).
+
+#### Running it manually from `screen`/`tmux`
+
+The bot is a one-shot script, so `screen` is just a persistent terminal around it:
+
+```bash
+screen -S outbid-bot          # start a named session
+# inside the session:
+cd ~/Outbid.lol_copy_demo
+python3 scripts/update_report.py 2>&1 | tee -a bot.log   # keep a log
+```
+
+Then `Ctrl-A D` detaches (the run continues), `screen -r outbid-bot` reattaches, and `exit` (or `Ctrl-A K`) ends the session. If `screen` is not installed: `sudo apt install screen`, or use `tmux` (`tmux new -s outbid-bot` / `tmux attach -t outbid-bot`).
+
+**Cons of manual runs vs. the scheduled workflow** — worth knowing before you rely on one:
+
+| Manual run (screen/tmux) | Scheduled workflow |
+| --- | --- |
+| You must remember to rerun it (a reboot kills the session; use `while true; do python3 scripts/update_report.py; sleep 86400; done` for a crude loop) | Runs itself daily at 03:17 UTC |
+| No commit/push — you do that by hand | Commits and pushes automatically |
+| Output is lost when the session dies unless you `tee` to a file or use `screen -L` | Output lives in the Actions log |
+| No overlap guard — **do not run it while the 03:17 UTC job is running** (both would write the same files and race the push); run it manually only when the last Action run has finished | Concurrency-guarded (`cancel-in-progress: false`) |
+
+A sensible pattern: let the GitHub Action own the daily refresh, and use a local screen run only for one-off manual refreshes (e.g. before a launch decision) or when you want to inspect the output live.
 
 ### One-time activation of the daily schedule (repo admin)
 
-The automation ships as [`docs/daily-update.yml`](docs/daily-update.yml). Because workflow files require elevated permissions to commit, activate it once manually:
+**Already done in this repo:** the workflow is committed at `.github/workflows/daily-update.yml` and active — its `git add` line stages all five bot-managed files (`data/outbid-market-inventory.csv`, `data/stats.json`, `index.html`, `entry-simulator.html`, `ideas.html`), matching the reference copy in [`docs/daily-update.yml`](docs/daily-update.yml). Nothing needs to be copied anywhere.
 
-1. Open the file on GitHub, copy its contents.
-2. In the repo, **Add file → Create new file**, name it `.github/workflows/daily-update.yml`, paste, commit (to `main`).
-3. That’s it — from the next day, the bot runs daily at 03:17 UTC and pushes updates by itself. Until then (and on non-default branches) it can be run manually via **workflow_dispatch** from the Actions tab, or locally with the command above.
+Activation is therefore only ever needed on a **fresh fork or new clone** that lacks the file:
+
+1. Copy [`docs/daily-update.yml`](docs/daily-update.yml) to `.github/workflows/daily-update.yml` and commit it (workflow files need elevated permissions, so commit from an account with `workflows` permission).
+2. Make sure the file is on the default branch and GitHub Actions is enabled for the repo (Settings → Actions → General → Allow).
+3. That’s it — from the next day, the bot runs daily at 03:17 UTC and pushes updates by itself. On any branch it can also be triggered manually via **workflow_dispatch** from the Actions tab, or run locally with the command above.
 
 > **Note on scheduling:** GitHub only fires `schedule` events from the default branch, and a first scheduled run can lag a few minutes past the cron time. Runs are also skipped automatically if no data changed.
-
-> **⚠️ One-line update needed for report 001b.** The already-active `.github/workflows/daily-update.yml` cannot be edited by an app without `workflows` permission, so it still stages only the original three paths. Until a repo admin updates it, the bot will refresh `entry-simulator.html` locally but the daily job will not commit those changes. Edit the `git add` line in `.github/workflows/daily-update.yml` to read:
->
-> ```yaml
->           git add data/outbid-market-inventory.csv data/stats.json index.html entry-simulator.html
-> ```
->
-> The reference copy in [`docs/daily-update.yml`](docs/daily-update.yml) already contains this line, so it can simply be copied across.
 
 ## CSV data dictionary
 

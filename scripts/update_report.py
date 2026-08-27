@@ -31,7 +31,9 @@ from __future__ import annotations
 
 import csv
 import html
+import io
 import json
+import os
 import re
 import statistics
 import sys
@@ -81,6 +83,19 @@ CSV_FIELDS = [
 
 def now_utc() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def write_atomic(path: Path, text: str) -> None:
+    """Write a file via a same-directory temp file + atomic rename.
+
+    An interrupted run (Ctrl-C in a manual/screen session, a killed CI job)
+    can then never leave a truncated CSV, HTML or JSON behind — the previous
+    file stays intact until the new one is fully written.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_name(f".{path.name}.tmp")
+    temp.write_text(text, encoding="utf-8")
+    os.replace(temp, path)
 
 
 def http_get(url: str, timeout: int = 30, accept: str = "text/html") -> str:
@@ -798,21 +813,21 @@ def render_idea_watch(collisions: list[dict], board_total: int) -> str:
 # --------------------------------------------------------------------------- #
 
 def write_csv(boards: list[dict]) -> None:
-    CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with CSV_PATH.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.writer(handle, quoting=csv.QUOTE_ALL, lineterminator="\n")
-        writer.writerow(CSV_FIELDS)
-        for board in boards:
-            figures = board.get("figures") or {}
-            category = board.get("category") or {}
-            writer.writerow([
-                board.get("name"), board.get("host"), board.get("url"),
-                category.get("name"), board.get("tagline"), evidence(board),
-                figures.get("collected"), figures.get("topBid"), figures.get("bidders"),
-                board.get("minBid"), board.get("payRail"),
-                board.get("listedAt"), board.get("registeredAt"), board.get("registrar"),
-                board.get("clicks"), board.get("referrals"), figures.get("readAt"),
-            ])
+    buffer = io.StringIO()
+    writer = csv.writer(buffer, quoting=csv.QUOTE_ALL, lineterminator="\n")
+    writer.writerow(CSV_FIELDS)
+    for board in boards:
+        figures = board.get("figures") or {}
+        category = board.get("category") or {}
+        writer.writerow([
+            board.get("name"), board.get("host"), board.get("url"),
+            category.get("name"), board.get("tagline"), evidence(board),
+            figures.get("collected"), figures.get("topBid"), figures.get("bidders"),
+            board.get("minBid"), board.get("payRail"),
+            board.get("listedAt"), board.get("registeredAt"), board.get("registrar"),
+            board.get("clicks"), board.get("referrals"), figures.get("readAt"),
+        ])
+    write_atomic(CSV_PATH, buffer.getvalue())
 
 
 # --------------------------------------------------------------------------- #
@@ -902,7 +917,7 @@ def main() -> int:
     )
     if fallback_count == 0:
         unpatched.append("fallback-boards")
-    HTML_PATH.write_text(html, encoding="utf-8")
+    write_atomic(HTML_PATH, html)
     print(f"[bot] patched {HTML_PATH}", flush=True)
 
     # ---- companion page: entry-simulator.html (report 001b) ----------------
@@ -925,7 +940,7 @@ def main() -> int:
             ("sim-dataset", render_sim_dataset(sim)),
         ):
             sim_html = replace_block(sim_html, sentinel, body, where=SIM_PATH.name)
-        SIM_PATH.write_text(sim_html, encoding="utf-8")
+        write_atomic(SIM_PATH, sim_html)
         print(f"[bot] patched {SIM_PATH}", flush=True)
         unpatched.extend(f"sim:{key}" for key in sim_unpatched)
     else:
@@ -946,7 +961,7 @@ def main() -> int:
             ideas_html, "idea-collision-watch",
             render_idea_watch(collisions, int(stats["total"])), where=IDEAS_PATH.name,
         )
-        IDEAS_PATH.write_text(ideas_html, encoding="utf-8")
+        write_atomic(IDEAS_PATH, ideas_html)
         print(
             f"[bot] patched {IDEAS_PATH} ({len(collisions)} idea review flags)",
             flush=True,
@@ -1012,7 +1027,7 @@ def main() -> int:
         },
         "unpatchedMarkers": sorted(set(unpatched)),
     }
-    STATS_PATH.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    write_atomic(STATS_PATH, json.dumps(summary, indent=2, ensure_ascii=False) + "\n")
     print(f"[bot] wrote {STATS_PATH}", flush=True)
     print("[bot] summary: " + json.dumps(summary), flush=True)
     print(f"[bot] done in {(now_utc() - started).total_seconds():.1f}s", flush=True)
