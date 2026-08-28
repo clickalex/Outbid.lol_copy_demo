@@ -406,7 +406,7 @@ def check_js_syntax() -> None:
     for page in html_files():
         rel = str(page.relative_to(REPO))
         text = page.read_text(encoding="utf-8")
-        for i, m in enumerate(re.finditer(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", text, re.S),
+        for i, m in enumerate(re.finditer(r"<script(?![^>]*\bsrc=)(?![^>]*\btype=[\"'](?:application/ld\+json|application/json|text/template)[\"'])[^>]*>(.*?)</script>", text, re.S),
                               start=1):
             code = m.group(1)
             if not code.strip():
