@@ -63,6 +63,12 @@ The login modal has one-click buttons for all of these.
 | `grinbid/check-wiring.js` | Static check that every UI handler / API call resolves. |
 | `grinbid/test-demo.js` | Headless test of the mock API (29 assertions). |
 | `grinbid/demo-server.js` | Optional tiny static server for the demo (`node grinbid/demo-server.js`). |
+| `grinbid/how-it-works.html` | Static info page explaining the Grinbid loop: join → discover → earn → boost → climb. |
+| `grinbid/rules.html` | Static rules page: free coins, no pay-to-win, fan-created profiles, fair play. |
+| `grinbid/leaderboard.html` | Static season-leaderboard page with the weekly prize structure. |
+| `grinbid/coins.html` | Static coin-economy page: earn and spend rules + what coins are not. |
+| `grinbid/faq.html` | Static FAQ page answering the common questions. |
+| `grinbid/about.html` | Static about page: the idea, what makes Grinbid different, and how to try it. |
 | `grinbid/terms.html` | Standalone terms page (also available in-app at `#/terms`). |
 | `grinbid/privacy.html` | Standalone privacy page (also available in-app at `#/privacy`). |
 | `grinbid/server.js` | Full App bootstrap → `createApp()` → listen on `0.0.0.0:3000`. |
@@ -140,14 +146,81 @@ npm run audit:loop  # 20 consecutive flawless passes
 
 ---
 
-## Remaining OpenQ (why these pages exist as files too)
+## How it works (short version)
 
-Alongside the SPA screens, the following standalone/public pages exist for
-deployment and direct linking:
+1. **Join free** — sign up, grab your 2,500 free coins.
+2. **Discover fan pages** — celebrity, influencer, estate, venue, brand, community.
+3. **Earn more free coins** — daily streak, 3-hour lucky drop, tasks, referrals, season prizes.
+4. **Back your faves** — boost a page with 50+ coins for 1× points, or ×1.5 on your own page.
+5. **Climb the season** — every boost adds season points; top 3 win 50k/25k/10k.
+6. **Own the page** — create a community page, or claim a seeded page with evidence.
 
-- `grinbid/terms.html` — terms of use
-- `grinbid/privacy.html` — privacy & safety
-- `grinbid/public/index.html` — the real server app entry
-- `grinbid/public/app.js` / `grinbid/public/styles.css` — the production SPA bundle
+Full walkthrough: [`grinbid/how-it-works.html`](how-it-works.html).
 
-The SPA in-app routes (`#/terms`, `#/privacy`) render the same content.
+## Rules (short version)
+
+- Virtual coins only — zero cash value, no purchase, no pay-to-win, no gambling.
+- Boosts are 1 point per coin (×1.5 on your own page), 50 minimum, 2-second cooldown.
+- Seeded pages are fan-made tributes; real owners verify via moderator-approved claims.
+- Fair play: 13+, no bots, no self-referrals, no spam, no mass accounts.
+- Donations are voluntary and strictly non-reward.
+
+Full rules: [`grinbid/rules.html`](rules.html).
+
+## Season leaderboard
+
+- Each season lasts **7 days**.
+- Prizes: **50,000 / 25,000 / 10,000** coins for ranks 1 / 2 / 3.
+- Tie-break: earlier account wins.
+- Every user's `seasonPoints` resets to 0 at settlement.
+
+Season details: [`grinbid/leaderboard.html`](leaderboard.html).
+
+## Coins (short version)
+
+- **Earn:** signup 2,500 · daily 500 + 150/streak (cap 2,000) · lucky 250–2,500 every 3h · tasks +100→+2,000 · referral +1,000/+500 + 10% lifetime match · season 50k/25k/10k.
+- **Spend:** boost fan pages (50+, 1×), boost your own page (1.5×).
+- **Never:** purchasable, sellable, redeemable, refundable, wagered, or tied to real money.
+
+Coin details: [`grinbid/coins.html`](coins.html).
+
+## FAQ highlights
+
+- Is it free? **Yes — 100%.**
+- Are coins real? **No — virtual, free, zero cash value.**
+- Is it gambling / pay-to-win? **No.**
+- How do I start? Sign up, get 2,500 coins, boost a fave.
+- What is a lucky drop? 250–2,500 coins every 3 hours.
+- What do you store? Username, avatar, salted password hash, game data, hashed IP.
+
+Full FAQ: [`grinbid/faq.html`](faq.html).
+
+## About
+
+Grinbid is a playful, fan-powered game that turns enthusiasm into a free
+leaderboard. It is static by design for the demo (mock backend + localStorage),
+and it ships as a zero-dependency Node app with a real API, Server-Sent Events
+and an atomic JSON store. Coins are never tied to money and donors never receive
+in-game rewards.
+
+About page: [`grinbid/about.html`](about.html).
+
+## Standalone/public pages
+
+Alongside the SPA screens, these static pages exist for direct linking and
+deployment (they are also reachable inside the SPA):
+
+| Page | Path | Also in-app |
+|---|---|---|
+| Demo / game | `index.html` | `#/home` |
+| How it works | `how-it-works.html` | — |
+| Rules | `rules.html` | `#/rules` content lives in Legal |
+| Leaderboard | `leaderboard.html` | `#/home` season table |
+| Coins | `coins.html` | `#/wallet` + tasks |
+| FAQ | `faq.html` | — |
+| About | `about.html` | — |
+| Terms | `terms.html` | `#/terms` |
+| Privacy | `privacy.html` | `#/privacy` |
+
+The production entry served by the Node app is `public/index.html`; the demo
+entry is `index.html` at the folder root.
