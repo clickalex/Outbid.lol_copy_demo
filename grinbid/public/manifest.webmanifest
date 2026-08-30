@@ -1,0 +1,10 @@
+{
+  "name": "Grinbid — Bid. Back. Rank up.",
+  "short_name": "Grinbid",
+  "description": "A 100% free virtual-coin fan-boost game. No real money, ever.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff8f0",
+  "theme_color": "#ff4fa3",
+  "icons": []
+}

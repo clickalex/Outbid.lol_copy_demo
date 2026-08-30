@@ -1,0 +1,16 @@
+# Runtime data (single-file JSON store) — generated on first boot.
+data/db.json
+data/db.json.*
+data/*.tmp
+data/.session-secret
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy &amp; Safety — Grinbid</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎪</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap legal-page">
+  <div class="card">
+    <a href="index.html" class="btn ghost small">← Back to Grinbid</a>
+    <h1>🕵️ Privacy &amp; Safety</h1>
+    <p class="muted">We keep almost nothing, and we never sell it.</p>
+
+    <h2>1. What we store</h2>
+    <p>When you sign up we store: your username, display name, emoji avatar, a <b>salted scrypt hash</b> of your password (never the password), and your game data (coins, streaks, lucky-drop timestamps, task progress, boosts, referral relationships). For rate-limiting and anti-bot referral validation we keep a <b>hashed fingerprint of your IP</b> — the raw IP is never persisted.</p>
+
+    <h2>2. What we don't do</h2>
+    <ul>
+      <li>No selling or sharing data with third parties.</li>
+      <li>No advertising trackers, analytics pixels or fingerprinting scripts.</li>
+      <li>No real-money payments — and therefore no payment details to store.</li>
+      <li>No scraping, no email required, no phone number required.</li>
+    </ul>
+
+    <h2>3. Sessions</h2>
+    <p>Login uses an <b>HttpOnly cookie</b> signed with an HMAC. It expires after 7 days. You can log out at any time.</p>
+
+    <h2>4. Referral anti-bot review</h2>
+    <p>Referral bonuses are validated for abuse: self-referrals are rejected, and signups from the same IP as the referrer are flagged as <b>pending review</b> until a moderator confirms them. This keeps the economy fair.</p>
+
+    <h2>5. Data removal</h2>
+    <p>Contact the administrator to delete your account; your user record, transactions and profile claims are removed from the store. Donation intents contain no payment data.</p>
+
+    <h2>6. Safety</h2>
+    <p>Grinbid is a low-stakes fun game about boosting faves. There is no gambling, no real money, no loot boxes for purchase and no investment. If something feels off, that's our bug — tell us.</p>
+
+    <div class="notice legal">🔒 We collect the minimum: hash-only passwords, game stats and an IP hash for anti-abuse. Nothing else.</div>
+  </div>
+</div>
+</body>
+</html>

@@ -89,6 +89,7 @@ The nav now carries 11 destinations: Audit · Ideas · Tools · Search · Picker
 | Path | What it is |
 | --- | --- |
 | `index.html` | The full report (001). Open it in a browser; no build step. |
+| **`grinbid/`** | **The Grinbid project, dropped alongside the report.** A 100% free virtual-coin fan-boost game ("Bid. Back. Rank up.") with a fully working static demo at `grinbid/index.html`, a zero-dependency Node app (`server.js` + `public/` + `src/`), legal pages, tests and deploy docs. See `grinbid/README.md`. |
 | `entry-simulator.html` | The entry simulator (001b). Same theme, same data, no build step and no network needed. |
 | `ideas.html` | The idea list (002) — websites nobody has built yet. **Idea cards are hand-written** (offline, human-edited); only the live counters and collision watch are bot-refreshed. |
 | `tools.html` | The hub for every tool below. |

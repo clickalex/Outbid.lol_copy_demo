@@ -1,0 +1,21 @@
+{
+  "name": "grinbid",
+  "version": "1.0.0",
+  "description": "Grinbid — Bid. Back. Rank up. A 100% free virtual-coin fan-boosting game. Zero npm dependencies.",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "check": "node scripts/check-syntax.js",
+    "test": "node --test",
+    "audit": "npm run check && npm test",
+    "audit:loop": "node scripts/audit-loop.js 20",
+    "reset": "node scripts/reset-data.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
