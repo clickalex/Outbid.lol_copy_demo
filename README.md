@@ -81,7 +81,8 @@ the phone quick-bar.
 **Grinbid navigation:** every site page links to the Grinbid static demo at `grinbid/index.html` with
 `target="_blank"` and `rel="noopener"`, so it opens in a **new tab** and doesn't navigate away from this report.
 The link is injected by `assets/site-enhancements.js` into `.site-links` and `.mobile-bottom-nav`, and it is also
-baked into `index.html`'s nav markup.
+baked into `index.html`'s nav markup. Once Render is live, point the same `grinbid-link` at
+`https://grinbid.onrender.com` if you want the deployed app instead of the static demo.
 
 **Adding a page?** Four places, and all four are mechanical:
 
