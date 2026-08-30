@@ -52,6 +52,23 @@ Render dashboard → grinbid → **Environment**.
 
 ---
 
+## Option C — Deploy from the Outbid repo (nested `grinbid/` folder)
+
+If you're pushing this from `Outbid.lol_copy_demo` (the report repo that now
+contains `grinbid/`), use the **root `render.yaml`** already committed there:
+
+1. Push the branch to GitHub.
+2. Open <https://render.com/deploy?repo=https://github.com/clickalex/Outbid.lol_copy_demo>.
+3. Render reads the root `render.yaml`: web service **grinbid**, **free plan**,
+   `rootDir: grinbid`, `npm install` (no-op), `node server.js`, `/api/health`.
+4. Apply and you get `https://grinbid.onrender.com`.
+
+The only difference from Options A/B is `rootDir: grinbid` so Render builds the
+app from the subfolder instead of the report repo root. Everything else is
+identical (Node 22, free plan, generated admin password / session secret).
+
+---
+
 ## Why Grinbid just works on Render
 
 - Listens on `$PORT` (Render injects it) and binds `0.0.0.0`.

@@ -146,6 +146,36 @@ npm run audit:loop  # 20 consecutive flawless passes
 
 ---
 
+## Deploy on Render (free)
+
+Grinbid is a zero-dependency Node app, so it deploys on **Render's free plan** with no build step and no card.
+
+**Two blueprints are committed:**
+
+- **`render.yaml` (this repo root)** — deploys the Grinbid app from `grinbid/` in the Outbid repo.
+  Deploy button: `https://render.com/deploy?repo=https://github.com/clickalex/Outbid.lol_copy_demo`
+- **`grinbid/render.yaml`** — the same blueprint in the standalone Grinbid repo.
+  Deploy button: `https://render.com/deploy?repo=https://github.com/Kyabtao/grinbid`
+
+Both create a web service named **grinbid**:
+
+| Setting | Value |
+|---|---|
+| Plan | **Free** |
+| Runtime | Node |
+| Root directory | `grinbid` (repo-root blueprint only) |
+| Build command | `npm install` *(no-op — zero dependencies)* |
+| Start command | `node server.js` |
+| Health check | `/api/health` |
+| Env vars | `NODE_VERSION=22` · auto-generated `ADMIN_PASSWORD` · auto-generated `SESSION_SECRET` |
+
+**Free-plan caveats (fine for a demo):** `data/db.json` lives on an ephemeral disk and reseeds on every
+redeploy/restart; the service sleeps after ~15 min idle and wakes on the next request.
+
+Full guide: **`deploy/RENDER.md`** · Oracle Always-Free guide: **`deploy/ORACLE-MOBILE.md`**.
+
+---
+
 ## How it works (short version)
 
 1. **Join free** — sign up, grab your 2,500 free coins.

@@ -64,7 +64,7 @@ nav rules without editing 17 inline `<style>` blocks. Behaviour, and what each t
 | Width | What you get |
 | --- | --- |
 | ≥ 1241px | full nav row, no wrapping |
-| 901–1240px | horizontally scrollable pill rail with an edge fade — 11 links never stack into rows on a laptop |
+| 901–1240px | horizontally scrollable pill rail with an edge fade — 12 links never stack into rows on a laptop |
 | ≤ 900px | hamburger + anchored dropdown panel (own scroll, capped at 68% of the dynamic viewport, dimming scrim) **and** the fixed bottom quick-bar |
 
 Device details baked in: 44–46px tap targets, `env(safe-area-inset-*)` padding for notched phones, `dvh` heights so
@@ -74,8 +74,14 @@ iOS zoom-on-focus from shoving the sticky bar around), landscape-phone rules, an
 `data-page`, Escape closes and restores focus, tapping a link or the scrim closes it, resizing out of panel mode
 closes and unlocks scroll.
 
-The nav now carries 11 destinations: Audit · Ideas · Tools · Search · Picker · Simulator · Checklist · Calculator ·
-**Launch** · Changelog · About — with Audit / Ideas / Tools / Search / **Launch** in the phone quick-bar.
+The nav now carries 12 destinations: Audit · Ideas · Tools · Search · Picker · Simulator · Checklist · Calculator ·
+**Launch** · Changelog · About · **Grinbid ↗** — with Audit / Ideas / Tools / Search / **Launch** / **Grinbid** in
+the phone quick-bar.
+
+**Grinbid navigation:** every site page links to the Grinbid static demo at `grinbid/index.html` with
+`target="_blank"` and `rel="noopener"`, so it opens in a **new tab** and doesn't navigate away from this report.
+The link is injected by `assets/site-enhancements.js` into `.site-links` and `.mobile-bottom-nav`, and it is also
+baked into `index.html`'s nav markup.
 
 **Adding a page?** Four places, and all four are mechanical:
 
@@ -90,6 +96,7 @@ The nav now carries 11 destinations: Audit · Ideas · Tools · Search · Picker
 | --- | --- |
 | `index.html` | The full report (001). Open it in a browser; no build step. |
 | **`grinbid/`** | **The Grinbid project, dropped alongside the report.** A 100% free virtual-coin fan-boost game ("Bid. Back. Rank up.") with a fully working static demo at `grinbid/index.html`, a zero-dependency Node app (`server.js` + `public/` + `src/`), legal pages, info pages (`how-it-works`, `rules`, `leaderboard`, `coins`, `faq`, `about`), tests and deploy docs. See `grinbid/README.md`. |
+| **`render.yaml`** | **Render Blueprint for this repo** — deploys the Grinbid app from `grinbid/` on the **free** plan (`rootDir: grinbid`, Node 22, `/api/health`). The same blueprint also lives at `grinbid/render.yaml`. |
 | `entry-simulator.html` | The entry simulator (001b). Same theme, same data, no build step and no network needed. |
 | `ideas.html` | The idea list (002) — websites nobody has built yet. **Idea cards are hand-written** (offline, human-edited); only the live counters and collision watch are bot-refreshed. |
 | `tools.html` | The hub for every tool below. |
@@ -106,6 +113,41 @@ The nav now carries 11 destinations: Audit · Ideas · Tools · Search · Picker
 | `run-bot.sh` | Hands-off wrapper for manual/screen runs of the bot: `--loop` (daily, retries after failures), `--commit` (commit + push the bot files), `--log FILE` (default `bot.log`, git-ignored). |
 | `scripts/audit.py` + `scripts/audit_dom.js` | One-command full-repo audit pass: syntax (Python/JS/bash/JSON/CSV/YAML/SVG), HTML structure and tag balance, duplicate ids, internal links and anchors, bot-sentinel integrity, stats↔CSV↔page consistency, and a jsdom runtime smoke test of every page. `python3 scripts/audit.py` (exit 0 = clean; `--json` for machine output). The DOM checks need `jsdom` (`npm i jsdom`) and are skipped with a warning when absent. |
 | `docs/daily-update.yml` | Reference copy of the GitHub Actions workflow. The live file is already committed at `.github/workflows/daily-update.yml` and active; only a fresh fork needs it copied (see below). |
+
+## Deploy Grinbid on Render (free)
+
+The Grinbid app is a **zero-dependency Node app**, so it deploys on Render's free plan with no build step and no card.
+
+**From this repo (root `render.yaml`):**
+
+1. Push this branch to GitHub and open **<https://render.com/deploy?repo=https://github.com/clickalex/Outbid.lol_copy_demo>**
+   (or New → Web Service → connect this repo). For the one-click button the blueprint must be on the
+   repo's **default branch (`main`)**; for another branch, use a manual Web Service and pick that branch.
+2. Render reads `render.yaml` at the repo root: web service **grinbid**, **free plan**, Node 22,
+   `rootDir: grinbid`, `startCommand: node server.js`, health check `/api/health`.
+3. Click **Apply** / **Create Web Service**. After ~1 minute you get `https://grinbid.onrender.com`.
+
+The same blueprint also exists at **`grinbid/render.yaml`** if you deploy the standalone Grinbid repo.
+
+**Settings the blueprint already handles:**
+
+| Setting | Value |
+|---|---|
+| Plan | **Free** |
+| Runtime | Node |
+| Root directory | `grinbid` (this repo blueprint) |
+| Build command | `npm install` *(no-op — zero dependencies)* |
+| Start command | `node server.js` |
+| Health check | `/api/health` |
+| Env | `NODE_VERSION=22`, auto-generated `ADMIN_PASSWORD`, auto-generated `SESSION_SECRET` |
+| Auto-deploy | On, only when `grinbid/**` changes |
+
+**Free-plan caveats (fine for a demo):** the disk is ephemeral, so `data/db.json` reseeds on redeploy; the
+service spins down after ~15 min idle and wakes on the next request. The full walkthrough is in
+`grinbid/deploy/RENDER.md`.
+
+The live static demo inside the report (no server needed) is at **`grinbid/index.html`**, and the report's nav
+links to it in a new tab.
 
 ## The daily update bot
 
