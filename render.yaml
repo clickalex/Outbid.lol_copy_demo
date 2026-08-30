@@ -1,0 +1,40 @@
+# Render Blueprint for this repository — deploys the Grinbid app from `grinbid/`
+#
+# Free plan, zero dependencies. If you push THIS repo to Render, this file is
+# picked up automatically (Render requires render.yaml at the repo root).
+# If you push the separate Grinbid repo instead, `grinbid/render.yaml` is the
+# equivalent blueprint (already committed).
+#
+# Deploy button (this repo):
+#   https://render.com/deploy?repo=https://github.com/clickalex/Outbid.lol_copy_demo
+#
+# Notes:
+#   - `rootDir: grinbid` anchors the service to the subfolder, so Render runs
+#     `node server.js` from `grinbid/`.
+#   - `npm install` is a no-op — the app has zero npm dependencies.
+#   - Render injects `PORT`; Grinbid reads it and binds `0.0.0.0`.
+#   - Free plan: ephemeral disk, so `data/db.json` reseeds on redeploy. Fine for demo.
+
+services:
+  - type: web
+    name: grinbid
+    runtime: node
+    plan: free                # free version — no card required
+    region: frankfurt         # change to singapore / oregon / ohio if preferred
+    rootDir: grinbid
+    buildCommand: npm install # no-op: zero dependencies
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - grinbid/**          # only rebuild when the Grinbid app changes
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: ADMIN_PASSWORD    # admin console password, unique per deploy
+        generateValue: true
+      - key: SESSION_SECRET    # keeps login sessions valid across redeploys
+        generateValue: true
+      - key: SEED_SAMPLE        # ship the populated demo/sample dataset on first boot
+        value: "true"

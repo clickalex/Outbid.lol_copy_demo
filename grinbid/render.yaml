@@ -1,0 +1,26 @@
+# Grinbid — Render Blueprint (one-click deploy)
+#
+# Deploy from the repo root: https://render.com/deploy?repo=https://github.com/Kyabtao/grinbid
+#
+# Zero npm dependencies — Render's build step is a no-op `npm install`,
+# the app starts with `node server.js` and listens on $PORT (injected by Render).
+
+services:
+  - type: web
+    name: grinbid
+    runtime: node
+    plan: free
+    region: frankfurt          # change to oregon / singapore / ohio if preferred
+    buildCommand: npm install  # no-op: the repo has zero dependencies
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION      # Render reads this to pick the Node runtime
+        value: "22"
+      - key: ADMIN_PASSWORD    # /api/admin console password — unique per deploy
+        generateValue: true
+      - key: SESSION_SECRET    # keeps login sessions valid across redeploys
+        generateValue: true
+      - key: SEED_SAMPLE        # ship the populated demo/sample dataset on first boot
+        value: "true"

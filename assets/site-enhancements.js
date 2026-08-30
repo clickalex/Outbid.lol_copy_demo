@@ -2,7 +2,7 @@
   if (!document.getElementById('os-enhancement-style')) {
     const style = document.createElement('style');
     style.id = 'os-enhancement-style';
-    style.textContent = `.skip-link{position:absolute;left:12px;top:-60px;z-index:1000;padding:10px 14px;border-radius:999px;background:#d9ff65;color:#080806!important;text-decoration:none;font-weight:900}.skip-link:focus{top:12px}.theme-toggle,.idea-tools button,.idea-tools a{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:6px 10px;border:1px solid rgba(255,255,255,.16);border-radius:999px;color:#fff;background:rgba(255,255,255,.06);font:700 10px/1 var(--sans,Arial);text-decoration:none;cursor:pointer}.theme-toggle{min-height:34px;padding:7px 13px}body.light-theme{--ink:#171714;--paper:#f6f1e7;--card:rgba(255,255,255,.86);--line:rgba(23,23,20,.16);--muted:#67645e;background:#f6f1e7!important;color:#171714!important}body.light-theme h1,body.light-theme h2,body.light-theme h3{color:#171714!important}body.light-theme .site-nav{background:rgba(246,241,231,.88)!important}body.light-theme .site-logo,body.light-theme .site-links a,body.light-theme .theme-toggle{color:#171714!important}body.light-theme .panel,body.light-theme .metric,body.light-theme .audit-card,body.light-theme .idea,body.light-theme .card{background:rgba(255,255,255,.72)!important}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}`;
+    style.textContent = `.skip-link{position:absolute;left:12px;top:-60px;z-index:1000;padding:10px 14px;border-radius:999px;background:#d9ff65;color:#080806!important;text-decoration:none;font-weight:900}.skip-link:focus{top:12px}.theme-toggle,.idea-tools button,.idea-tools a{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:6px 10px;border:1px solid rgba(255,255,255,.16);border-radius:999px;color:#fff;background:rgba(255,255,255,.06);font:700 10px/1 var(--sans,Arial);text-decoration:none;cursor:pointer}.theme-toggle{min-height:34px;padding:7px 13px}.site-links .grinbid-link,.mobile-bottom-nav .grinbid-link{color:#080806!important;border-color:var(--lime,#d9ff65)!important;background:var(--lime,#d9ff65)!important;font-weight:900!important;box-shadow:0 0 26px rgba(217,255,101,.22)!important}.site-links .grinbid-link::after{content:"↗";margin-left:5px;font-size:.9em}body.light-theme{--ink:#171714;--paper:#f6f1e7;--card:rgba(255,255,255,.86);--line:rgba(23,23,20,.16);--muted:#67645e;background:#f6f1e7!important;color:#171714!important}body.light-theme h1,body.light-theme h2,body.light-theme h3{color:#171714!important}body.light-theme .site-nav{background:rgba(246,241,231,.88)!important}body.light-theme .site-logo,body.light-theme .site-links a,body.light-theme .theme-toggle{color:#171714!important}body.light-theme .panel,body.light-theme .metric,body.light-theme .audit-card,body.light-theme .idea,body.light-theme .card{background:rgba(255,255,255,.72)!important}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}`;
     document.head.appendChild(style);
   }
   const $ = (s, r=document) => r.querySelector(s);
@@ -59,6 +59,18 @@
       window.addEventListener('hashchange', () => { if (isOpen()) setOpen(false); });
     }
   }
+  // Add a prominent link to the Grinbid game in every navigation; opens in a new tab.
+  document.querySelectorAll('.site-links, .mobile-bottom-nav').forEach(navLinks => {
+    if (navLinks.querySelector('.grinbid-link')) return;
+    const a = document.createElement('a');
+    a.className = 'grinbid-link';
+    a.href = 'grinbid/index.html';
+    a.textContent = 'Grinbid';
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.setAttribute('aria-label', 'Open the Grinbid game in a new tab');
+    navLinks.appendChild(a);
+  });
   if (localStorage.getItem('outbid-theme') === 'light') document.body.classList.add('light-theme');
   document.querySelectorAll('.idea').forEach(card => {
     const h = $('h3', card); if (!h) return;

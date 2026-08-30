@@ -1,0 +1,104 @@
+'use strict';
+
+/**
+ * Grinbid central configuration.
+ * Every tunable of the game economy, safety rails and rate limits lives here so
+ * the audit can verify the exact values from the product spec.
+ */
+
+const path = require('path');
+
+const ROOT = path.join(__dirname, '..');
+
+const CONFIG = Object.freeze({
+  ROOT,
+  HOST: process.env.HOST || '0.0.0.0',
+  PORT: Number(process.env.PORT || 3000),
+
+  DATA_DIR: process.env.DATA_DIR || path.join(ROOT, 'data'),
+  DB_FILE: process.env.DB_FILE || path.join(ROOT, 'data', 'db.json'),
+  PUBLIC_DIR: path.join(ROOT, 'public'),
+
+  // ---- Single-file JSON store -------------------------------------------
+  STORE: Object.freeze({
+    DEBOUNCE_MS: Number(process.env.STORE_DEBOUNCE_MS || 150),
+    TMP_SUFFIX: '.tmp',
+    MAX_BACKUPS: 3
+  }),
+
+  // ---- HTTP --------------------------------------------------------------
+  HTTP: Object.freeze({
+    MAX_BODY_BYTES: 64 * 1024, // 64 KiB request bodies are plenty for this API
+    MAX_URL_LENGTH: 2048
+  }),
+
+  // ---- Sessions / auth ---------------------------------------------------
+  AUTH: Object.freeze({
+    SESSION_TTL_MS: 7 * 24 * 60 * 60 * 1000, // 7 days
+    SESSION_COOKIE: 'gb_session',
+    ADMIN_COOKIE: 'gb_admin',
+    ADMIN_SESSION_TTL_MS: 2 * 60 * 60 * 1000, // 2 hours
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'grinbid-admin-dev',
+    USERNAME_RE: /^[A-Za-z0-9_]{3,20}$/,
+    SCRYPT_N: 16384,
+    SCRYPT_R: 8,
+    SCRYPT_P: 1
+  }),
+
+  // ---- Economy (single source of truth for the currency math) ------------
+  ECONOMY: Object.freeze({
+    SIGNUP_BONUS: 2500,
+    DAILY_CLAIM: Object.freeze({
+      BASE: 500,
+      STREAK_BONUS_PER_DAY: 150,
+      STREAK_CAP: 2000
+    }),
+    LUCKY_DROP: Object.freeze({
+      INTERVAL_HOURS: 3,
+      MIN_REWARD: 250,
+      MAX_REWARD: 2500
+    }),
+    REFERRALS: Object.freeze({
+      REFERRER_BONUS: 1000,
+      REFEREE_BONUS: 500,
+      LIFETIME_MATCH_PERCENTAGE: 10,
+      CODE_LENGTH: 6,
+      PER_DAY_CAP: 20 // anti-spam: pending referrals per referrer per day
+    }),
+    SEASON_PRIZES: Object.freeze({
+      RANK_1: 50000,
+      RANK_2: 25000,
+      RANK_3: 10000
+    }),
+    BOOST: Object.freeze({
+      STANDARD_MULTIPLIER: 1.0,
+      SELF_BOOST_MULTIPLIER: 1.5,
+      MIN_BOOST: 50,
+      COOLDOWN_MS: 2000
+    }),
+    TASKS_COUNT: 16,
+    SEASON_LENGTH_MS: 7 * 24 * 60 * 60 * 1000, // one week per season
+    MAX_TRANSACTIONS: 2000,
+    MAX_FEED_BOOSTS: 1000,
+    MAX_BOOST_HISTORY_PER_PROFILE: 30
+  }),
+
+  // ---- Rate limits (per IP, token-bucket) --------------------------------
+  RATE_LIMITS: Object.freeze({
+    GENERAL: Object.freeze({ rate: 120, burst: 180, windowMs: 60_000 }), // catch-all API
+    SENSITIVE: Object.freeze({ rate: 20, burst: 30, windowMs: 60_000 }), // signup, login, donations
+    BOOST: Object.freeze({ rate: 30, burst: 30, windowMs: 60_000 }) // boosts have a 2 s cooldown anyway
+  }),
+
+  // ---- Donations (strictly non-reward; config placeholders only) ---------
+  DONATIONS: Object.freeze({
+    UPI_ID: 'grinbid@upi',
+    PAYPAL_ME: 'grinbid',
+    BUY_ME_A_COFFEE: 'grinbid',
+    RAZORPAY_LINK: 'https://razorpay.me/@grinbid',
+    MIN_AMOUNT_INR: 10,
+    MAX_AMOUNT_INR: 100000
+  })
+});
+
+module.exports = { CONFIG, ROOT };

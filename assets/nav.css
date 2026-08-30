@@ -14,7 +14,8 @@
 
 /* ---------- base: never hide the nav, ever ---------- */
 .site-nav{display:flex !important;flex-wrap:nowrap;align-items:center}
-.site-nav .site-links{flex-wrap:nowrap}
+.site-nav .site-links{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
+.site-nav .site-links::-webkit-scrollbar{display:none}
 .nav-toggle{display:none}
 
 /* ---------- tier 2 (901–1240px): scrollable pill rail ---------- */
