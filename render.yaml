@@ -36,3 +36,5 @@ services:
         generateValue: true
       - key: SESSION_SECRET    # keeps login sessions valid across redeploys
         generateValue: true
+      - key: SEED_SAMPLE        # ship the populated demo/sample dataset on first boot
+        value: "true"

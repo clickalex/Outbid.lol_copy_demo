@@ -38,6 +38,15 @@ leaderboard feels alive.
 
 ---
 
+## Sample data vs. empty seed
+
+The app seeds **12 fan-made profiles** on every fresh boot. When
+`SEED_SAMPLE=true` (set in both Render blueprints) it also seeds a **populated
+demo dataset**: 7 sample users, 27 boosts across the last two days, 2 claim
+requests (one pending, one approved), 2 donation intents and a community page.
+Sample users all use password **`demo1234`**. With `SEED_SAMPLE` unset, the app
+starts clean with just the 12 fan pages (the default used by the test suite).
+
 ## Demo logins
 
 | Account | Password | What it shows |
@@ -167,7 +176,7 @@ Both create a web service named **grinbid**:
 | Build command | `npm install` *(no-op — zero dependencies)* |
 | Start command | `node server.js` |
 | Health check | `/api/health` |
-| Env vars | `NODE_VERSION=22` · auto-generated `ADMIN_PASSWORD` · auto-generated `SESSION_SECRET` |
+| Env vars | `NODE_VERSION=22` · auto-generated `ADMIN_PASSWORD` · auto-generated `SESSION_SECRET` · `SEED_SAMPLE=true` |
 
 **Free-plan caveats (fine for a demo):** `data/db.json` lives on an ephemeral disk and reseeds on every
 redeploy/restart; the service sleeps after ~15 min idle and wakes on the next request.

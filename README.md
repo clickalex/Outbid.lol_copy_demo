@@ -140,7 +140,7 @@ The same blueprint also exists at **`grinbid/render.yaml`** if you deploy the st
 | Build command | `npm install` *(no-op — zero dependencies)* |
 | Start command | `node server.js` |
 | Health check | `/api/health` |
-| Env | `NODE_VERSION=22`, auto-generated `ADMIN_PASSWORD`, auto-generated `SESSION_SECRET` |
+| Env | `NODE_VERSION=22`, auto-generated `ADMIN_PASSWORD`, auto-generated `SESSION_SECRET`, `SEED_SAMPLE=true` |
 | Auto-deploy | On, only when `grinbid/**` changes |
 
 **Free-plan caveats (fine for a demo):** the disk is ephemeral, so `data/db.json` reseeds on redeploy; the
