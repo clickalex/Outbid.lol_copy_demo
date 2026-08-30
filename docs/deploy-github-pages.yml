@@ -1,0 +1,56 @@
+name: Deploy site to GitHub Pages
+
+# Reference copy of the GitHub Pages workflow.
+#
+# ACTIVE FILE: copy this to `.github/workflows/deploy-github-pages.yml`
+# and commit it from an account with `workflows` permission (the GitHub web
+# UI: Add file → Create new file works). Then enable Pages:
+# Settings → Pages → Build and deployment → Source → GitHub Actions.
+#
+# Publishes the whole static repository to GitHub Pages:
+#   - /           → the Outbid report/tools site
+#   - /grinbid/   → the working Grinbid static demo
+#
+# The live Node part of Grinbid (API, SSE, JSON store) runs on Render via
+# render.yaml at the repo root; GitHub Pages serves only the static parts.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Disable Jekyll processing
+        run: touch .nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+          retention-days: 1
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

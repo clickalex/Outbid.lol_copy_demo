@@ -259,11 +259,24 @@ Activation is therefore only ever needed on a **fresh fork or new clone** that l
 
 ## GitHub Pages
 
+For the **static** site + Grinbid demo, GitHub Pages is an option. You must also enable Pages once from Settings (repo admin).
+
+**Option A — GitHub Actions (recommended):**
+
+1. Copy [`docs/deploy-github-pages.yml`](docs/deploy-github-pages.yml) to `.github/workflows/deploy-github-pages.yml`
+   and commit it from an account with `workflows` permission (the GitHub web UI can do this).
+2. Open **Settings → Pages**.
+3. Set **Build and deployment → Source** to **GitHub Actions**.
+4. Push to `main` (or click **Actions → Deploy site to GitHub Pages → Run workflow**).
+5. Resulting URL is usually `https://<owner>.github.io/<repo>/` —
+   - `/` = the Outbid report/tools site
+   - `/grinbid/` = the working Grinbid **static demo**
+
+**Option B — branch-based (legacy):**
+
 The whole site is ready for branch-based GitHub Pages hosting — every report page, the tools, `assets/` and `data/`
 are in the repository root and need no build step. Pages link each other with relative URLs, so the navigation works
 identically from a local file, a local server or Pages.
-
-To activate it, a repository administrator must:
 
 1. Merge the report branch into `main`.
 2. Open **Settings → Pages**.
