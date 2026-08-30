@@ -415,7 +415,7 @@
 
     .filters {
       display: grid;
-      grid-template-columns: minmax(200px, 1.5fr) repeat(3, minmax(130px, .6fr)) auto;
+      grid-template-columns: minmax(200px, 1.4fr) repeat(4, minmax(110px, .6fr)) auto;
       gap: 8px;
       margin-top: 18px;
       padding: 12px;
@@ -435,7 +435,13 @@
       background: #fffefb;
       font-size: 11px;
     }
-    .filter-action { align-self: end; }
+    .filter-action { display: flex; gap: 8px; align-self: end; }
+    .filter-note { grid-column: 1 / -1; margin: 2px 3px 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .filter-note strong { color: var(--ink); }
+    .pill.bid-rate-free { color: #092016 !important; background: var(--green) !important; border-color: var(--green) !important; }
+    .pill.bid-rate-freemium { color: #080806 !important; background: var(--lime) !important; border-color: var(--lime) !important; }
+    .pill.bid-rate-paid { color: #211404 !important; background: var(--amber) !important; border-color: var(--amber) !important; }
+    .pill.bid-rate-unknown { color: var(--muted) !important; background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.18) !important; }
 
     .table-status-note { display: flex; justify-content: space-between; gap: 15px; margin: 12px 2px 0; color: var(--muted); font-size: 10px; }
     .board-name { min-width: 220px; }
@@ -483,6 +489,10 @@
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
     .hide { display: none !important; }
 
+    @media (max-width: 1320px) and (min-width: 1101px) {
+      .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .control:first-child { grid-column: 1 / -1; }
+    }
     @media (max-width: 1100px) {
       .shell { grid-template-columns: 1fr; }
       .sidebar { display: none; }
@@ -1213,7 +1223,7 @@
           <div class="section-head">
             <span class="section-no">05 / 07</span>
             <h2 id="inventory-title">All-site inventory</h2>
-            <p class="section-intro">Search and filter the complete public directory. “Measured” is evidence status, not an uptime promise.</p>
+            <p class="section-intro">Search and filter the complete public directory by category, evidence, or disclosed bid rate. “Measured” is evidence status, not an uptime promise.</p>
           </div>
 
           <div class="inventory-head">
@@ -1243,6 +1253,16 @@
               </select>
             </div>
             <div class="control">
+              <label for="bidRateFilter">Bid rate</label>
+              <select id="bidRateFilter" aria-describedby="bidRateHelp">
+                <option value="all">All bid rates</option>
+                <option value="free">Free</option>
+                <option value="freemium">Freemium</option>
+                <option value="paid">Paid</option>
+                <option value="unknown">Not disclosed</option>
+              </select>
+            </div>
+            <div class="control">
               <label for="sortSelect">Sort</label>
               <select id="sortSelect">
                 <option value="new">Newest listed</option>
@@ -1252,6 +1272,7 @@
               </select>
             </div>
             <div class="filter-action"><button id="exportCsv" class="btn small" type="button">Export CSV</button><a class="btn small" href="data/outbid-market-inventory.csv" download title="Full bot-maintained snapshot committed with this report">Full CSV ↧</a></div>
+            <p id="bidRateHelp" class="filter-note"><strong>Bid rate is inferred, not independently price-audited:</strong> Free has a disclosed $0 or stated-free route; Freemium has both a free route and a paid bid or placement; Paid has a disclosed paid route; Not disclosed preserves boards without enough public pricing detail.</p>
           </div>
 
           <div class="table-status-note">
@@ -1262,10 +1283,10 @@
           <div class="table-wrap">
             <table aria-describedby="resultsLabel">
               <thead>
-                <tr><th>Board</th><th>Category</th><th>Evidence status</th><th>Claimed taken</th><th>Entry</th><th>Payment</th><th>Listed</th></tr>
+                <tr><th>Board</th><th>Category</th><th>Bid rate</th><th>Evidence status</th><th>Claimed taken</th><th>Minimum bid</th><th>Payment</th><th>Listed</th></tr>
               </thead>
               <tbody id="inventoryBody">
-                <tr><td colspan="7">Loading live inventory…</td></tr>
+                <tr><td colspan="8">Loading live inventory…</td></tr>
               </tbody>
             </table>
           </div>
@@ -1378,6 +1399,45 @@
         const match = String(value || '').replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
         return match ? Number(match[0]) : -1;
       };
+      const bidRateNumber = (value) => {
+        const match = String(value ?? '').replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+        return match ? Number(match[0]) : null;
+      };
+      const BID_RATE_META = Object.freeze({
+        free: { key:'free', label:'Free', className:'bid-rate-free', note:'A $0 or stated-free route is disclosed.' },
+        freemium: { key:'freemium', label:'Freemium', className:'bid-rate-freemium', note:'Both a free route and a paid bid or placement are disclosed.' },
+        paid: { key:'paid', label:'Paid', className:'bid-rate-paid', note:'A paid bid or placement route is disclosed.' },
+        unknown: { key:'unknown', label:'Not disclosed', className:'bid-rate-unknown', note:'The directory does not provide enough pricing detail to classify this board.' },
+      });
+      const FREE_ROUTE_PATTERNS = [
+        /\b(?:list(?:ing)?s?|entr(?:y|ies)|spots?|slots?|place(?:ment)?s?|ranks?|bids?|routes?|options?|rise|rising|upward|join(?:ed|ing)?|getting\s+on(?:\s+the\s+board)?)\b(?:\s+[\w$]+){0,4}\s+(?:is\s+)?free\b/i,
+        /\bfree(?:\s+[\w$]+){0,3}\s+(?:list(?:ing)?s?|entr(?:y|ies)|spots?|slots?|place(?:ment)?s?|ranks?|bids?|routes?|options?)\b/i,
+        /\b(?:list(?:ing)?s?|entr(?:y|ies)|spots?|slots?|place(?:ment)?s?|ranks?|bids?)\s+(?:at|for)\s+\$?\s*0(?:\.0+)?\b/i,
+      ];
+      const PAID_ROUTE_PATTERN = /\b(?:paid|pay(?:ing|ment|s)?|purchase|buy(?:ing|s)?|bought|spend|costs?|price|dollars?|euros?|cents?)\b/i;
+      const hasPositiveCurrency = (text) => [...String(text || '').matchAll(/[$€£₹]\s*(\d+(?:[,.]\d+)?)/g)]
+        .some(match => Number(match[1].replace(/,/g, '')) > 0);
+      // The directory has no pricing-model field: missing price detail stays “Not disclosed,” never “Free.”
+      const bidRate = (board) => {
+        const copy = [board?.name, board?.tagline].filter(Boolean).join(' ');
+        const minimum = bidRateNumber(board?.minBid);
+        const hasFreeRoute = minimum === 0 || FREE_ROUTE_PATTERNS.some(pattern => pattern.test(copy));
+        const hasPaidRoute = (minimum !== null && minimum > 0)
+          || Boolean(String(board?.payRail || '').trim())
+          || PAID_ROUTE_PATTERN.test(copy)
+          || hasPositiveCurrency(copy);
+        if (hasFreeRoute && hasPaidRoute) return BID_RATE_META.freemium;
+        if (hasFreeRoute) return BID_RATE_META.free;
+        if (hasPaidRoute) return BID_RATE_META.paid;
+        return BID_RATE_META.unknown;
+      };
+      const BID_RATE_OPTIONS = Object.freeze([
+        { key:'all', label:'All bid rates' },
+        BID_RATE_META.free,
+        BID_RATE_META.freemium,
+        BID_RATE_META.paid,
+        BID_RATE_META.unknown,
+      ]);
       const shortDate = (value) => {
         if (!value) return '—';
         const d = new Date(value);
@@ -1438,10 +1498,26 @@
         if ([...select.options].some(o => o.value === current)) select.value = current;
       }
 
+      function populateBidRates() {
+        const select = $('bidRateFilter');
+        const current = select.value;
+        const counts = state.boards.reduce((all, board) => {
+          const key = bidRate(board).key;
+          all[key] = (all[key] || 0) + 1;
+          return all;
+        }, {});
+        select.innerHTML = BID_RATE_OPTIONS.map(option => {
+          const count = option.key === 'all' ? state.boards.length : (counts[option.key] || 0);
+          return `<option value="${option.key}">${esc(option.label)} (${count.toLocaleString()})</option>`;
+        }).join('');
+        if ([...select.options].some(option => option.value === current)) select.value = current;
+      }
+
       function applyFilters(resetPage = true) {
         const q = $('searchInput').value.trim().toLowerCase();
         const category = $('categoryFilter').value;
         const evidenceKey = $('evidenceFilter').value;
+        const bidRateKey = $('bidRateFilter').value;
         const sort = $('sortSelect').value;
 
         state.filtered = state.boards.filter(board => {
@@ -1449,7 +1525,8 @@
           const categoryMatch = category === 'all' || board.category?.slug === category;
           const e = evidence(board).key;
           const evidenceMatch = evidenceKey === 'all' || e === evidenceKey;
-          return (!q || haystack.includes(q)) && categoryMatch && evidenceMatch;
+          const bidRateMatch = bidRateKey === 'all' || bidRate(board).key === bidRateKey;
+          return (!q || haystack.includes(q)) && categoryMatch && evidenceMatch && bidRateMatch;
         });
 
         state.filtered.sort((a,b) => {
@@ -1471,16 +1548,18 @@
 
         $('inventoryBody').innerHTML = rows.length ? rows.map(board => {
           const ev = evidence(board);
+          const rate = bidRate(board);
           return `<tr>
             <td class="board-name"><a href="${esc(safeUrl(board.url))}" target="_blank" rel="noopener">${esc(board.name || board.host)} ↗</a><span class="domain">${esc(board.host || '')}</span><p>${esc(board.tagline || '')}</p></td>
             <td>${esc(board.category?.name || 'Uncategorized')}</td>
+            <td><span class="pill ${rate.className}" data-bid-rate="${rate.key}" title="${esc(rate.note)}">${esc(rate.label)}</span></td>
             <td><div class="status-stack"><span class="pill ${ev.className}">${esc(ev.label)}</span><small>${esc(ev.note)}</small></div></td>
             <td class="num">${esc(board.figures?.collected || 'Unknown')}</td>
             <td class="num">${esc(board.minBid || '—')}</td>
             <td>${esc(board.payRail || 'Not stated')}</td>
             <td class="num">${esc(shortDate(board.listedAt))}</td>
           </tr>`;
-        }).join('') : '<tr><td colspan="7">No boards match these filters.</td></tr>';
+        }).join('') : '<tr><td colspan="8">No boards match these filters.</td></tr>';
 
         const end = Math.min(start + rows.length, state.filtered.length);
         $('resultsLabel').textContent = `${state.filtered.length.toLocaleString()} results · showing ${state.filtered.length ? start + 1 : 0}–${end}`;
@@ -1526,6 +1605,7 @@
         } finally {
           $('refreshData').disabled = false;
           populateCategories();
+          populateBidRates();
           renderFresh();
           renderCategories();
           updateSummary();
@@ -1534,11 +1614,11 @@
       }
 
       function exportCsv() {
-        const fields = ['name','host','url','category','evidence','claimed_taken','minimum_bid','payment_rail','listed_at','measured_at'];
+        const fields = ['name','host','url','category','bid_rate','evidence','claimed_taken','minimum_bid','payment_rail','listed_at','measured_at'];
         const quote = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
         const lines = [fields.join(',')];
         state.filtered.forEach(b => lines.push([
-          b.name, b.host, b.url, b.category?.name, evidence(b).label, b.figures?.collected,
+          b.name, b.host, b.url, b.category?.name, bidRate(b).label, evidence(b).label, b.figures?.collected,
           b.minBid, b.payRail, b.listedAt, b.figures?.readAt
         ].map(quote).join(',')));
         const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8'});
@@ -1551,7 +1631,7 @@
         link.remove();
       }
 
-      ['searchInput','categoryFilter','evidenceFilter','sortSelect'].forEach(id => {
+      ['searchInput','categoryFilter','evidenceFilter','bidRateFilter','sortSelect'].forEach(id => {
         $(id).addEventListener(id === 'searchInput' ? 'input' : 'change', () => applyFilters());
       });
       $('prevPage').addEventListener('click', () => { if (state.page > 1) { state.page--; renderInventory(); $('inventory').scrollIntoView(); } });
