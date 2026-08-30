@@ -98,8 +98,15 @@ test('applyBoost: full flow with 1.5x self boost, cooldown and funds', () => {
   const state = createSeedState();
   const user = makeUser({ coins: 1000 });
   state.users[user.id] = user;
-  const profile = state.profiles['luna-starr'];
-  profile.createdBy = user.id; // self-boost
+  // No pages are pre-seeded — build a fan page the way a real fan would.
+  state.profiles['test-fave'] = {
+    id: 'p_test-fave', slug: 'test-fave', name: 'Test Fave', realName: 'Test Fave',
+    category: 'celebrity', emoji: '⭐', image: null, tagline: '', tags: [],
+    description: '', status: 'approved', fanCreated: true, seed: false,
+    createdBy: user.id, createdByUsername: user.username, boostTotal: 0,
+    boostCount: 0, fanCount: 0, fanIds: [], recentBoosts: [], claimRequests: []
+  };
+  const profile = state.profiles['test-fave'];
 
   const r = eco.applyBoost(state, user, profile, 200, Date.now());
   assert.strictEqual(r.ok, true);

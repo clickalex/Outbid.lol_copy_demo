@@ -266,7 +266,7 @@ function claimTaskReward(state, user, task) {
 // Boosts
 // ---------------------------------------------------------------------------
 
-const BOOSTABLE_CATEGORIES = new Set(['celebrity', 'influencer', 'estate', 'venue', 'brand', 'community']);
+const BOOSTABLE_CATEGORIES = new Set(['celebrity', 'character', 'influencer', 'estate', 'venue', 'brand', 'community']);
 
 /**
  * Execute a boost. Deducts coins, credits the profile's boosted value
@@ -404,6 +404,12 @@ function maybeAutoSettleSeason(state, at = Date.now()) {
 // Public snapshots (never expose password hashes / ip hashes)
 // ---------------------------------------------------------------------------
 
+function isAdminUser(user) {
+  if (!user) return false;
+  const admins = require('./config').CONFIG.AUTH.ADMIN_USERNAMES;
+  return admins.includes(String(user.username || '').toLowerCase());
+}
+
 function publicUser(state, user) {
   if (!user) return null;
   return {
@@ -411,6 +417,7 @@ function publicUser(state, user) {
     username: user.username,
     displayName: user.displayName,
     avatar: user.avatar,
+    isAdmin: isAdminUser(user),
     coins: user.coins,
     totalCoinsEarned: user.totalCoinsEarned,
     totalCoinsSpent: user.totalCoinsSpent,
@@ -431,13 +438,19 @@ function publicProfile(state, profile) {
     id: profile.id,
     slug: profile.slug,
     name: profile.name,
+    realName: profile.realName || profile.name,
     category: profile.category,
     emoji: profile.emoji,
+    image: profile.image || null,
     tagline: profile.tagline,
     tags: profile.tags,
     description: profile.description,
     seed: Boolean(profile.seed),
     fanCreated: true,
+    // 'approved' profiles are publicly listed; 'pending'/'rejected' stay
+    // private to their creator and to admins (filtered in the API layer).
+    status: profile.status || 'approved',
+    reviewedAt: profile.reviewedAt || null,
     verified: Boolean(profile.verified),
     claimedByUsername: profile.claimedBy ? (state.users[profile.claimedBy] || {}).username || null : null,
     createdByUsername: profile.createdByUsername || (profile.createdBy ? (state.users[profile.createdBy] || {}).username || null : null),
@@ -483,5 +496,6 @@ module.exports = {
   maybeAutoSettleSeason,
   publicUser,
   publicProfile,
+  isAdminUser,
   MATCH_TRIGGER_KINDS
 };

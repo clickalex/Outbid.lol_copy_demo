@@ -1,5 +1,5 @@
 /* ============================================================
-   Grinbid DEMO — playful pop (demo edition of the app theme)
+   Grinbid — playful pop
    Bid. Back. Rank up.   100% free virtual coins.
    ============================================================ */
 
@@ -49,43 +49,6 @@ a:hover { text-decoration: underline; }
   margin: 0 auto;
   padding: 0 18px;
 }
-
-/* ---------------- Demo strip ---------------- */
-.demo-strip {
-  background: repeating-linear-gradient(45deg, #ffd23f, #ffd23f 14px, #ffc61a 14px, #ffc61a 28px);
-  border-bottom: var(--line-w) solid var(--line);
-  padding: 7px 0;
-  font-weight: 700;
-}
-
-.demo-strip .btn { padding: 4px 10px; font-size: .8rem; border-width: 2px; box-shadow: 2px 2px 0 rgba(35,18,61,.2); }
-
-.demo-badge {
-  background: var(--ink);
-  color: var(--yellow);
-  font-size: .6rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  border-radius: 999px;
-  padding: 2px 8px;
-  margin-left: 2px;
-}
-
-.sticker.demo-strip-badge {
-  background: var(--sky);
-  transform: rotate(-2deg);
-  display: inline-block;
-}
-
-.quick-logins {
-  border: 2px dashed var(--line);
-  border-radius: 16px;
-  padding: 10px 12px;
-  margin-bottom: 14px;
-  background: #fff;
-}
-.quick-logins .lbl { font-weight: 800; margin-bottom: 6px; display: block; }
-.quick-logins .btn { margin: 2px 4px 2px 0; }
 
 /* ---------------- Header ---------------- */
 .topbar {
@@ -253,7 +216,6 @@ a:hover { text-decoration: underline; }
   gap: 10px;
   font-size: 1.35rem;
   margin: 28px 0 14px;
-  flex-wrap: wrap;
 }
 
 .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -372,14 +334,6 @@ input:focus, select:focus, textarea:focus {
 
 textarea { min-height: 110px; resize: vertical; }
 
-code {
-  background: var(--paper);
-  border: 2px solid var(--line);
-  border-radius: 8px;
-  padding: 2px 8px;
-  font-weight: 800;
-}
-
 .emoji-picker {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
@@ -423,8 +377,6 @@ code {
 .notice.legal { background: var(--sky); }
 .notice.donate { background: var(--orange); }
 .notice.danger { background: var(--red); color: #fff; }
-
-.card.danger { background: #ffe3ea; }
 
 .stripe {
   display: grid;
@@ -553,6 +505,15 @@ footer.site {
 
 footer.site a { color: var(--yellow); }
 
+.legal-strip {
+  background: var(--yellow);
+  border: var(--line-w) solid var(--line);
+  border-radius: 16px;
+  padding: 12px 16px;
+  font-weight: 700;
+  margin: 14px 0 0;
+}
+
 /* ---------------- Confetti canvas ---------------- */
 #confetti {
   position: fixed;
@@ -577,6 +538,7 @@ footer.site a { color: var(--yellow); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .coin { color: var(--orange); }
+.glow { box-shadow: 0 0 0 4px rgba(255, 210, 63, .55), var(--shadow); }
 
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } }
@@ -647,10 +609,6 @@ a, button { -webkit-tap-highlight-color: transparent; }
   .wrap { padding: 0 12px; }
   .view { padding: 16px 0 44px; }
 
-  .demo-strip { padding: 8px 0; }
-  .demo-strip .row.spread { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .demo-strip .btn { margin: 0 4px 2px 0; }
-
   .card { padding: 16px; border-radius: 18px; }
   .card.hero .btn.big { width: 100%; }
 
@@ -662,8 +620,6 @@ a, button { -webkit-tap-highlight-color: transparent; }
 
   .task { flex-wrap: wrap; }
   .task .reward { margin-left: auto; }
-
-  .quick-logins .btn { flex: 1 1 auto; }
 
   .emoji-picker { grid-template-columns: repeat(5, 1fr); }
 
@@ -678,13 +634,111 @@ a, button { -webkit-tap-highlight-color: transparent; }
   footer.site .row.spread { flex-direction: column; align-items: flex-start; gap: 8px; }
 
   .wallet-pill { padding: 5px 10px; }
-  .demo-strip .row { gap: 6px; }
 }
 
 /* ---- very small phones ---- */
 @media (max-width: 380px) {
   .logo { font-size: 1.05rem; }
-  .demo-badge { display: none; }
   .streak-pill { display: none; }   /* streak still visible on the Wallet screen */
   .avatar-chip { width: 38px; height: 38px; font-size: 1.2rem; }
 }
+
+/* ============================================================
+   Progressive enhancements — skip link + back-to-top button
+   (used by the SPA shell and the static info pages' enhance.js)
+   ============================================================ */
+.gb-skip {
+  position: absolute;
+  left: 12px;
+  top: -70px;
+  z-index: 1000;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-weight: 800;
+  border: var(--line-w) solid var(--line);
+  text-decoration: none;
+  transition: top .15s ease;
+}
+.gb-skip:focus { top: 12px; }
+
+.gb-back-top {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 80;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: var(--line-w) solid var(--line);
+  background: var(--pink);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: translateY(14px) scale(.9);
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.gb-back-top.gb-show { opacity: 1; transform: none; pointer-events: auto; }
+.gb-back-top:hover { background: #e83b8c; }
+.gb-back-top:focus-visible { outline: 4px solid var(--sky); outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .gb-back-top { right: 12px; width: 44px; height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gb-skip, .gb-back-top { transition: none !important; }
+}
+
+/* ============================================================
+   Fan-page images (uploaded photos / fan art)
+   ============================================================ */
+.profile-img {
+  width: 74px;
+  height: 74px;
+  border-radius: 20px;
+  border: var(--line-w) solid var(--line);
+  object-fit: cover;
+  display: inline-block;
+  margin-bottom: 10px;
+  background: var(--paper);
+}
+.profile-img.small { width: 48px; height: 48px; border-radius: 14px; margin-bottom: 0; }
+.profile-img.big {
+  width: min(220px, 60vw);
+  height: min(220px, 60vw);
+  border-radius: 26px;
+  font-size: 4rem;
+}
+.profile-img.hero-img {
+  display: block;
+  margin: 0 auto 16px;
+  box-shadow: 6px 6px 0 rgba(35,18,61,.16);
+}
+.ta-right { text-align: right; display: inline-block; }
+.img-preview {
+  width: 96px; height: 96px; border-radius: 18px; object-fit: cover;
+  border: var(--line-w) solid var(--line); margin-top: 8px; display: block;
+}
+input[type="file"] {
+  width: 100%; padding: 10px; border: 2px dashed var(--line); border-radius: 14px;
+  background: var(--paper); font-family: var(--font); font-weight: 600;
+}
+
+/* ============================================================
+   Moderation queue (admin)
+   ============================================================ */
+.queue-row { flex-wrap: wrap; gap: 10px; align-items: flex-start; }
+.queue-actions { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+@media (max-width: 640px) {
+  .queue-actions { flex-direction: row; flex-wrap: wrap; }
+  .profile-img.big { width: min(160px, 50vw); height: min(160px, 50vw); }
+}
+.season-card .list-row:first-child { background: linear-gradient(90deg, rgba(255,210,63,.35), rgba(255,79,163,.15)); border-radius: 14px; }

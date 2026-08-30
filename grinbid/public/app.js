@@ -34,14 +34,15 @@
   const AVATARS = ['😀', '😎', '🤓', '🦊', '🐱', '🐶', '🦄', '🐸', '🐙', '👻', '🤖', '🐹', '🎤', '🎸', '🍕', '🍩', '🌈', '⚡', '⭐', '🍀'];
   const CATS = {
     celebrity: { label: 'Celebrity', color: 'pink' },
+    character: { label: 'Character', color: 'orange' },
     influencer: { label: 'Influencer', color: 'sky' },
     estate: { label: 'Estate', color: 'mint' },
-    venue: { label: 'Venue', color: 'orange' },
+    venue: { label: 'Venue', color: 'yellow' },
     brand: { label: 'Brand', color: 'purple' },
-    community: { label: 'Community', color: 'yellow' }
+    community: { label: 'Community', color: 'mint' }
   };
 
-  window.GB = { api, toast, go, openAuth, openBoost, openClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, adminLogin, adminAction, copyText, toggleNav, closeNav };
+  window.GB = { api, toast, go, openAuth, openBoost, openClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, handleImage, homeSearch, search, adminLogin, adminAction, profileDecision, copyText, toggleNav, closeNav, backTop };
 
   // ------------------------------------------------------------------ API
   async function api(path, opts = {}) {
@@ -144,6 +145,8 @@
         <label class="field"><span class="lbl">Username</span>
           <input name="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" required placeholder="cool_fan_01"></label>
         ${isSignup ? `
+        <label class="field"><span class="lbl">Email <span class="muted small">(so we can tell you when your fan page goes up or down)</span></span>
+          <input name="email" type="email" maxlength="120" required placeholder="you@example.com"></label>
         <div class="two-col">
           <label class="field"><span class="lbl">Display name</span>
             <input name="displayName" maxlength="24" placeholder="Cool Fan"></label>
@@ -184,7 +187,10 @@
       displayName: fd.get('displayName') || undefined,
       referralCode: fd.get('referralCode') || undefined
     };
-    if (mode === 'signup') body.avatar = pendingAvatar;
+    if (mode === 'signup') {
+      body.avatar = pendingAvatar;
+      body.email = fd.get('email');
+    }
     const btn = $('#authSubmit');
     btn.disabled = true; btn.textContent = '…';
     try {
@@ -199,7 +205,15 @@
       }
       render();
     } catch (err) {
-      toast(err.message, 'bad');
+      const friendly = {
+        invalid_email: 'Please enter a valid email address.',
+        email_in_use: 'That email is already registered — try logging in.',
+        username_taken: 'That username is taken — try another!',
+        invalid_credentials: 'Wrong username or password.',
+        invalid_username: 'Usernames are 3–20 letters, numbers or _',
+        invalid_password: 'Password must be at least 8 characters.'
+      };
+      toast(friendly[err.message] || err.message, 'bad');
     } finally {
       btn.disabled = false;
       btn.textContent = mode === 'signup' ? '🎟️ Claim my 2500 free coins' : '🚪 Log in';
@@ -232,7 +246,7 @@
         <a href="#/create" data-r="create">Create</a>
         ${m ? '<a href="#/mine" data-r="mine">My page</a>' : ''}
         <a href="#/donate" data-r="donate">Donate</a>
-        <a href="#/admin" data-r="admin">Admin</a>
+        ${m && m.isAdmin ? '<a href="#/admin" data-r="admin">Admin</a>' : ''}
       </nav>
       ${m ? `
         <span class="streak-pill" title="Daily streak">🔥 ${m.streakCount}</span>
@@ -290,8 +304,10 @@
       <div class="row spread">
         <div><b>🎪 Grinbid</b> — Bid. Back. Rank up.</div>
         <div class="row">
-          <a href="#/terms">Terms</a> <a href="#/privacy">Privacy</a>
-          <a href="#" onclick="GB.openLegal('terms');return false">Legal modal</a>
+          <a href="how-it-works.html">How it works</a> <a href="rules.html">Rules</a>
+          <a href="coins.html">Coins</a> <a href="leaderboard.html">Leaderboard</a>
+          <a href="faq.html">FAQ</a> <a href="about.html">About</a>
+          <a href="#/terms">Terms</a> <a href="privacy.html">Privacy</a>
         </div>
       </div>
       <p class="small" style="opacity:.85">
@@ -306,12 +322,21 @@
 
   function shellHTML(view) {
     return `<div id="app">
+      <a class="gb-skip" href="#view">Skip to content</a>
       ${headerHTML()}
       <main class="wrap view" id="view">${view}</main>
       ${footerHTML()}
+      <button type="button" class="gb-back-top" id="gbBackTop" aria-label="Back to top" onclick="GB.backTop()">↑</button>
       <div id="toasts"></div>
       <canvas id="confetti"></canvas>
     </div>`;
+  }
+
+  // back-to-top visibility is driven by a scroll listener registered once at boot
+  function backTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const v = $('#view');
+    if (v) { try { v.tabIndex = -1; v.focus({ preventScroll: true }); } catch {} }
   }
 
   // ------------------------------------------------------------------ Data
@@ -356,22 +381,26 @@
         <span class="tag">🔥</span>
       </div>`).join('') || '<p class="muted">The boost feed is quiet… start the party! 🎉</p>';
 
-    const top = (data.profiles.profiles || []).slice(0, 6).map(p => profileCard(p)).join('');
+    const allProfiles = data.profiles.profiles || [];
+    const top = allProfiles.slice(0, 8).map(p => profileCard(p)).join('');
 
     return `
       <section class="card hero">
         <span class="sticker fan">100% free coins</span>
         <span class="sticker seed">no real money</span>
-        <h1>Bid. Back. Rank up. 🎪</h1>
-        <p class="tagline">Grind the daily streak, grab lucky drops and boost your faves into the season podium — all with virtual coins that cost nothing.</p>
+        <h1>Who's on top? 🏆</h1>
+        <p class="tagline">Fans fight for their faves — Salman vs SRK, Hulk vs Iron Man, Ronaldo vs Messi. Boost your idol with free coins and push them to the top of the season.</p>
         <div class="row mt">
-          ${m ? `<button class="btn big" onclick="go('#/discover')">🎯 Boost something</button>
+          ${m ? `<button class="btn big pink" onclick="document.getElementById('fanGrid')?.scrollIntoView({behavior:'smooth'})">🔥 Boost your fave</button>
                  <button class="btn big" style="background:#fff" onclick="go('#/wallet')">🪙 My wallet</button>`
-             : `<button class="btn big" onclick="GB.openAuth('signup')">🎟️ Join free — get ${fmt(2500)} coins</button>
-                <button class="btn big" style="background:#fff" onclick="go('#/discover')">👀 Browse faves</button>`}
+             : `<button class="btn big pink" onclick="GB.openAuth('signup')">🎟️ Join free — get ${fmt(2500)} coins</button>
+                <button class="btn big" style="background:#fff" onclick="document.getElementById('fanGrid')?.scrollIntoView({behavior:'smooth'})">👀 See who's on top</button>`}
         </div>
         <p class="small" style="margin-top:14px">🪙 Virtual coins only — zero cash value, nothing to buy. Donations are non-reward and voluntary.</p>
       </section>
+
+      <h2 class="section-title">🏆 Season ${data.lb.season.id} leaderboard <span class="muted small">(season ends ${new Date(data.lb.season.endsAt).toLocaleDateString()} · prizes ${fmt(50000)} / ${fmt(25000)} / ${fmt(10000)})</span></h2>
+      <div class="card season-card">${lbRows}</div>
 
       <div class="stripe">
         <div class="stat"><div class="n">🪙 ${fmt(2500)}</div><div class="l">Signup bonus</div></div>
@@ -380,21 +409,51 @@
         <div class="stat"><div class="n">👥 10%</div><div class="l">Lifetime match</div></div>
       </div>
 
-      <div class="two-col">
-        <div>
-          <h2 class="section-title">🏆 Season leaderboard <span class="muted small">(ends ${new Date(data.lb.season.endsAt).toLocaleDateString()})</span></h2>
-          <div class="card">${lbRows}</div>
-        </div>
+      <h2 class="section-title">💖 Fan pages — ranked by love <span class="muted small">${allProfiles.length} live</span></h2>
+      <div class="card mb row" id="homeSearch">
+        <input id="homeQ" style="max-width:340px" placeholder="Search Salman, Hulk, Messi…" onkeydown="if(event.key==='Enter')GB.homeSearch()">
+        <select id="homeCat" onchange="GB.homeSearch()">
+          <option value="">All categories</option>
+          ${Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('')}
+        </select>
+        <button class="btn sky" onclick="GB.homeSearch()">Search</button>
+      </div>
+      <div class="notice legal">
+        🏷️ Every page is a <b>fan-made tribute</b> — not affiliated with or endorsed by the real people, characters,
+        estates, venues or brands shown. New pages go live after admin approval. Real owners can <b>claim</b> a page.
+      </div>
+      <div class="grid" id="fanGrid">
+        ${top || '<p class="muted">No fan pages yet — be the first to create one!</p>'}
+      </div>
+      <div id="homeMore"></div>
+
+      <div class="two-col mt">
         <div>
           <h2 class="section-title">⚡ Live boost feed</h2>
           <div class="card">${feedRows}</div>
         </div>
-      </div>
-
-      <h2 class="section-title">💖 Trending fan pages</h2>
-      <div class="grid">${top}</div>
-      <p class="center mt"><a class="btn ghost" href="#/discover">See all →</a></p>`;
+        <div>
+          <h2 class="section-title">🚀 Want a page for YOUR fave?</h2>
+          <div class="card center">
+            <p class="muted">Create a fan page, upload a photo, and once approved your idol joins the ranking. Fans of Salman, Hulk, Tony and the rest are already here — add yours!</p>
+            <button class="btn big purple" onclick="${m ? "go('#/create')" : "GB.openAuth('signup')"}">✨ Create a fan page</button>
+          </div>
+        </div>
+      </div>`;
   };
+
+  async function homeSearch() {
+    const q = $('#homeQ').value.trim();
+    const cat = $('#homeCat').value;
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (cat) params.set('category', cat);
+    const data = await api('/profiles' + (params.toString() ? '?' + params : ''));
+    const grid = $('#fanGrid');
+    if (grid) grid.innerHTML = data.profiles.map(profileCard).join('') || '<p class="muted">Nothing matches — try another search, or create that fan page yourself!</p>';
+    const more = $('#homeMore');
+    if (more) more.innerHTML = '';
+  }
 
   // ---- 2. Discover
   VIEWS.discover = async () => {
@@ -422,19 +481,28 @@
       </div>`;
   };
 
+  function profileMedia(p, big) {
+    if (p.image) {
+      return `<img class="profile-img${big ? ' big' : ''}" src="${p.image}" alt="${esc(p.realName || p.name)} fan art" loading="lazy">`;
+    }
+    return `<span class="profile-emoji${big ? ' big' : ''}">${esc(p.emoji)}</span>`;
+  }
+
   function profileCard(p) {
     const cat = CATS[p.category] || { label: p.category };
     return `
     <a class="card profile-card" href="#/profile/${esc(p.slug)}">
       <div class="row spread">
-        <span class="profile-emoji">${esc(p.emoji)}</span>
-        <span>
+        ${profileMedia(p, false)}
+        <span class="ta-right">
           <span class="cat-badge">${esc(cat.label)}</span><br>
-          ${p.seed ? '<span class="sticker fan">fan-made</span>' : '<span class="sticker">community</span>'}
+          ${p.status === 'pending' ? '<span class="sticker" style="background:var(--yellow)">⏳ pending approval</span>'
+            : '<span class="sticker fan">fan-made</span>'}
           ${p.verified ? '<span class="sticker verified">🟢 verified</span>' : ''}
         </span>
       </div>
-      <h3 style="margin:.3em 0">${esc(p.name)}</h3>
+      <h3 style="margin:.3em 0">${esc(p.realName && p.realName !== p.name ? p.realName : p.name)}</h3>
+      ${p.realName && p.realName !== p.name ? `<p class="muted small" style="margin:.1em 0">${esc(p.name)}</p>` : ''}
       <p class="muted small" style="margin:.2em 0">${esc(p.tagline || '')}</p>
       <div class="boost-meter"><div style="width:${Math.min(100, Math.log10(1 + p.boostTotal) * 20)}%"></div></div>
       <div class="row spread mt small">
@@ -459,21 +527,24 @@
       </div>`).join('') || '<p class="muted">No boosts yet. First one? 🚀</p>';
 
     return `
-      <a class="btn ghost small" href="#/discover">← Back to discover</a>
-      <div class="card mt">
+      <a class="btn ghost small" href="#/home">← Back to home</a>
+      <div class="card mt profile-detail-head">
+        ${p.image ? `<img class="profile-img big hero-img" src="${p.image}" alt="${esc(p.realName || p.name)} fan art">` : ''}
         <div class="row spread">
           <div class="row">
-            <span class="avatar big">${esc(p.emoji)}</span>
+            ${p.image ? '' : `<span class="avatar big">${esc(p.emoji)}</span>`}
             <div>
-              <h2 style="margin:0">${esc(p.name)}</h2>
+              <h2 style="margin:0">${esc(p.realName && p.realName !== p.name ? p.realName : p.name)}</h2>
+              ${p.realName && p.realName !== p.name ? `<p class="muted small" style="margin:.1em 0">${esc(p.name)}</p>` : ''}
               <span class="cat-badge">${esc(cat.label)}</span>
-              ${p.seed ? '<span class="sticker fan">fan-made · not affiliated</span>' : ''}
+              ${p.status === 'pending' ? '<span class="sticker" style="background:var(--yellow)">⏳ waiting for admin approval</span>' : ''}
+              <span class="sticker fan">fan-made · not affiliated</span>
               ${p.verified ? '<span class="sticker verified">🟢 verified owner</span>' : ''}
               <div class="muted small mt" style="margin-top:6px">
                 ${p.isMineProfile
                   ? '<span class="sticker self">you created this 🎪</span>'
                   : p.createdByUsername
-                    ? `created by <b>@${esc(p.createdByUsername)}</b>`
+                    ? `created by fan <b>@${esc(p.createdByUsername)}</b>`
                     : 'community page'}
                 ${p.createdAt ? ` · ${new Date(p.createdAt).toLocaleDateString()}` : ''}
               </div>
@@ -506,16 +577,16 @@
         </div>
       </div>
 
-      ${p.seed ? `
+      ${p.verified ? '' : `
       <div class="card mt" id="claimBox">
         <div class="row spread">
           <div>
-            <h3 style="margin:0">🏛️ Own this? Verify & claim it.</h3>
-            <p class="muted small">This is a fan-made page. If you are the real ${esc(p.name)}, submit a claim — moderators verify and you get the 🟢 badge.</p>
+            <h3 style="margin:0">🏛️ Are you the real ${esc(p.realName || p.name)}?</h3>
+            <p class="muted small">This is a fan-made page. If you represent the real person/team, submit a claim — an admin verifies it and the page gets the 🟢 badge.</p>
           </div>
-          <button class="btn purple" onclick="GB.openClaim('${esc(p.slug)}')">${p.verified ? 'View claim' : 'Claim page'}</button>
+          <button class="btn purple" onclick="GB.openClaim('${esc(p.slug)}')">Claim page</button>
         </div>
-      </div>` : ''}
+      </div>`}
     `;
   };
 
@@ -732,47 +803,120 @@
   VIEWS.create = async () => {
     if (!S.me) return requireLogin();
     return `
-      <h1 class="section-title">✨ Create a fan page</h1>
+      <h1 class="section-title">✨ Make a fan page for your fave</h1>
       <div class="notice legal">
-        🏷️ You can create <b>one community profile</b>. It's a <b>fan-created</b> page — not an official endorsement.
-        Boosting your own page earns the <b>×1.5 self-boost</b>.
+        🏷️ This is a <b>fan-made tribute page</b> — not an official page, not affiliated, not an endorsement.
+        Every new page is reviewed by an admin <b>before it goes live</b>. We'll email you at
+        <b>${esc(S.me.email || 'your signup email')}</b> when your page is promoted up or needs changes.
+        You can create <b>one page</b>, and boosting your own page earns the <b>×1.5 self-boost</b>.
       </div>
       <div class="card">
-        <form onsubmit="GB.createProfile(event)">
-          <label class="field"><span class="lbl">Name *</span><input name="name" maxlength="24" required placeholder="The Marshmallow Museum"></label>
-          <label class="field"><span class="lbl">Slug (url) *</span><input name="slug" maxlength="40" required placeholder="marshmallow-museum"></label>
+        <form onsubmit="GB.createProfile(event)" id="createForm">
           <div class="two-col">
-            <label class="field"><span class="lbl">Category</span>
-              <select name="category">${Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('')}</select></label>
-            <label class="field"><span class="lbl">Emoji badge</span>
-              <div class="emoji-picker" id="createEmoji">${AVATARS.map((a, i) => `<button type="button" class="${i === 0 ? 'sel' : ''}" data-a="${a}" onclick="GB.setAvatar('${a}', this)">${a}</button>`).join('')}</div></label>
+            <label class="field"><span class="lbl">Real person / character *</span>
+              <input name="realName" maxlength="60" required placeholder="e.g. Salman Khan, Hulk, Tony Stark / Iron Man, Taylor Swift"></label>
+            <label class="field"><span class="lbl">Category *</span>
+              <select name="category">
+                <option value="celebrity">Celebrity (actor, singer, sports star…)</option>
+                <option value="character">Character (movie/comic/anime icon…)</option>
+                <option value="influencer">Influencer / streamer</option>
+                <option value="estate">Estate / landmark</option>
+                <option value="venue">Venue / stadium</option>
+                <option value="brand">Brand / label</option>
+                <option value="community">Community</option>
+              </select></label>
           </div>
-          <label class="field"><span class="lbl">Tagline</span><input name="tagline" maxlength="60" placeholder="The sweetest museum in town"></label>
-          <label class="field"><span class="lbl">Description</span><textarea name="description" maxlength="400" placeholder="Tell fans what makes it special…"></textarea></label>
-          <label class="field"><span class="lbl">Tags (comma separated, max 6)</span><input name="tags" placeholder="museum, candy, family"></label>
-          <button class="btn big purple" type="submit">🎪 Create fan page</button>
+          <label class="field"><span class="lbl">Your page name *</span>
+            <input name="name" maxlength="24" required placeholder="e.g. Bhaijaan Fans, Hulk Smash Gang"></label>
+          <label class="field"><span class="lbl">Slug (URL) *</span>
+            <input name="slug" maxlength="40" required placeholder="salman-khan-fans"></label>
+          <div class="two-col">
+            <label class="field"><span class="lbl">Photo / fan art (optional, auto-resized)</span>
+              <input type="file" id="pageImage" accept="image/png,image/jpeg,image/webp" onchange="GB.handleImage(event)">
+              <img id="imgPreview" class="img-preview" alt="" style="display:none">
+              <span class="muted small">A square photo works best. It's resized in your browser before upload.</span></label>
+            <label class="field"><span class="lbl">…or pick an emoji badge</span>
+              <div class="emoji-picker" id="createEmoji">${['⭐','💪','🦸','🕷️','🦇','🏏','⚽','🎤','🎬','🐉','👑','🔥'].map((a, i) => `<button type="button" class="${i === 0 ? 'sel' : ''}" data-a="${a}" onclick="GB.setAvatar('${a}', this)">${a}</button>`).join('')}</div></label>
+          </div>
+          <label class="field"><span class="lbl">Tagline</span><input name="tagline" maxlength="80" placeholder="One line that makes fans tap boost"></label>
+          <label class="field"><span class="lbl">Why this fave deserves the top spot</span><textarea name="description" maxlength="600" placeholder="Tell other fans what makes them legendary…"></textarea></label>
+          <label class="field"><span class="lbl">Tags (comma separated, max 8)</span><input name="tags" placeholder="bollywood, bhai, action"></label>
+          <button class="btn big purple" type="submit" id="createSubmit">📨 Submit for approval</button>
+          <p class="muted small mt">Your page stays private to you until an admin approves it — then fans can boost it up the leaderboard.</p>
         </form>
       </div>`;
   };
 
+  let pendingImage = null;
+  function handleImage(ev) {
+    const file = ev.target.files && ev.target.files[0];
+    const preview = $('#imgPreview');
+    if (!file) { pendingImage = null; if (preview) preview.style.display = 'none'; return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        // Resize to max 480px square-ish JPEG so the JSON store stays small.
+        const MAX = 480;
+        let { width, height } = img;
+        if (width > height && width > MAX) { height = Math.round(height * MAX / width); width = MAX; }
+        else if (height > MAX) { width = Math.round(width * MAX / height); height = MAX; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        let data;
+        try { data = canvas.toDataURL('image/jpeg', 0.82); } catch { data = null; }
+        if (data && data.length <= 880 * 1024) {
+          pendingImage = data;
+          if (preview) { preview.src = data; preview.style.display = 'block'; }
+          toast('Photo attached 📸', 'good');
+        } else {
+          pendingImage = null;
+          toast('That image is too large even after resizing — try a smaller one, or use an emoji.', 'bad');
+        }
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
   async function createProfile(ev) {
     ev.preventDefault();
     const fd = new FormData(ev.target);
+    const rawName = String(fd.get('realName') || fd.get('name') || '');
+    const slug = String(fd.get('slug') || '').toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     try {
       const data = await api('/profiles', {
         method: 'POST',
         body: {
-          name: fd.get('name'), slug: fd.get('slug'), category: fd.get('category'),
-          emoji: pendingAvatar, tagline: fd.get('tagline'), description: fd.get('description'),
+          name: fd.get('name'),
+          realName: rawName,
+          slug,
+          category: fd.get('category'),
+          emoji: pendingAvatar,
+          image: pendingImage || undefined,
+          tagline: fd.get('tagline'),
+          description: fd.get('description'),
           tags: String(fd.get('tags') || '').split(',').map((t) => t.trim()).filter(Boolean)
         }
       });
       await refresh();
-      toast('Fan page created! 🎉 Boosting it now gives ×1.5', 'good');
       confetti();
+      if (data.moderation === 'pending') {
+        toast('Submitted! 📨 An admin will review it before it goes live — check your email.', 'good');
+      } else {
+        toast('Fan page created! 🎉', 'good');
+      }
       go('#/profile/' + data.profile.slug);
     } catch (err) {
-      toast(err.message === 'one_profile_per_user' ? 'You already created your one profile!' : err.message, 'bad');
+      const friendly = {
+        one_profile_per_user: 'You already created your one fan page!',
+        slug_taken: 'That URL slug is taken — try another.',
+        invalid_profile_fields: 'Please fill in the name, a valid URL slug and a category.'
+      };
+      toast(friendly[err.message] || err.message, 'bad');
     }
   }
 
@@ -800,14 +944,28 @@
       return `<div class="card danger"><h3>😵 Couldn't load your page</h3><p>${esc(slug)} not found.</p></div>`;
     }
     const cat = CATS[p.category] || { label: p.category };
+    const pendingBanner = p.status === 'pending'
+      ? `<div class="card" style="border-color:var(--orange);background:#fff4e0">
+           <b>⏳ Your page is waiting for admin approval.</b>
+           <p class="muted small" style="margin:.3em 0 0">It's private to you right now — once an admin approves it, fans can boost it and it joins the home-page ranking. We'll email you at <b>${esc(S.me.email || 'your signup email')}</b> when it goes live.</p>
+           <p class="small" style="margin:.3em 0 0">Meanwhile you can still self-boost it (×1.5).</p>
+         </div>`
+      : p.status === 'rejected'
+        ? `<div class="card" style="border-color:var(--red);background:#fdecee">
+             <b>✕ Your page needs changes before it can go live.</b>
+             <p class="muted small" style="margin:.3em 0 0">${esc(p.reviewNote || 'An admin reviewed it.')} Check your email (${esc(S.me.email || '')}) for details.</p>
+           </div>`
+        : '';
     return `
       <h1 class="section-title">🎪 My creation</h1>
+      ${pendingBanner}
       <div class="card">
+        ${p.image ? `<img class="profile-img big" src="${p.image}" alt="${esc(p.realName || p.name)}" style="margin-bottom:12px">` : ''}
         <div class="row spread">
           <div class="row">
-            <span class="avatar big">${esc(p.emoji)}</span>
+            ${p.image ? '' : `<span class="avatar big">${esc(p.emoji)}</span>`}
             <div>
-              <h2 style="margin:0">${esc(p.name)}</h2>
+              <h2 style="margin:0">${esc(p.realName && p.realName !== p.name ? p.realName : p.name)}</h2>
               <span class="cat-badge">${esc(cat.label)}</span>
               ${p.verified ? '<span class="sticker verified">🟢 verified owner</span>' : ''}
               <div class="muted small mt" style="margin-top:6px">
@@ -873,22 +1031,20 @@
 
   // ---- 9. Admin
   VIEWS.admin = async () => {
-    try {
-      const d = await api('/admin/overview');
-      return adminPanel(d);
-    } catch (err) {
-      if (err.status === 401) {
-        return `
-          <h1 class="section-title">🔐 Admin</h1>
-          <div class="card" style="max-width:420px">
-            <form onsubmit="GB.adminLogin(event)">
-              <label class="field"><span class="lbl">Admin password</span><input name="password" type="password" required></label>
-              <button class="btn purple" type="submit">Log in</button>
-            </form>
-          </div>`;
-      }
-      throw err;
+    // The admin panel is hidden: it exists nowhere in the navigation, and a
+    // visitor who types the URL in either is an admin (sees the dashboard) or
+    // sees an ordinary 404-style page — no password prompt to hint at.
+    if (!S.me || !S.me.isAdmin) {
+      return `
+        <div class="card center" style="max-width:520px;margin:60px auto">
+          <div style="font-size:3rem">🎪</div>
+          <h2>Nothing here</h2>
+          <p class="muted">This page doesn't exist for regular fans.</p>
+          <button class="btn pink" onclick="go('#/home')">Back to the leaderboard</button>
+        </div>`;
     }
+    const d = await api('/admin/overview');
+    return adminPanel(d);
   };
 
   async function adminLogin(ev) {
@@ -906,9 +1062,10 @@
       <div class="stripe">
         <div class="stat"><div class="n">${d.users}</div><div class="l">Users</div></div>
         <div class="stat"><div class="n">${d.boosts}</div><div class="l">Boosts</div></div>
-        <div class="stat"><div class="n">${fmt(d.coinsFloating)}</div><div class="l">Coins in economy</div></div>
+        <div class="stat"><div class="n" style="color:var(--pink)">${d.pendingProfiles || 0}</div><div class="l">Pages to review</div></div>
         <div class="stat"><div class="n">${d.openClaimRequests}</div><div class="l">Open claims</div></div>
       </div>
+      <div class="card mt" id="profileQueue"><h3>🧐 Fan pages awaiting approval</h3><p class="muted">Loading…</p></div>
       <div class="two-col">
         <div class="card">
           <h3>📣 Broadcast</h3>
@@ -964,6 +1121,51 @@
     } catch (err) { /* not admin */ }
   }
 
+  async function loadProfileQueue() {
+    try {
+      const d = await api('/admin/profile-queue');
+      const box = $('#profileQueue');
+      if (!box) return;
+      const list = d.pending || [];
+      if (!list.length) {
+        box.innerHTML = '<h3>🧐 Fan pages awaiting approval</h3><p class="muted">All caught up — no pages waiting. 🎉</p>';
+        return;
+      }
+      box.innerHTML = '<h3>🧐 Fan pages awaiting approval (' + list.length + ')</h3>' + list.map((p) => `
+        <div class="list-row queue-row">
+          ${p.image ? `<img class="profile-img small" src="${p.image}" alt="">` : `<span class="avatar">${esc(p.emoji)}</span>`}
+          <span class="grow">
+            <b>${esc(p.realName)}</b> ${p.realName !== p.name ? `· <span class="muted">${esc(p.name)}</span>` : ''}
+            <span class="cat-badge">${esc((CATS[p.category] || { label: p.category }).label)}</span><br>
+            <span class="muted small">${esc(p.tagline || '')}</span><br>
+            <span class="muted small">by @${esc(p.createdByUsername)} · submitted ${timeAgo(p.submittedAt)}</span><br>
+            <a class="small" href="mailto:${esc(p.creatorEmail || '')}?subject=${encodeURIComponent('Your Grinbid fan page: ' + p.name)}">✉️ ${esc(p.creatorEmail || 'no email')}</a>
+            <p class="muted small" style="margin:4px 0 0">${esc(p.description || '').slice(0, 200)}</p>
+          </span>
+          <span class="queue-actions">
+            <a class="btn small sky" href="#/profile/${esc(p.slug)}" target="_blank">Preview</a>
+            <button class="btn mint small" onclick="GB.profileDecision('${esc(p.slug)}', true)">✓ Approve (go live)</button>
+            <button class="btn small" style="background:#fff;color:var(--red)" onclick="GB.profileDecision('${esc(p.slug)}', false)">✕ Needs changes</button>
+          </span>
+        </div>`).join('');
+    } catch (err) { /* not admin */ }
+  }
+
+  async function profileDecision(slug, approve) {
+    let note = '';
+    if (!approve) {
+      note = prompt('What should the creator change? (sent in-app + they have email):') || '';
+    }
+    try {
+      await api('/admin/profile-decision', { method: 'POST', body: { slug, approve, note } });
+      toast(approve ? 'Page is LIVE! 🎉' : 'Sent back for changes.', approve ? 'good' : '');
+      loadProfileQueue();
+      const d = await api('/admin/overview');
+      const el = document.querySelectorAll('.stripe .n')[2];
+      render();
+    } catch (err) { toast(err.message, 'bad'); }
+  }
+
   // ---- Claim modal
   function openClaim(slug) {
     if (!S.me) return openAuth('signup');
@@ -992,32 +1194,34 @@
   }
 
   const LEGAL = {
-    terms: `<p><b>1.</b> Grinbid is a free fan-made game. All coins are 100% virtual, granted freely, and hold <b>zero cash value</b>.</p>
-      <p><b>2.</b> Coins cannot be purchased, sold, traded, transferred for money, or redeemed. There are no microtransactions, no Stripe, no pay-to-win.</p>
-      <p><b>3.</b> Boosts are virtual expressions of fan support. Nothing is wagered and nothing of real value changes hands.</p>
-      <p><b>4.</b> Donations are voluntary, non-reward contributions only. Donors receive no coins, perks or ranking advantages.</p>
-      <p><b>5.</b> Seeded profiles are fan-created and unaffiliated with real entities, estates, artists or venues.</p>
-      <p><b>6.</b> You must be 13+ and behave kindly. Abuse, spam, botting, self-referrals and fake claims get you booted.</p>`,
-    privacy: `<p><b>1.</b> We store only: username, display name, emoji avatar, a salted scrypt password hash, coins/streak/task data, and your IP hash for rate limiting.</p>
-      <p><b>2.</b> We never sell data, show ads, or share anything with third parties.</p>
-      <p><b>3.</b> Sessions use HttpOnly cookies. Data lives in one JSON file on the server.</p>
-      <p><b>4.</b> Referral codes are validated against bot abuse (same-IP detection) and may be held for review.</p>
-      <p><b>5.</b> Delete your account by messaging the admin — data is removed from the store.</p>`
+    terms: `<p><b>1.</b> Grinbid is a free fan-made game. All coins are 100% virtual, granted freely, and hold <b>zero cash value</b> — never purchased, sold, traded or redeemed. No pay-to-win, no gambling.</p>
+      <p><b>2.</b> Every fan page is <b>created and submitted by a real fan</b> as an unofficial tribute to a public figure or well-known character — never official or endorsed. New pages go live only after <b>admin approval</b>.</p>
+      <p><b>3.</b> Content rules: no impersonation, no pages about private individuals, no hate/harassment/NSFW, no stolen/copyrighted photos (only upload images you have rights to), no spam/ads/selling, no hate pages. The real person/team can <b>Claim page</b> to get verified or request removal.</p>
+      <p><b>4.</b> You own your content but license Grinbid to host & display it; moderators may reject or remove pages that break the rules.</p>
+      <p><b>5.</b> Donations are voluntary, non-reward contributions only — no coins, perks or ranking advantages.</p>
+      <p><b>6.</b> You must be 13+ and play fair: no bots, spam, mass accounts, self-referrals or exploits. Full terms on the <a href="terms.html">Terms page</a>.</p>`,
+    privacy: `<p><b>1.</b> We store: username, display name, emoji avatar, your <b>email</b> (used only to notify you about your fan page/account), a salted scrypt password hash, game data, the pages & photos you create, and a hashed IP for anti-abuse.</p>
+      <p><b>2.</b> Your email is <b>private</b> — never shown on profiles or the leaderboard, never sold or shared.</p>
+      <p><b>3.</b> Uploaded photos are resized in your browser and stored only to display on your approved page; upload only images you have rights to use.</p>
+      <p><b>4.</b> No ad trackers, analytics pixels or third-party marketing; sessions use HttpOnly cookies.</p>
+      <p><b>5.</b> Message the admin to delete your account/data. Full details on the <a href="privacy.html">Privacy page</a>.</p>`
   };
 
   // ---- Legal views (full pages inside the SPA)
   VIEWS.terms = async () => `<div class="legal-page"><div class="card">
     <a class="btn ghost small" href="#/home">← Home</a>
-    <h1>📜 Terms</h1><p class="muted">Bid. Back. Rank up — with 100% free coins.</p>
+    <h1>📜 Terms</h1><p class="muted">Bid. Back. Rank up — with 100% free coins. Fan-made tribute pages only.</p>
     ${LEGAL.terms}
-    <div class="notice legal">🪙 Coins are virtual, free, zero cash value and non-redeemable.</div>
+    <p class="mt"><a class="btn ghost small" href="terms.html" target="_blank">Open the full Terms page →</a></p>
+    <div class="notice legal">🪙 Coins are virtual, free, zero cash value and non-redeemable. Every page is a fan tribute, not an official page.</div>
   </div></div>`;
 
   VIEWS.privacy = async () => `<div class="legal-page"><div class="card">
     <a class="btn ghost small" href="#/home">← Home</a>
-    <h1>🕵️ Privacy &amp; Safety</h1><p class="muted">Minimal data, hash-only passwords, no trackers.</p>
+    <h1>🕵️ Privacy &amp; Safety</h1><p class="muted">Minimal data, your email stays private, no trackers.</p>
     ${LEGAL.privacy}
-    <div class="notice legal">🔒 No ad trackers, no payment data, no selling anything.</div>
+    <p class="mt"><a class="btn ghost small" href="privacy.html" target="_blank">Open the full Privacy page →</a></p>
+    <div class="notice legal">🔒 No ad trackers, no payment data, no selling anything. Email is only used to message you about your fan page.</div>
   </div></div>`;
 
   function requireLogin() {
@@ -1071,7 +1275,7 @@
       if ($('#view')) $('#view').innerHTML = html;
       refreshHeader();
       if (route === 'wallet') startCountdowns();
-      if (route === 'admin') loadClaims();
+      if (route === 'admin') { loadClaims(); loadProfileQueue(); }
       if (navigated || routeChanged) window.scrollTo(0, 0);
       else if (keepScroll && window.scrollY !== prevScrollY) window.scrollTo(0, prevScrollY);
     } catch (err) {
@@ -1198,6 +1402,11 @@
       if (e.target.closest && e.target.closest('#nav a')) closeNav();
     });
     connectSSE();
+    // floating back-to-top button (persists across shell rebuilds — it lives in shellHTML)
+    window.addEventListener('scroll', () => {
+      const b = $('#gbBackTop');
+      if (b) b.classList.toggle('gb-show', (window.scrollY || 0) > 480);
+    }, { passive: true });
     if (!location.hash) {
       // seed the default route without firing hashchange → single render
       try { history.replaceState(null, '', '#/home'); }

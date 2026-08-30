@@ -11,11 +11,31 @@ let app;
 let base;
 const ADMIN_PASSWORD = 'grinbid-admin-dev';
 
+// Shared, fan-created + admin-approved page used by boost/feed/SSE tests.
+// (No pages are seeded anymore — the board starts empty like production.)
+const STAR_SLUG = 'star-fave-1';
+
 test.before(async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'grinbid-http-'));
   app = await createApp({ dbFile: path.join(dir, 'db.json'), debounceMs: 5 });
   const addr = await listen(app, 0, '127.0.0.1');
   base = `http://127.0.0.1:${addr.port}`;
+
+  // A real fan submits a page; an admin approves it before it's boostable.
+  const owner = await signup('starowner');
+  await fetch(`${base}/api/profiles`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Cookie: owner.cookie },
+    body: JSON.stringify({ name: 'Star Fave Fans', realName: 'Salman Khan', slug: STAR_SLUG, category: 'celebrity', emoji: '💪' })
+  });
+  const login = await fetch(`${base}/api/admin/login`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: ADMIN_PASSWORD })
+  });
+  const adminCookie = cookieFrom(login);
+  await fetch(`${base}/api/admin/profile-decision`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Cookie: adminCookie },
+    body: JSON.stringify({ slug: STAR_SLUG, approve: true })
+  });
 });
 
 test.after(async () => {
@@ -35,7 +55,14 @@ async function signup(username, extra = {}) {
   const res = await fetch(`${base}/api/auth/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password: 'password123', displayName: 'Test Fan', avatar: '🦊', ...extra })
+    body: JSON.stringify({
+      username,
+      email: extra.email || `${username.toLowerCase()}@example.test`,
+      password: 'password123',
+      displayName: 'Test Fan',
+      avatar: '🦊',
+      ...extra
+    })
   });
   const data = await res.json();
   return { res, data, cookie: cookieFrom(res) };
@@ -105,11 +132,11 @@ test('boost: min 50, 1x normal, 1.5x self, 2s cooldown, insufficient funds', asy
   const { cookie } = await signup('booster_x');
   const h = { 'Content-Type': 'application/json', Cookie: cookie };
 
-  let r = await fetch(`${base}/api/boost`, { method: 'POST', headers: h, body: JSON.stringify({ slug: 'luna-starr', amount: 40 }) });
+  let r = await fetch(`${base}/api/boost`, { method: 'POST', headers: h, body: JSON.stringify({ slug: STAR_SLUG, amount: 40 }) });
   assert.strictEqual(r.status, 400);
   assert.strictEqual((await r.json()).error, 'min_boost');
 
-  r = await fetch(`${base}/api/boost`, { method: 'POST', headers: h, body: JSON.stringify({ slug: 'luna-starr', amount: 50 }) });
+  r = await fetch(`${base}/api/boost`, { method: 'POST', headers: h, body: JSON.stringify({ slug: STAR_SLUG, amount: 50 }) });
   let d = await r.json();
   assert.strictEqual(d.ok, true);
   assert.strictEqual(d.value, 50);
@@ -117,12 +144,12 @@ test('boost: min 50, 1x normal, 1.5x self, 2s cooldown, insufficient funds', asy
   assert.strictEqual(d.profileBoostTotal, 50);
 
   // cooldown
-  r = await fetch(`${base}/api/boost`, { method: 'POST', headers: h, body: JSON.stringify({ slug: 'luna-starr', amount: 50 }) });
+  r = await fetch(`${base}/api/boost`, { method: 'POST', headers: h, body: JSON.stringify({ slug: STAR_SLUG, amount: 50 }) });
   assert.strictEqual(r.status, 429);
   assert.strictEqual((await r.json()).error, 'cooldown');
 
   await new Promise((res) => setTimeout(res, 2100));
-  r = await fetch(`${base}/api/boost`, { method: 'POST', headers: h, body: JSON.stringify({ slug: 'luna-starr', amount: 100 }) });
+  r = await fetch(`${base}/api/boost`, { method: 'POST', headers: h, body: JSON.stringify({ slug: STAR_SLUG, amount: 100 }) });
   d = await r.json();
   assert.strictEqual(d.value, 100);
   assert.strictEqual(d.balance, 2350);
@@ -223,7 +250,7 @@ test('CSRF-ish safety: session cookie is HttpOnly; API requires auth for wallet 
 test('claim request modal flow + admin approval marks verified', async () => {
   const { cookie } = await signup('claimant1');
   const h = { 'Content-Type': 'application/json', Cookie: cookie };
-  let r = await fetch(`${base}/api/profiles/luna-starr/claim`, { method: 'POST', headers: h, body: JSON.stringify({ evidence: 'I am the real Luna Starr' }) });
+  let r = await fetch(`${base}/api/profiles/${STAR_SLUG}/claim`, { method: 'POST', headers: h, body: JSON.stringify({ evidence: 'I represent the real person behind this page' }) });
   let d = await r.json();
   assert.strictEqual(d.status, 'pending');
   assert.strictEqual(r.status, 200);
@@ -235,14 +262,14 @@ test('claim request modal flow + admin approval marks verified', async () => {
   const ah = { 'Content-Type': 'application/json', Cookie: adminCookie };
 
   const reqs = await fetch(`${base}/api/admin/claim-requests`, { headers: { Cookie: adminCookie } }).then((x) => x.json());
-  assert.ok(reqs.requests.some((q) => q.profileSlug === 'luna-starr'));
-  const reqId = reqs.requests.find((q) => q.profileSlug === 'luna-starr').id;
+  assert.ok(reqs.requests.some((q) => q.profileSlug === STAR_SLUG));
+  const reqId = reqs.requests.find((q) => q.profileSlug === STAR_SLUG).id;
 
-  r = await fetch(`${base}/api/admin/claim-request`, { method: 'POST', headers: ah, body: JSON.stringify({ slug: 'luna-starr', requestId: reqId, approve: true }) });
+  r = await fetch(`${base}/api/admin/claim-request`, { method: 'POST', headers: ah, body: JSON.stringify({ slug: STAR_SLUG, requestId: reqId, approve: true }) });
   d = await r.json();
   assert.strictEqual(d.profile.verified, true);
 
-  const prof = await fetch(`${base}/api/profiles/luna-starr`).then((x) => x.json());
+  const prof = await fetch(`${base}/api/profiles/${STAR_SLUG}`).then((x) => x.json());
   assert.strictEqual(prof.profile.verified, true);
   assert.strictEqual(prof.profile.claimedByUsername, 'claimant1');
 });
@@ -264,6 +291,103 @@ test('admin: overview, announce, season settle, unauthorized blocked', async () 
   const sd = await settle.json();
   assert.strictEqual(sd.ok, true);
   assert.ok(Array.isArray(sd.payout.earned));
+});
+
+test('signup requires email; email is private; duplicate email rejected', async () => {
+  const noEmail = await fetch(`${base}/api/auth/signup`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: 'noemail1', password: 'password123' })
+  });
+  assert.strictEqual(noEmail.status, 400);
+  assert.strictEqual((await noEmail.json()).error, 'invalid_email');
+
+  const { data, res } = await signup('mailfan', { email: 'real@example.test' });
+  assert.strictEqual(res.status, 201);
+  // private view carries the email
+  assert.strictEqual(data.user.email, 'real@example.test');
+  assert.strictEqual(data.user.isAdmin, false);
+  // public leaderboard never exposes email
+  const lb = await fetch(`${base}/api/leaderboard`).then((x) => x.json());
+  assert.ok(lb.top.every((u) => u.email === undefined));
+  // public profiles endpoint never exposes creatorEmail either
+  const profs = await fetch(`${base}/api/profiles`).then((x) => x.json());
+  assert.ok(profs.profiles.every((p) => p.creatorEmail === undefined));
+
+  const dup = await signup('otherguy', { email: 'real@example.test' });
+  assert.strictEqual(dup.res.status, 400);
+  assert.strictEqual(dup.data.error, 'email_in_use');
+});
+
+test('new fan pages start pending: hidden publicly, admin approves, then live', async () => {
+  const { cookie } = await signup('pagemaker');
+  const h = { 'Content-Type': 'application/json', Cookie: cookie };
+  // create with the richer fields + image data url
+  const img = 'data:image/jpeg;base64,' + Buffer.alloc(2000, 65).toString('base64');
+  let r = await fetch(`${base}/api/profiles`, { method: 'POST', headers: h, body: JSON.stringify({
+    name: 'Salman Fan Army', slug: 'salman-fan-army', category: 'celebrity',
+    emoji: '💪', image: img, realName: 'Salman Khan', tagline: 'Bhai fans unite',
+    description: 'The biggest Salman fan page.', tags: ['bollywood', 'bhai']
+  }) });
+  let d = await r.json();
+  assert.strictEqual(r.status, 201);
+  assert.strictEqual(d.profile.status, 'pending');
+  assert.strictEqual(d.moderation, 'pending');
+  assert.strictEqual(d.profile.realName, 'Salman Khan');
+  assert.strictEqual(d.profile.image, img);
+
+  // anonymous public listing must NOT contain the pending page
+  const anon = await fetch(`${base}/api/profiles`).then((x) => x.json());
+  assert.ok(!anon.profiles.some((p) => p.slug === 'salman-fan-army'));
+  // anonymous get → 404
+  r = await fetch(`${base}/api/profiles/salman-fan-army`);
+  assert.strictEqual(r.status, 404);
+  // another fan cannot boost the pending page
+  const other = await signup('otherfan9');
+  r = await fetch(`${base}/api/boost`, { method: 'POST',
+    headers: { 'Content-Type': 'application/json', Cookie: other.cookie },
+    body: JSON.stringify({ slug: 'salman-fan-army', amount: 50 }) });
+  assert.strictEqual((await r.json()).error, 'page_not_live');
+  // the creator CAN self-boost their pending page
+  r = await fetch(`${base}/api/boost`, { method: 'POST', headers: h, body: JSON.stringify({ slug: 'salman-fan-army', amount: 100 }) });
+  assert.strictEqual((await r.json()).selfBoost, true);
+
+  // admin login and approval
+  const login = await fetch(`${base}/api/admin/login`, { method: 'POST',
+    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: ADMIN_PASSWORD }) });
+  const ah = { 'Content-Type': 'application/json', Cookie: cookieFrom(login) };
+  let q = await fetch(`${base}/api/admin/profile-queue`, { headers: { Cookie: cookieFrom(login) } }).then((x) => x.json());
+  assert.ok(q.pending.some((p) => p.slug === 'salman-fan-army'));
+  // admin sees the creator's email for notifications
+  const pending = q.pending.find((p) => p.slug === 'salman-fan-army');
+  assert.strictEqual(pending.creatorEmail, 'pagemaker@example.test');
+
+  r = await fetch(`${base}/api/admin/profile-decision`, { method: 'POST', headers: ah,
+    body: JSON.stringify({ slug: 'salman-fan-army', approve: true, note: 'Welcome aboard!' }) });
+  assert.strictEqual(r.status, 200);
+  assert.strictEqual((await r.json()).status, 'approved');
+
+  // now public + boostable by everyone
+  const after = await fetch(`${base}/api/profiles`).then((x) => x.json());
+  assert.ok(after.profiles.some((p) => p.slug === 'salman-fan-army'));
+  r = await fetch(`${base}/api/boost`, { method: 'POST',
+    headers: { 'Content-Type': 'application/json', Cookie: other.cookie },
+    body: JSON.stringify({ slug: 'salman-fan-army', amount: 50 }) });
+  assert.strictEqual(r.status, 200);
+});
+
+test('founder username is admin without the admin password', async () => {
+  const { cookie } = await signup('alexami');
+  // already-admin user: admin overview works with just the user session
+  const r = await fetch(`${base}/api/admin/overview`, { headers: { Cookie: cookie } });
+  assert.strictEqual(r.status, 200);
+  const d = await r.json();
+  assert.strictEqual(typeof d.users, 'number');
+  // the user view carries isAdmin
+  const me = await fetch(`${base}/api/me`, { headers: { Cookie: cookie } }).then((x) => x.json());
+  assert.strictEqual(me.user.isAdmin, true);
+  // random user is not admin
+  const r2 = await fetch(`${base}/api/admin/overview`);
+  assert.strictEqual(r2.status, 401);
 });
 
 test('donations: non-reward intent recorded, invalid method rejected', async () => {
@@ -323,7 +447,7 @@ test('SSE stream: headers + hello + boost event', async () => {
   // Trigger a boost from another user and watch the broadcast.
   const b = await signup('ssebooster');
   const h = { 'Content-Type': 'application/json', Cookie: b.cookie };
-  await fetch(`${base}/api/boost`, { method: 'POST', headers: h, body: JSON.stringify({ slug: 'crown-theatre', amount: 50 }) });
+  await fetch(`${base}/api/boost`, { method: 'POST', headers: h, body: JSON.stringify({ slug: STAR_SLUG, amount: 50 }) });
 
   const deadline2 = Date.now() + 4000;
   while (Date.now() < deadline2 && !acc.includes('event: boost')) {
@@ -332,6 +456,6 @@ test('SSE stream: headers + hello + boost event', async () => {
     acc += decoder.decode(value, { stream: true });
   }
   assert.ok(acc.includes('event: boost'), 'boost broadcast received');
-  assert.ok(acc.includes('crown-theatre'));
+  assert.ok(acc.includes(STAR_SLUG));
   ctrl.abort();
 });

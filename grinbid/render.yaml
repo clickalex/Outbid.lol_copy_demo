@@ -18,9 +18,9 @@ services:
     envVars:
       - key: NODE_VERSION      # Render reads this to pick the Node runtime
         value: "22"
-      - key: ADMIN_PASSWORD    # /api/admin console password — unique per deploy
+      - key: ADMIN_PASSWORD    # separate admin password (the founder account is admin without it)
         generateValue: true
+      - key: ADMIN_USERNAMES   # comma-separated usernames that get admin powers automatically
+        value: "alexami" 
       - key: SESSION_SECRET    # keeps login sessions valid across redeploys
         generateValue: true
-      - key: SEED_SAMPLE        # ship the populated demo/sample dataset on first boot
-        value: "true"

@@ -82,7 +82,7 @@ These are **non-negotiable** product rules. The rebuild must satisfy all of them
 │ src/auth.js   scrypt hashing + HMAC-signed session cookies    │
 │ src/rateLimit.js  per-IP token buckets                        │
 │ src/sanitize.js   input normalization/validation              │
-│ src/seed.js    16 tasks + 12 fan-made profiles seed           │
+│ src/seed.js    16 tasks seed; profiles start EMPTY (fan-made)   │
 │ src/config.js  every tunable, frozen object                   │
 │                                                               │
 │ public/   index.html + app.js (SPA) + styles.css + legal      │
@@ -110,7 +110,7 @@ server.js               bootstrap → createApp() → listen(CONFIG.PORT, CONFIG
 src/
   config.js             frozen CONFIG object — every tunable
   store.js              JsonStore class
-  seed.js               TASKS + PROFILES + createSeedState()
+  seed.js               TASKS + createSeedState() (no seeded profiles — board starts empty)
   economy.js            pure game math + publicUser/publicProfile views
   auth.js               password + token + cookie helpers
   rateLimit.js          RateLimiter class + specFor()
@@ -135,10 +135,9 @@ scripts/
   check-syntax.js       zero-dep + `node --check` audit
   audit-loop.js         20-consecutive-pass audit loop
   reset-data.js         wipe data/db.json
-render.yaml             Render.com blueprint
+render.yaml             Render.com blueprint (live: https://grinbid-8h5e.onrender.com)
 deploy/                 Render + Oracle Cloud deploy docs & setup script
-demo/                   optional fully-static in-browser demo (mock backend)
-.github/workflows/deploy-demo.yml   publishes demo/ to GitHub Pages
+index.html              redirect to the live deployment (static demo retired)
 .gitignore              ignores data/db.json*, data/.session-secret, node_modules…
 ```
 
@@ -261,7 +260,7 @@ The entire database is one JSON object (`data/db.json`, pretty-printed with
   tagline,                      // ≤60 chars
   tags: [],                     // ≤6 tags, ≤20 chars each
   description,                  // ≤400 chars, newlines allowed
-  seed: true|false,             // true = shipped with the app (enables claim modal)
+  seed: false,                  // always false now (no app-shipped pages); claim allowed on any page
   fanCreated: true,             // always true
   verified: false, verifiedAt: null,
   claimedBy: null,              // userId of verified owner
@@ -335,28 +334,35 @@ Kinds used: `signup`, `referral_bonus`, `referral_match`, `daily_claim`,
 
 Task completion conditions (evaluated in `syncTasks`, see §7.6).
 
-### 6.2 The 12 seeded fan-made profiles (`PROFILES`)
+### 6.2 Profiles — NO seeded pages (empty board)
 
-All have `seed: true` (drives the "fan-made · not affiliated" badge and the
-claim/verify modal), `fanCreated: true`, zero boosts, `createdAt = seed time`.
+**The app boots with zero fan pages.** There is no `PROFILES` roster —
+`createSeedState()` returns `profiles: {}`. Every page on the board is
+created by a real fan via `POST /api/profiles` and goes live only after an
+admin approves it (`status: 'pending' -> 'approved'`). This replaced the old
+curated/seeded roster on purpose: the product is fan-built.
 
-| slug | name | category | emoji | tagline | tags | description |
-|---|---|---|---|---|---|---|
-| neon-arena | Neon Arena | venue | 🏟️ | The city's loudest lights-out stadium. | stadium, concerts, e-sports | A fan-made page for the Neon Arena — legendary live shows, gigs and esports finals under one glowing roof. |
-| moonlight-manor | Moonlight Manor | estate | 🏰 | A century-old estate on the hill. | heritage, estate, gardens | Fan-made profile celebrating the Moonlight Manor: velvet lawns, secret gardens and the famous midnight tour. |
-| luna-starr | Luna Starr | celebrity | 🎤 | Pop prism — singer, sparkle machine. | singer, pop, icon | Fan-made page for Luna Starr, the pop prism whose anthems are certified bangers. Fans boost their fave, not the artist. |
-| velvet-whiskers | Velvet Whiskers | influencer | 🐈 | The internet's fluffiest gamer cat. | cat, streamer, gaming | Fan-made profile for Velvet Whiskers, a cat who accidentally became a streamer and refuses to stop winning. |
-| the-grand-hive | The Grand Hive | community | 🐝 | Where builders, dreamers & bees hang out. | makerspace, community, events | Fan-made community page for The Grand Hive makerspace — workshops, demos and way too much coffee. |
-| skyline-towers | Skyline Towers | estate | 🌆 | Twin towers with a skybar on top. | landmark, estate, views | Fan-made page for Skyline Towers, the twin glass landmarks with a 180° skybar and a pink-neon rooftop. |
-| bubble-pop-records | Bubble Pop Records | brand | 🧃 | Home of the candy-colored label. | label, music, brand | Fan-made page for Bubble Pop Records, the candy-colored indie label behind a dozen summer anthems. |
-| crown-theatre | The Crown Theatre | venue | 🎭 | Curtain up, confetti down. | theatre, shows, history | Fan-made profile of The Crown Theatre, the gilded stage where every premiere ends in a curtain call and a shower of glitter. |
-| captain-cosmo | Captain Cosmo | celebrity | 🪐 | Astro-funk ambassador, zero gravity dancer. | artist, funk, space | Fan-made page for Captain Cosmo, the astro-funk ambassador who dances in zero gravity and never loses his helmet. |
-| pixel-playground | Pixel Playground | community | 🕹️ | A tiny arcade with a big heart. | arcade, retro, community | Fan-made page for Pixel Playground, a retro arcade co-op with rainbow LEDs and a high-score wall that never forgets. |
-| coral-cove | Coral Cove | estate | 🏖️ | A pastel cove with a lighthouse. | coast, estate, landmark | Fan-made profile for Coral Cove, the pastel seaside estate with a candy-striped lighthouse and legendary sunsets. |
-| hip-hop-hamster | Hip-Hop Hamster | influencer | 🐹 | Tiny wheels, big bars. | rapper, hamster, beats | Fan-made page for Hip-Hop Hamster, the smallest rapper with the biggest bars — all recorded on a grain-of-rice mic. |
+A profile object carries: `id, slug, name, realName, category, emoji, image,
+tagline, tags, description, seed (always false now), fanCreated, status
+('pending'|'approved'|'rejected'), submittedAt, reviewedAt, reviewNote,
+verified, verifiedAt, claimedBy, createdBy, createdByUsername, creatorEmail,
+createdAt, boostTotal, boostCount, fanCount, fanIds, lastBoostAt,
+recentBoosts, claimRequests`.
 
-Category whitelist (used everywhere): `celebrity, influencer, estate, venue,
-brand, community`.
+- `image` is an in-browser-resized JPEG/PNG/WebP **data URL** (≤ ~900 KiB;
+  validated against the `CONFIG.IMAGE` prefix allowlist + length cap).
+- `realName` = the real person/character the tribute is about; `name` = the
+  fan page's own title.
+- Category whitelist (used everywhere): `celebrity, character, influencer,
+  estate, venue, brand, community`. `character` = fictional/comic/anime/movie
+  icons.
+- Moderation endpoints: `GET /api/admin/profile-queue`,
+  `POST /api/admin/profile-decision {slug, approve, note}`. Pending pages are
+  filtered out of public list/detail/feed and are not boostable by others
+  (the creator can see and self-boost them).
+- Claim/verify (`POST /api/profiles/:slug/claim`) works on ANY page now (the
+  `only_seeded_...` restriction was removed), so a real rights-holder can
+  claim/verify a fan page.
 
 ---
 
@@ -719,7 +725,7 @@ Error format: `{ "error": "<code>", …extra }`.
 
 ### Claim/verify (legal)
 - `POST /api/profiles/:slug/claim` (auth) `{evidence?}` — sensitive limit.
-  Only seeded profiles (400 `only_seeded_fan_profiles_can_be_claimed`);
+  Any live page can be claimed by a rights-holder (no seed restriction);
   400 `already_claimed` if another user owns it; duplicate submissions return
   `{ok:true, status:'pending', note:'already_submitted'}`. Creates
   `claimRequests` entry (evidence ≤500 chars, default `'No evidence provided.'`),
@@ -1304,12 +1310,15 @@ keep-alive cron (so Oracle doesn't reclaim the idle instance), log rotation;
 open port 3000 in the VCN security list afterwards. Always override
 `ADMIN_PASSWORD` before going public.
 
-### Optional static demo (`demo/`)
-A fully client-side twin: `index.html` + `demo-data.js` (13 pages, 16 tasks,
-7 users, 33-boost history) + `demo-api.js` (in-browser mock implementing the
-same routes/economy, persisting to `localStorage`) + shared SPA +
-`server.js` (optional static file server) + `test-demo.js` (29 assertions) +
-`check-wiring.js`. Published to GitHub Pages by `.github/workflows/deploy-demo.yml`.
+### Static info pages
+The root-level `about.html`, `how-it-works.html`, `rules.html`,
+`leaderboard.html`, `coins.html`, `faq.html`, `terms.html`, `privacy.html` are
+zero-JS-required marketing/legal pages (progressive enhancement via
+`enhance.js`), served from `public/` by the app and browsable standalone. The
+root `index.html` redirects to the live deployment. A fully client-side
+in-browser demo (mock backend, `localStorage`, seeded sample users) was used
+during development and retired at launch — the deployed app boots with only
+the 12 fan-made starter profiles.
 
 ---
 
@@ -1322,7 +1331,8 @@ same routes/economy, persisting to `localStorage`) + shared SPA +
 | `DATA_DIR` | `<ROOT>/data` | database directory |
 | `DB_FILE` | `<DATA_DIR>/db.json` | database file |
 | `STORE_DEBOUNCE_MS` | `150` | write debounce |
-| `ADMIN_PASSWORD` | `grinbid-admin-dev` | admin console password (**change in production**) |
+| `ADMIN_PASSWORD` | `grinbid-admin-dev` | separate admin console password |
+| `ADMIN_USERNAMES` | `alexami` | comma-separated usernames auto-granted admin (no password) |
 | `SESSION_SECRET` | (auto-generated file `data/.session-secret`) | HMAC key; set on ephemeral hosts so sessions survive redeploys |
 | `NODE_ENV` | — | `production` adds `Secure` to cookies |
 

@@ -28,8 +28,17 @@ const CONFIG = Object.freeze({
 
   // ---- HTTP --------------------------------------------------------------
   HTTP: Object.freeze({
-    MAX_BODY_BYTES: 64 * 1024, // 64 KiB request bodies are plenty for this API
+    // 2 MiB — fan pages can include an uploaded photo (auto-resized in the
+    // browser to a compact JPEG/PNG data URL).
+    MAX_BODY_BYTES: 2 * 1024 * 1024,
     MAX_URL_LENGTH: 2048
+  }),
+
+  // ---- Fan-page images ----------------------------------------------------
+  IMAGE: Object.freeze({
+    // Max accepted data-URL length (≈900 KiB of base64 ≈ 660 KiB of image).
+    MAX_DATA_URL_LENGTH: 900 * 1024,
+    PREFIXES: ['data:image/jpeg;base64,', 'data:image/jpg;base64,', 'data:image/png;base64,', 'data:image/webp;base64,']
   }),
 
   // ---- Sessions / auth ---------------------------------------------------
@@ -39,7 +48,14 @@ const CONFIG = Object.freeze({
     ADMIN_COOKIE: 'gb_admin',
     ADMIN_SESSION_TTL_MS: 2 * 60 * 60 * 1000, // 2 hours
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'grinbid-admin-dev',
+    // Usernames that automatically hold admin powers (no separate admin
+    // password needed). Comma-separated env overrides the built-in list —
+    // the founder account ships on by default so the live app has an admin
+    // the moment that username signs up.
+    ADMIN_USERNAMES: (process.env.ADMIN_USERNAMES || 'alexami')
+      .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean),
     USERNAME_RE: /^[A-Za-z0-9_]{3,20}$/,
+    EMAIL_RE: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
     SCRYPT_N: 16384,
     SCRYPT_R: 8,
     SCRYPT_P: 1

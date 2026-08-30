@@ -78,11 +78,11 @@ The nav now carries 12 destinations: Audit · Ideas · Tools · Search · Picker
 **Launch** · Changelog · About · **Grinbid ↗** — with Audit / Ideas / Tools / Search / **Launch** / **Grinbid** in
 the phone quick-bar.
 
-**Grinbid navigation:** every site page links to the Grinbid static demo at `grinbid/index.html` with
-`target="_blank"` and `rel="noopener"`, so it opens in a **new tab** and doesn't navigate away from this report.
-The link is injected by `assets/site-enhancements.js` into `.site-links` and `.mobile-bottom-nav`, and it is also
-baked into `index.html`'s nav markup. Once Render is live, point the same `grinbid-link` at
-`https://grinbid.onrender.com` if you want the deployed app instead of the static demo.
+**Grinbid navigation:** every site page links to the **live Grinbid app** at
+**https://grinbid-8h5e.onrender.com** with `target="_blank"` and `rel="noopener"`, so it opens in a **new tab**
+and doesn't navigate away from this report. The link is injected by `assets/site-enhancements.js` into
+`.site-links` and `.mobile-bottom-nav`, and it is also baked into `index.html`'s nav markup (the enhancement
+script rewrites any stale local link to the live URL automatically).
 
 **Adding a page?** Four places, and all four are mechanical:
 
@@ -96,7 +96,7 @@ baked into `index.html`'s nav markup. Once Render is live, point the same `grinb
 | Path | What it is |
 | --- | --- |
 | `index.html` | The full report (001). Open it in a browser; no build step. |
-| **`grinbid/`** | **The Grinbid project, dropped alongside the report.** A 100% free virtual-coin fan-boost game ("Bid. Back. Rank up.") with a fully working static demo at `grinbid/index.html`, a zero-dependency Node app (`server.js` + `public/` + `src/`), legal pages, info pages (`how-it-works`, `rules`, `leaderboard`, `coins`, `faq`, `about`), tests and deploy docs. See `grinbid/README.md`. |
+| **`grinbid/`** | **The Grinbid project — [live at grinbid-8h5e.onrender.com](https://grinbid-8h5e.onrender.com/).** A 100% free virtual-coin fan-boost game ("Bid. Back. Rank up."): a zero-dependency Node app (`server.js` + `public/` + `src/`), static info pages (`how-it-works`, `rules`, `leaderboard`, `coins`, `faq`, `about`, `terms`, `privacy`), tests and deploy docs. Boots clean with just the 12 fan-made starter profiles — no demo/bot data. See `grinbid/README.md`. |
 | **`render.yaml`** | **Render Blueprint for this repo** — deploys the Grinbid app from `grinbid/` on the **free** plan (`rootDir: grinbid`, Node 22, `/api/health`). The same blueprint also lives at `grinbid/render.yaml`. |
 | `entry-simulator.html` | The entry simulator (001b). Same theme, same data, no build step and no network needed. |
 | `ideas.html` | The idea list (002) — websites nobody has built yet. **Idea cards are hand-written** (offline, human-edited); only the live counters and collision watch are bot-refreshed. |
@@ -115,40 +115,32 @@ baked into `index.html`'s nav markup. Once Render is live, point the same `grinb
 | `scripts/audit.py` + `scripts/audit_dom.js` | One-command full-repo audit pass: syntax (Python/JS/bash/JSON/CSV/YAML/SVG), HTML structure and tag balance, duplicate ids, internal links and anchors, bot-sentinel integrity, stats↔CSV↔page consistency, and a jsdom runtime smoke test of every page. `python3 scripts/audit.py` (exit 0 = clean; `--json` for machine output). The DOM checks need `jsdom` (`npm i jsdom`) and are skipped with a warning when absent. |
 | `docs/daily-update.yml` | Reference copy of the GitHub Actions workflow. The live file is already committed at `.github/workflows/daily-update.yml` and active; only a fresh fork needs it copied (see below). |
 
-## Deploy Grinbid on Render (free)
+## Grinbid is live on Render 🚀
 
-The Grinbid app is a **zero-dependency Node app**, so it deploys on Render's free plan with no build step and no card.
+**→ https://grinbid-8h5e.onrender.com** — deployed on Render's free plan from `grinbid/` in this repo.
 
-**From this repo (root `render.yaml`):**
+The Grinbid app is a **zero-dependency Node app**, so it runs on Render's free plan with no build step and no
+card. Auto-deploy is on: pushing changes to `grinbid/**` redeploys the service.
 
-1. Push this branch to GitHub and open **<https://render.com/deploy?repo=https://github.com/clickalex/Outbid.lol_copy_demo>**
-   (or New → Web Service → connect this repo). For the one-click button the blueprint must be on the
-   repo's **default branch (`main`)**; for another branch, use a manual Web Service and pick that branch.
-2. Render reads `render.yaml` at the repo root: web service **grinbid**, **free plan**, Node 22,
-   `rootDir: grinbid`, `startCommand: node server.js`, health check `/api/health`.
-3. Click **Apply** / **Create Web Service**. After ~1 minute you get `https://grinbid.onrender.com`.
-
-The same blueprint also exists at **`grinbid/render.yaml`** if you deploy the standalone Grinbid repo.
-
-**Settings the blueprint already handles:**
+**Blueprint settings (root `render.yaml`):**
 
 | Setting | Value |
 |---|---|
 | Plan | **Free** |
-| Runtime | Node |
-| Root directory | `grinbid` (this repo blueprint) |
+| Runtime | Node 22 |
+| Root directory | `grinbid` |
 | Build command | `npm install` *(no-op — zero dependencies)* |
 | Start command | `node server.js` |
 | Health check | `/api/health` |
-| Env | `NODE_VERSION=22`, auto-generated `ADMIN_PASSWORD`, auto-generated `SESSION_SECRET`, `SEED_SAMPLE=true` |
+| Env | auto-generated `ADMIN_PASSWORD`, auto-generated `SESSION_SECRET` |
 | Auto-deploy | On, only when `grinbid/**` changes |
 
-**Free-plan caveats (fine for a demo):** the disk is ephemeral, so `data/db.json` reseeds on redeploy; the
-service spins down after ~15 min idle and wakes on the next request. The full walkthrough is in
-`grinbid/deploy/RENDER.md`.
+A fresh deployment boots with **only the 12 fan-made starter profiles and the task list** — no sample users,
+bots or demo data.
 
-The live static demo inside the report (no server needed) is at **`grinbid/index.html`**, and the report's nav
-links to it in a new tab.
+**Free-plan notes:** the disk is ephemeral, so `data/db.json` reseeds on redeploy (attach persistent storage or
+export via the admin console to keep data); the service spins down after ~15 min idle and wakes on the next
+request. The full walkthrough is in `grinbid/deploy/RENDER.md`; `grinbid/index.html` redirects to the live app.
 
 ## The daily update bot
 
@@ -259,7 +251,7 @@ Activation is therefore only ever needed on a **fresh fork or new clone** that l
 
 ## GitHub Pages
 
-For the **static** site + Grinbid demo, GitHub Pages is an option. You must also enable Pages once from Settings (repo admin).
+For the **static** research site, GitHub Pages is an option. (Grinbid itself is a Node app — it lives on Render at <https://grinbid-8h5e.onrender.com>, not on Pages.) You must also enable Pages once from Settings (repo admin).
 
 **Option A — GitHub Actions (recommended):**
 
@@ -270,7 +262,7 @@ For the **static** site + Grinbid demo, GitHub Pages is an option. You must also
 4. Push to `main` (or click **Actions → Deploy site to GitHub Pages → Run workflow**).
 5. Resulting URL is usually `https://<owner>.github.io/<repo>/` —
    - `/` = the Outbid report/tools site
-   - `/grinbid/` = the working Grinbid **static demo**
+   - `/grinbid/` = Grinbid's static info pages (the playable app itself is on Render; `index.html` there redirects to it)
 
 **Option B — branch-based (legacy):**
 

@@ -1,17 +1,43 @@
-# 🎪 Grinbid — deploy to Render (free) for a demo
+# 🎪 Grinbid — deployed on Render (free)
 
-Render is the easiest way to put Grinbid online: **no build step, no
-dependencies, no card required** for the free plan. This works fine from a
-phone browser too — everything below is just clicking.
+Grinbid is **live at <https://grinbid-8h5e.onrender.com>**, running on Render's
+free plan: no build step, no dependencies, no card required. This guide covers
+how the deployment works and how to deploy your own copy.
+
+Render is the easiest way to put Grinbid online — everything below is just
+clicking, and it works from a phone browser.
 
 ---
 
-## Option A — One-click deploy (recommended)
+## Current deployment
+
+| Setting | Value |
+|---|---|
+| URL | <https://grinbid-8h5e.onrender.com> |
+| Plan | Free |
+| Region | Frankfurt |
+| Runtime | Node 22 |
+| Root directory | `grinbid` (nested inside the `Outbid.lol_copy_demo` repo) |
+| Build command | `npm install` *(no-op — zero dependencies)* |
+| Start command | `node server.js` |
+| Health check | `/api/health` |
+| Auto-deploy | On — pushes to `grinbid/**` redeploy the service |
+
+A fresh deployment boots with **an empty board** — no pre-made pages, no
+sample users, no bot-generated activity. Every fan page is created by a
+real fan and approved before it goes live; the leaderboard fills up from
+real players.
+
+---
+
+## Deploy your own copy — one click
 
 > ⚠️ `render.yaml` must be on the repo's **default branch** (`main`) for the
-> button to pick it up. Once your branch is merged:
+> button to pick it up.
 
-1. Open **<https://render.com/deploy?repo=https://github.com/Kyabtao/grinbid>**
+1. Open **<https://render.com/deploy?repo=https://github.com/clickalex/Outbid.lol_copy_demo>**
+   (or <https://render.com/deploy?repo=https://github.com/Kyabtao/grinbid> for
+   the standalone Grinbid repo).
 2. Sign in with GitHub → Render shows the **grinbid** blueprint:
    free web service, Node 22, auto-generated `ADMIN_PASSWORD` and
    `SESSION_SECRET`, health check on `/api/health`.
@@ -23,17 +49,18 @@ Render dashboard → grinbid → **Environment**.
 
 ---
 
-## Option B — Manual setup (if you prefer, or the button is unavailable)
+## Manual setup (if the button is unavailable)
 
 1. `render.com` → **Get Started for Free** (GitHub login).
-2. Dashboard → **New → Web Service** → connect the `Kyabtao/grinbid` repo.
+2. Dashboard → **New → Web Service** → connect the repo.
 3. Fill in:
 
    | Setting | Value |
    |---|---|
    | Name | `grinbid` |
    | Region | any (Frankfurt/Singapore = closer to India) |
-   | Branch | `main` (or your demo branch) |
+   | Branch | your deploy branch |
+   | Root directory | `grinbid` (only when deploying from the Outbid repo) |
    | Runtime | **Node** |
    | Build Command | `npm install` *(no-op — zero dependencies)* |
    | Start Command | `node server.js` |
@@ -52,23 +79,6 @@ Render dashboard → grinbid → **Environment**.
 
 ---
 
-## Option C — Deploy from the Outbid repo (nested `grinbid/` folder)
-
-If you're pushing this from `Outbid.lol_copy_demo` (the report repo that now
-contains `grinbid/`), use the **root `render.yaml`** already committed there:
-
-1. Push the branch to GitHub.
-2. Open <https://render.com/deploy?repo=https://github.com/clickalex/Outbid.lol_copy_demo>.
-3. Render reads the root `render.yaml`: web service **grinbid**, **free plan**,
-   `rootDir: grinbid`, `npm install` (no-op), `node server.js`, `/api/health`.
-4. Apply and you get `https://grinbid.onrender.com`.
-
-The only difference from Options A/B is `rootDir: grinbid` so Render builds the
-app from the subfolder instead of the report repo root. Everything else is
-identical (Node 22, free plan, generated admin password / session secret).
-
----
-
 ## Why Grinbid just works on Render
 
 - Listens on `$PORT` (Render injects it) and binds `0.0.0.0`.
@@ -76,20 +86,36 @@ identical (Node 22, free plan, generated admin password / session secret).
 - Graceful shutdown: `SIGTERM` (sent on every redeploy) flushes `data/db.json`.
 - `/api/health` health check, relative URLs everywhere, SSE auto-reconnects.
 
-## Good to know (free-plan demo caveats)
+## Good to know (free-plan notes)
 
-- **Ephemeral disk**: `data/db.json` is reset on every **redeploy / restart**.
-  Perfectly fine for a demo; the app re-seeds itself on boot. If you want
-  persistence, upgrade the plan and attach a disk, then set
-  `DATA_DIR=/opt/render/user/disk/data`.
+- **Ephemeral disk**: `data/db.json` is reset on every **redeploy / restart**;
+  the app re-seeds an empty database on boot (no pages, no users — fans create every page).
+  If you want data to survive redeploys, upgrade the plan and attach a disk,
+  then set `DATA_DIR=/opt/render/user/disk/data`.
 - **Spin-down**: free instances sleep after ~15 min idle; the first request
-  after a nap takes a few seconds (and SSE clients reconnect automatically).
-- **Admin console**: lives at `/api/admin` — use the `ADMIN_PASSWORD` from
-  the Environment tab. Never leave it as `grinbid-admin-dev`.
+  after a nap takes a few seconds to wake (SSE clients reconnect automatically).
+- **Admin access (two ways):**
+  1. **Founder account (recommended):** just sign up with username
+     **`alexami`** — that account automatically has full admin powers, no
+     password needed. The admin panel appears in the nav once you log in as
+     that user. (Configured by the `ADMIN_USERNAMES` env var; comma-separate
+     more usernames to give others admin access.)
+  2. **Admin password:** a separate password for the `/admin` console. To see
+     or set it: Render dashboard → your service → **Environment** →
+     `ADMIN_PASSWORD` (the blueprint auto-generates one; you can replace it).
+  **Security:** the admin page isn't linked anywhere for regular fans — the
+  URL is invisible, and non-admins who visit it just see a "nothing here"
+  page (no password prompt to hint at it).
+- **Moderation:** every fan page a user creates starts as **pending** — it's
+  invisible to the public until you approve it from the admin panel's
+  "Fan pages awaiting approval" queue. The creator's email is shown there
+  (and a `mailto:` link) so you can mail them when their page goes up or
+  needs changes.
 - **Logs**: Dashboard → grinbid → **Logs** shows live stdout (boot banner,
   rate-limit hits, season settlements).
 
-## Updating the demo
+## Updating the live app
 
 Push to the connected branch → Render **auto-deploys** (the blueprint sets
-`autoDeploy: true`). For manual services, flip on *Auto-Deploy* in Settings.
+`autoDeploy: true`, limited to `grinbid/**` changes for the Outbid repo). For
+manual services, flip on *Auto-Deploy* in Settings.
