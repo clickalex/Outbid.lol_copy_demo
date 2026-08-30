@@ -1,21 +1,21 @@
 {
-  "runAt": "2026-08-29T10:01:38+00:00",
+  "runAt": "2026-08-30T09:12:19+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-08-29T10:01:39.398Z",
-  "boardsTotal": 458,
-  "boardsMeasured": 322,
-  "cloneMeasured": 321,
-  "claimedTotalUsd": 192678.51,
-  "cloneTotalUsd": 66521.51,
-  "originalCollectedUsd": 126157.0,
-  "originalShare": 0.6548,
-  "cloneMedianUsd": 20.0,
-  "top10CloneShareOfCloneMoney": 0.6421,
+  "apiGeneratedAt": "2026-08-30T09:12:19.585Z",
+  "boardsTotal": 460,
+  "boardsMeasured": 324,
+  "cloneMeasured": 323,
+  "claimedTotalUsd": 209998.97,
+  "cloneTotalUsd": 74298.97,
+  "originalCollectedUsd": 135700.0,
+  "originalShare": 0.6462,
+  "cloneMedianUsd": 21.0,
+  "top10CloneShareOfCloneMoney": 0.6125,
   "categories": {
     "Websites & products": 250,
     "X accounts": 60,
-    "Ads & billboards": 34,
-    "AI tools & agents": 32,
+    "Ads & billboards": 35,
+    "AI tools & agents": 33,
     "Crypto & tokens": 27,
     "Games & clips": 23,
     "Regional & other currencies": 19,
@@ -25,7 +25,7 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$126,157"
+      "claimed": "$135,700"
     },
     {
       "host": "lamborghini.lol",
@@ -35,12 +35,12 @@
     {
       "host": "warmap.lol",
       "name": "WARMAP",
-      "claimed": "$3,448"
+      "claimed": "$5,604"
     },
     {
       "host": "topapp.lol",
       "name": "topapp.lol",
-      "claimed": "$3,067"
+      "claimed": "$2,912"
     },
     {
       "host": "saasbid.io",
@@ -58,19 +58,19 @@
       "claimed": "$1,710"
     },
     {
+      "host": "vibewar.lol",
+      "name": "VibeWar",
+      "claimed": "$1,708.66"
+    },
+    {
       "host": "wintop.lol",
       "name": "Weekly Product Leaderboard",
       "claimed": "$1,699"
     },
     {
-      "host": "lugarcito.online",
-      "name": "Lugarcito",
-      "claimed": "$1,505.14"
-    },
-    {
-      "host": "melhorlance.dev",
-      "name": "melhor lance",
-      "claimed": "$1,411.38"
+      "host": "stealspot.lol",
+      "name": "stealspot.lol",
+      "claimed": "$1,693"
     }
   ],
   "primarySite": {
@@ -90,36 +90,36 @@
     "highestBidHost": null
   },
   "entrySimulator": {
-    "measuredClones": 321,
-    "meanUsd": 207.23,
-    "medianUsd": 20.0,
+    "measuredClones": 323,
+    "meanUsd": 230.03,
+    "medianUsd": 21.0,
     "percentiles": {
-      "p25": 5.0,
-      "p50": 20.0,
-      "p75": 62.0,
-      "p90": 302.0,
-      "p95": 687.0,
-      "p99": 1808.8
+      "p25": 5.5,
+      "p50": 21.0,
+      "p75": 74.7,
+      "p90": 382.6,
+      "p95": 773.95,
+      "p99": 1808.68
     },
-    "shareOver100": 0.1838,
-    "shareOver1000": 0.0405,
-    "shareExactlyZero": 0.0935,
-    "bottomHalfShareOfMoney": 0.0147,
-    "top10ShareOfCloneMoney": 0.6421,
+    "shareOver100": 0.2105,
+    "shareOver1000": 0.0464,
+    "shareExactlyZero": 0.0898,
+    "bottomHalfShareOfMoney": 0.0154,
+    "top10ShareOfCloneMoney": 0.6125,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
-      "medianUsd": 111.5,
-      "hitRateOver100": 0.5
+      "medianUsd": 92.0,
+      "hitRateOver100": 0.4286
     },
     "categoryMedians": {
-      "Directories of bid sites": 111.5,
-      "Regional & other currencies": 25.95,
-      "Websites & products": 25.0,
-      "AI tools & agents": 24.5,
-      "Games & clips": 14.0,
-      "X accounts": 14.0,
-      "Ads & billboards": 8.5,
-      "Crypto & tokens": 6.0
+      "Directories of bid sites": 92.0,
+      "Regional & other currencies": 33.13,
+      "Websites & products": 28.0,
+      "AI tools & agents": 26.5,
+      "X accounts": 15.0,
+      "Ads & billboards": 9.5,
+      "Games & clips": 9.5,
+      "Crypto & tokens": 7.0
     }
   },
   "unpatchedMarkers": []
