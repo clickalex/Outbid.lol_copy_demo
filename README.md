@@ -15,7 +15,7 @@ Three layers, one repository:
 - the current public status and product model of `outbid.lol`;
 - market-level analysis of every verified pay-to-rank board in the public [outoutbid.lol](https://outoutbid.lol/) directory (CC BY 4.0);
 - newly discovered sites and recent activity;
-- a live, searchable all-site inventory powered by the public `outoutbid.lol` API;
+- a live, searchable all-site inventory powered by the public `outoutbid.lol` API, including a Free / Freemium / Paid bid-rate filter (with a transparent “Not disclosed” state when the source does not publish enough pricing detail);
 - risks, recommendations, methodology, limitations, and source links.
 
 **`entry-simulator.html` — report 001b, “Should you ship board #416?”:**
