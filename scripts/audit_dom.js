@@ -224,19 +224,6 @@ function listPages(dir) {
           search.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
         }
       }
-      if (rel === 'launch/index.html') {
-        const t = doc.getElementById('toggleAdmin');
-        const panel = doc.getElementById('admin');
-        if (t && panel) {
-          t.click();
-          const on = panel.classList.contains('on');
-          const inner = doc.getElementById('adminPanel');
-          const innerVisible = inner && dom.window.getComputedStyle(inner).display !== 'none';
-          t.click();
-          if (!on) add('ERROR', 'dom-interact', rel, 'owner console toggle does not add .on to #admin');
-          if (on && !innerVisible) add('ERROR', 'dom-interact', rel, 'owner console opens but #adminPanel stays hidden');
-        }
-      }
     } catch (e) {
       add('ERROR', 'dom-interact', rel, `probe crashed: ${e.message}`);
     }
@@ -249,8 +236,8 @@ function listPages(dir) {
     add('ERROR', 'dom-runtime', u.page, `unhandled promise rejection: ${u.reason.slice(0, 200)}`);
   }
 
-  // nav link-set equality across report pages (launch/ is self-contained)
-  const reportNavs = [...navSets.entries()].filter(([p]) => !p.startsWith('launch/'));
+  // nav link-set equality across report pages
+  const reportNavs = [...navSets.entries()];
   if (reportNavs.length > 1) {
     const [basePage, baseSet] = reportNavs[0];
     for (const [p, set] of reportNavs.slice(1)) {
@@ -263,7 +250,7 @@ function listPages(dir) {
     }
   }
   // mobile bottom quick-bar set equality across report pages
-  const reportBottoms = [...bottomSets.entries()].filter(([p]) => !p.startsWith('launch/'));
+  const reportBottoms = [...bottomSets.entries()];
   if (reportBottoms.length > 1) {
     const [basePage, baseSet] = reportBottoms[0];
     for (const [p, set] of reportBottoms.slice(1)) {

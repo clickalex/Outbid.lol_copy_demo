@@ -401,7 +401,7 @@ def check_js_syntax() -> None:
         finding("WARN", "js-syntax", "*", "node not available — JS syntax check skipped")
         return
     targets: list[tuple[str, Path]] = []
-    for js in sorted(REPO.glob("assets/*.js")) + sorted(REPO.glob("launch/*.js")):
+    for js in sorted(REPO.glob("assets/*.js")):
         targets.append((str(js.relative_to(REPO)), js))
     for page in html_files():
         rel = str(page.relative_to(REPO))
@@ -453,35 +453,7 @@ def check_dom() -> None:
 
 
 # --------------------------------------------------------------------------- #
-# 11. launch/ build idempotence
-# --------------------------------------------------------------------------- #
-
-def check_launch_build() -> None:
-    src = REPO / "launch"
-    if not (src / "build_data.py").exists():
-        return
-    # build_data.py also reads the repo-root inventory CSV, so copy the whole
-    # repo (minus .git) and rebuild there to keep the working tree untouched.
-    with tempfile.TemporaryDirectory() as td:
-        dst = Path(td) / "repo"
-        shutil.copytree(REPO, dst, ignore=shutil.ignore_patterns(".git", "__pycache__", "node_modules"))
-        r = subprocess.run([sys.executable, "launch/build_data.py"],
-                           capture_output=True, text=True, cwd=str(dst))
-        if r.returncode:
-            finding("ERROR", "launch-build", "launch/build_data.py",
-                    f"rebuild failed: {(r.stderr or r.stdout).strip()[:300]}")
-            return
-        new = (dst / "launch" / "data.js").read_text(encoding="utf-8")
-        old = (src / "data.js").read_text(encoding="utf-8")
-        stamp = re.compile(r'"generatedAt":"[^"]*"')
-        if stamp.sub('"generatedAt":"<ts>"', new) != stamp.sub('"generatedAt":"<ts>"', old):
-            finding("ERROR", "launch-build", "launch/data.js",
-                    "committed data.js differs from a fresh build_data.py run "
-                    "(stale or hand-edited)")
-
-
-# --------------------------------------------------------------------------- #
-# 12. YAML + SVG
+# 11. YAML + SVG
 # --------------------------------------------------------------------------- #
 
 def check_yaml_svg() -> None:
@@ -524,7 +496,6 @@ def main() -> int:
         check_data_consistency()
         check_js_syntax()
         check_dom()
-        check_launch_build()
         check_yaml_svg()
     except Exception as e:  # noqa: BLE001 — an audit crash is itself a finding
         finding("ERROR", "audit-internal", "-", f"{type(e).__name__}: {e}")

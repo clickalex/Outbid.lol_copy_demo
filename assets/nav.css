@@ -9,8 +9,7 @@
      901–1240px horizontal pill rail (laptops) — never wraps to 3 lines
      ≤ 900px    hamburger + dropdown panel + fixed bottom bar (tablet/phone)
 
-   Shared by all 17 report pages; launch/index.html carries an equivalent
-   inline copy because it deploys standalone.
+   Shared by all report pages.
    ========================================================================== */
 
 /* ---------- base: never hide the nav, ever ---------- */
@@ -123,8 +122,6 @@
 .site-links a[aria-current="page"],.mobile-bottom-nav a[aria-current="page"]{color:#080806;border-color:transparent;background:var(--lime,#d9ff65)}
 body.light-theme .site-links a[aria-current="page"],body.light-theme .mobile-bottom-nav a[aria-current="page"]{color:#080806;background:var(--lime,#d9ff65)}
 /* the product page is not part of the report's own data-page scheme, so mark it from the host page */
-.site-links a[href^="launch/"]{border-color:rgba(217,255,101,.45);color:var(--lime,#d9ff65)}
-.mobile-bottom-nav a[href^="launch/"]{color:var(--lime,#d9ff65)}
 
 /* ---------- print: nav is noise ---------- */
 @media print{.site-nav,.mobile-bottom-nav,.topline,.nav-toggle{display:none !important}body{padding-bottom:0}}
