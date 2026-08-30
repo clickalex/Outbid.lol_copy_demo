@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Leaderboard — Grinbid</title>
-  <meta name="description" content="The Grinbid season leaderboard: weekly virtual-coin prizes for the top three boosters.">
+  <title>Leaderboards — Fandom &amp; Fans · Grinbid</title>
+  <meta name="description" content="Grinbid ranks the fandom first — the most-loved celebrity and character pages — then the fans behind them. Weekly, monthly and season coin prizes, every winner recorded.">
   <meta name="robots" content="index,follow">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎪</text></svg>">
   <link rel="stylesheet" href="styles.css">
@@ -16,6 +16,7 @@
     th, td { text-align:left; padding:10px 8px; border-bottom:2px dashed #ddd; }
     th { font-size:.85rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
     tr.top td { background:rgba(255,211,63,.18); }
+    .prize-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
   </style>
 </head>
 <body>
@@ -33,47 +34,77 @@
   </div>
 
   <div class="card hero">
-    <div class="sticker seed">Weekly season</div>
-    <h1>Season leaderboard 🏆</h1>
-    <p class="tagline">Every boost adds points. The season lasts 7 days, then the top three take home free coins.</p>
+    <div class="sticker seed">Fandom first</div>
+    <h1>Crown your idol 🏆</h1>
+    <p class="tagline">In India we make a god out of our stars. On Grinbid the <b>fandom</b> leads: the most-loved celebrity or character page wears the crown. Right under them are the <b>fans</b> whose boosts put them there — and the top fans win coins.</p>
   </div>
 
-  <h2 class="section-title">Season prizes</h2>
-  <div class="grid">
-    <div class="card"><h3>🥇 Rank 1</h3><p>50,000 coins</p></div>
-    <div class="card"><h3>🥈 Rank 2</h3><p>25,000 coins</p></div>
-    <div class="card"><h3>🥉 Rank 3</h3><p>10,000 coins</p></div>
+  <div class="notice" style="background:linear-gradient(135deg,#fff7e6,#ffe9f1);border:2px solid #ffcf6e;border-radius:16px;padding:14px 16px;line-height:1.5;margin:14px 0;">
+    <b>💰 Real cash prizes are coming — stay tuned!</b> Today every prize is paid in <b>free coins</b>. We permanently record every weekly, monthly and season winner. Once Grinbid is fully operating and legally set up, real-money prizes switch on and <b>all winners — past and present — get paid out</b>.
   </div>
 
-  <h2 class="section-title">How points work</h2>
+  <h2 class="section-title">Two boards, three rounds</h2>
   <div class="card">
-    <ul style="margin:0;padding-left:20px;">
-      <li>Boost a fan page with 50+ coins → page gets <b>1× points</b>.</li>
-      <li>Boost your own community page → <b>1.5× points</b>.</li>
-      <li>Your boost points also count toward your season standing.</li>
-      <li>2-second cooldown between boosts.</li>
-      <li>Every season, points reset to 0 and a new season starts.</li>
+    <ul style="margin:0;padding-left:20px;line-height:1.9;">
+      <li><b>🌟 Fandom leaderboard</b> — the celebrity &amp; character fan pages, ranked by total boost love (🔥). The #1 page is crowned for that round. This is shown <b>first</b> on the home page (top 5).</li>
+      <li><b>🎖️ Top fans</b> — the boosters behind them, ranked by points. The top 3 fans win the coin prizes.</li>
+      <li>Each board runs on <b>three rounds at once</b>: <b>Weekly</b> (7 days), <b>Monthly</b> (30 days) and the <b>Season</b> (90 days grand championship). Switch between them with the tabs on the home page.</li>
     </ul>
   </div>
 
-  <h2 class="section-title">Example season table</h2>
+  <h2 class="section-title">Coin prizes for the top fans</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>🗓️ Weekly</h3>
+      <div class="prize-grid">
+        <p>🥇 5,000<br><span class="muted small">🥈 2,500 · 🥉 1,000</span></p>
+      </div>
+      <p class="muted small" style="margin-bottom:0">Resets every 7 days.</p>
+    </div>
+    <div class="card">
+      <h3>📅 Monthly</h3>
+      <div class="prize-grid">
+        <p>🥇 20,000<br><span class="muted small">🥈 10,000 · 🥉 5,000</span></p>
+      </div>
+      <p class="muted small" style="margin-bottom:0">Resets every 30 days.</p>
+    </div>
+    <div class="card">
+      <h3>🏆 Season (grand)</h3>
+      <div class="prize-grid">
+        <p>🥇 50,000<br><span class="muted small">🥈 25,000 · 🥉 10,000</span></p>
+      </div>
+      <p class="muted small" style="margin-bottom:0">90-day championship.</p>
+    </div>
+  </div>
+  <p class="muted small">Prizes are free virtual coins (zero cash value today). The crowned fandom wins prestige and is recorded — it does not receive coins.</p>
+
+  <h2 class="section-title">How points &amp; love work</h2>
+  <div class="card">
+    <ul style="margin:0;padding-left:20px;line-height:1.9;">
+      <li>Boost a fan page with 50+ coins → the page earns <b>1 love point per coin</b>, and you earn <b>1 fan point per coin</b>.</li>
+      <li>Boost <b>your own</b> fan page → <b>×1.5</b> for both the page and you.</li>
+      <li>Weekly, monthly and season points are tracked separately and each reset when its round settles.</li>
+      <li>2-second cooldown between boosts; no bots or scripts.</li>
+      <li>At settlement the top 3 <b>fans</b> are paid coins and the top 5 <b>fandom</b> pages are recorded — every round, forever, in the Hall of Winners.</li>
+    </ul>
+  </div>
+
+  <h2 class="section-title">Example season table (top fans)</h2>
   <div class="card">
     <div class="tableWrap">
       <table>
-        <thead>
-          <tr><th>Rank</th><th>Season points</th><th>What it means</th></tr>
-        </thead>
+        <thead><tr><th>Rank</th><th>Fan points</th><th>Season prize</th></tr></thead>
         <tbody>
-          <tr class="top"><td>🥇 1</td><td>Highest</td><td>50,000 coins at settlement</td></tr>
-          <tr class="top"><td>🥈 2</td><td>Second</td><td>25,000 coins at settlement</td></tr>
-          <tr class="top"><td>🥉 3</td><td>Third</td><td>10,000 coins at settlement</td></tr>
-          <tr><td>4+</td><td>Any</td><td>Keep your points for bragging rights; no coin prize</td></tr>
+          <tr class="top"><td>🥇 1</td><td>Highest</td><td>50,000 coins</td></tr>
+          <tr class="top"><td>🥈 2</td><td>Second</td><td>25,000 coins</td></tr>
+          <tr class="top"><td>🥉 3</td><td>Third</td><td>10,000 coins</td></tr>
+          <tr><td>4+</td><td>Any</td><td>Bragging rights; recorded, no coin prize</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <div class="notice legal mt">The live leaderboard updates in real time — <a href="https://grinbid-8h5e.onrender.com/" target="_blank" rel="noopener">open Grinbid</a> and tap <b>Home</b> to see today's top ten live.</div>
+  <div class="notice legal mt">The boards update in real time — <a href="https://grinbid-8h5e.onrender.com/" target="_blank" rel="noopener">open Grinbid</a> to see the live <b>fandom top 5</b> and <b>top fans</b>, and the <b>Winners</b> tab for the permanent hall of fame.</div>
 </div>
   <script src="enhance.js" defer></script>
 </body>

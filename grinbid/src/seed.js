@@ -41,25 +41,41 @@ function createSeedState(now = Date.now()) {
   const iso = new Date(now).toISOString();
 
   const meta = {
-    version: 3,
+    version: 4,
     createdAt: iso,
     updatedAt: iso,
     bootCount: 0,
     legalNoticeAddedAt: iso
   };
 
-  const season = {
-    id: 1,
-    startedAt: iso,
-    endsAt: new Date(now + CONFIG.ECONOMY.SEASON_LENGTH_MS).toISOString(),
-    settled: false,
-    lastSettlement: null,
-    payouts: []
+  // Three rank lists run together: weekly (7d), monthly (30d), season (90d).
+  // Each holds fan-booster points AND fandom (page) points, gets settled with
+  // coin prizes for the top fans, and records winners in state.winners. A fresh
+  // deploy starts each ladder at "now" (id 1, window ends `lengthMs` ahead).
+  function makePeriod(lengthMs, label) {
+    return {
+      id: 1,
+      label,
+      startedAt: iso,
+      endsAt: new Date(now + lengthMs).toISOString(),
+      settled: false,
+      lastSettlement: null,
+      payouts: []
+    };
+  }
+  const periods = {
+    week: makePeriod(CONFIG.ECONOMY.PERIODS.week.lengthMs, 'Weekly'),
+    month: makePeriod(CONFIG.ECONOMY.PERIODS.month.lengthMs, 'Monthly'),
+    season: makePeriod(CONFIG.ECONOMY.PERIODS.season.lengthMs, 'Season')
   };
 
   return {
     meta,
-    season,
+    periods,
+    season: periods.season, // back-compat alias
+    winners: [],           // permanent ledger: every weekly/monthly/season winner
+    fanPoints: { week: {}, month: {}, season: {} },   // period -> userId -> pts
+    fandomPoints: { week: {}, month: {}, season: {} }, // period -> slug  -> love
     tasks: TASKS,
     users: {},
     userByUsername: {},

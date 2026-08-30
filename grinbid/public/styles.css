@@ -742,3 +742,59 @@ input[type="file"] {
   .profile-img.big { width: min(160px, 50vw); height: min(160px, 50vw); }
 }
 .season-card .list-row:first-child { background: linear-gradient(90deg, rgba(255,210,63,.35), rgba(255,79,163,.15)); border-radius: 14px; }
+
+/* ---- Fandom-first leaderboards (weekly / monthly / season) ---- */
+.period-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0 12px;
+  flex-wrap: wrap;
+}
+.period-tab {
+  border: 2px solid var(--line, #ecd9f5);
+  background: #fff;
+  color: var(--ink, #3a2a4d);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.period-tab:hover { transform: translateY(-1px); }
+.period-tab.on {
+  background: linear-gradient(135deg, #ff5fa2, #ff8a5c);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 16px rgba(255, 95, 162, .35);
+}
+.fandom-card { padding: 6px 10px; }
+.list-row.fandom-row {
+  text-decoration: none;
+  color: inherit;
+  border-radius: 12px;
+}
+.list-row.fandom-row:hover { background: #fdf3fb; }
+.fandom-thumb {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 10px 0 2px;
+  border: 2px solid #ffd3e8;
+  flex: none;
+}
+.rank-medal { font-size: 1.05rem; }
+.cash-notice {
+  background: linear-gradient(135deg, #fff7e6, #ffe9f1);
+  border: 2px solid #ffcf6e;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  line-height: 1.5;
+}
+.winner-card { margin-bottom: 14px; }
+.winner-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px; gap: 8px; flex-wrap: wrap;
+}
+.winner-card h4 { margin: 4px 0 6px; }

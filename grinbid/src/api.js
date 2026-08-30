@@ -16,6 +16,16 @@ const { RouteError } = require('./router');
 
 const limiter = new RateLimiter();
 
+// Shown on the leaderboard/winners pages. Today all prizes are paid in free
+// virtual coins. We record every winner permanently; once Grinbid is fully
+// operating and legally set up for real-money prizes, those launch and past
+// winners are the list who get paid out in cash.
+const REAL_MONEY_NOTE =
+  'Real-money cash prizes are NOT live yet. Until Grinbid is fully operating ' +
+  'and legally set up, every prize is paid in free coins. Every weekly, ' +
+  'monthly and season winner is permanently recorded — once real-money ' +
+  'prizes launch, all winners (including past ones) will be paid out. Stay tuned!';
+
 function ok(body, extra = {}) {
   return { status: 200, body, ...extra };
 }
@@ -239,15 +249,45 @@ async function me(ctx, state) {
 // ---------------------------------------------------------------------------
 
 async function leaderboard(ctx, state) {
-  const top = Object.values(state.users)
-    .filter((u) => u.username)
-    .map((u) => ({ id: u.id, username: u.username, displayName: u.displayName, avatar: u.avatar, points: u.seasonPoints, boostCount: u.stats.boosts }))
-    .sort((a, b) => b.points - a.points || a.username.localeCompare(b.username))
-    .slice(0, 10);
+  eco.ensurePeriods(state);
+  // Fandom comes FIRST (the celeb/character pages), then the fan boosters.
+  // Three ladders each: weekly / monthly / season.
+  const ladders = {};
+  for (const t of ['week', 'month', 'season']) {
+    const p = state.periods[t];
+    ladders[t] = {
+      id: p.id,
+      label: p.label,
+      startsAt: p.startedAt,
+      endsAt: p.endsAt,
+      fanPrizes: CONFIG.ECONOMY.PERIODS[t].fanPrizes,
+      fandom: eco.fandomRankings(state, t, CONFIG.ECONOMY.PERIODS[t].fandomTop),
+      fans: eco.fanRankings(state, t, 10)
+    };
+  }
+  // Back-compat: legacy clients read `season` + `top` (season fan board).
   return ok({
-    season: { id: state.season.id, endsAt: state.season.endsAt },
+    season: { id: state.periods.season.id, endsAt: state.periods.season.endsAt },
     prizes: CONFIG.ECONOMY.SEASON_PRIZES,
-    top
+    top: ladders.season.fans,
+    ladders
+  });
+}
+
+async function winners(ctx, state) {
+  eco.ensurePeriods(state);
+  const list = (state.winners || []).slice().reverse().slice(0, 60).map((w) => ({
+    at: w.at,
+    type: w.type,
+    label: w.label,
+    periodId: w.periodId,
+    fans: w.fans,
+    fandom: w.fandom
+  }));
+  return ok({
+    realMoneyNote: REAL_MONEY_NOTE,
+    realMoneyLive: false,
+    winners: list
   });
 }
 
@@ -649,7 +689,9 @@ async function adminOverview(ctx, state, sse) {
     profiles: profiles.length,
     boosts: state.boosts.length,
     coinsFloating: users.reduce((s, u) => s + u.coins, 0),
-    season: state.season,
+    season: state.periods.season,
+    periods: state.periods,
+    winnersCount: (state.winners || []).length,
     openClaimRequests: profiles.reduce((n, p) => n + (p.claimRequests || []).filter((r) => r.status === 'pending').length, 0),
     pendingProfiles: profiles.filter((p) => p.status === 'pending').length,
     funding: state.donationIntents.reduce((s, d) => s + d.amount, 0),
@@ -680,7 +722,10 @@ async function adminNotify(ctx, state, sse) {
 
 async function adminSettleSeason(ctx, state, sse) {
   requireAdmin(ctx, state);
-  const result = eco.settleSeason(state, true);
+  const wanted = ['week', 'month', 'season'].includes((ctx.body || {}).period)
+    ? ctx.body.period
+    : ((ctx.body || {}).period || 'season');
+  const result = eco.settlePeriod(state, wanted, true);
   if (result.ok) {
     sse.broadcast('season', { settled: true, payout: result.payout });
   }
@@ -862,6 +907,7 @@ function buildRouter(state, sse) {
 
   // Social
   r.get('/api/leaderboard', (ctx) => leaderboard(ctx, state));
+  r.get('/api/winners', (ctx) => winners(ctx, state));
   r.get('/api/feed', (ctx) => feed(ctx, state));
 
   // Economy

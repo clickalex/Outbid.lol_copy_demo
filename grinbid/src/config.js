@@ -81,6 +81,8 @@ const CONFIG = Object.freeze({
       CODE_LENGTH: 6,
       PER_DAY_CAP: 20 // anti-spam: pending referrals per referrer per day
     }),
+    // Season = the grand championship (the original 7-day season is now the
+    // weekly board; the season is a longer, bigger competition).
     SEASON_PRIZES: Object.freeze({
       RANK_1: 50000,
       RANK_2: 25000,
@@ -93,7 +95,37 @@ const CONFIG = Object.freeze({
       COOLDOWN_MS: 2000
     }),
     TASKS_COUNT: 16,
-    SEASON_LENGTH_MS: 7 * 24 * 60 * 60 * 1000, // one week per season
+    SEASON_LENGTH_MS: 90 * 24 * 60 * 60 * 1000, // season = 90 days
+    // ---------------------------------------------------------------------
+    // Rank lists (periods). There are THREE ladders that run together:
+    //   weekly  — 7 days,  small prizes
+    //   monthly — 30 days, medium prizes
+    //   season  — 90 days, grand prizes (SEASON_PRIZES above)
+    // Each period ranks BOTH fandom (the celeb/character pages by love) and
+    // fans (the boosters by points). Coin prizes go to the TOP FANS; fandom
+    // wins prestige/crowning + is recorded in the permanent winners ledger.
+    // ---------------------------------------------------------------------
+    PERIODS: Object.freeze({
+      week: Object.freeze({
+        lengthMs: 7 * 24 * 60 * 60 * 1000,
+        label: 'Weekly',
+        fanPrizes: [5000, 2500, 1000],
+        fandomTop: 5
+      }),
+      month: Object.freeze({
+        lengthMs: 30 * 24 * 60 * 60 * 1000,
+        label: 'Monthly',
+        fanPrizes: [20000, 10000, 5000],
+        fandomTop: 5
+      }),
+      season: Object.freeze({
+        lengthMs: 90 * 24 * 60 * 60 * 1000,
+        label: 'Season',
+        fanPrizes: [50000, 25000, 10000],
+        fandomTop: 5
+      })
+    }),
+    PERIOD_ORDER: Object.freeze(['week', 'month', 'season']),
     MAX_TRANSACTIONS: 2000,
     MAX_FEED_BOOSTS: 1000,
     MAX_BOOST_HISTORY_PER_PROFILE: 30

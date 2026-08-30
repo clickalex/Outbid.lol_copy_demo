@@ -14,7 +14,7 @@ const { JsonStore } = require('./store');
 const { SseHub } = require('./sse');
 const { buildRouter } = require('./api');
 const { createSeedState } = require('./seed');
-const { maybeAutoSettleSeason } = require('./economy');
+const { ensurePeriods, maybeAutoSettle } = require('./economy');
 const { RouteError } = require('./router');
 
 async function createApp(opts = {}) {
@@ -28,9 +28,12 @@ async function createApp(opts = {}) {
   const state = store.data;
   state.meta.bootCount = (state.meta.bootCount || 0) + 1;
 
-  const settled = maybeAutoSettleSeason(state, Date.now());
-  if (settled && settled.ok) {
-    console.log(`[grinbid] Auto-settled season ${settled.payout.seasonId} on boot.`);
+  ensurePeriods(state, Date.now());
+  const settled = maybeAutoSettle(state, Date.now());
+  if (settled) {
+    for (const s of settled) {
+      if (s && s.ok) console.log(`[grinbid] Auto-settled ${s.payout.label} #${s.payout.periodId} on boot.`);
+    }
   }
   await store.flush();
 
@@ -43,7 +46,8 @@ async function createApp(opts = {}) {
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     try {
-      maybeAutoSettleSeason(state, Date.now());
+      ensurePeriods(state, Date.now());
+      maybeAutoSettle(state, Date.now());
       await router.dispatch(req, res);
     } catch (err) {
       if (err instanceof RouteError) {

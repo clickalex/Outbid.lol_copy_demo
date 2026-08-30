@@ -42,7 +42,7 @@
     community: { label: 'Community', color: 'mint' }
   };
 
-  window.GB = { api, toast, go, openAuth, openBoost, openClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, handleImage, homeSearch, search, adminLogin, adminAction, profileDecision, copyText, toggleNav, closeNav, backTop };
+  window.GB = { api, toast, go, openAuth, openBoost, openClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, handleImage, homeSearch, search, setHomePeriod, adminLogin, adminAction, profileDecision, copyText, toggleNav, closeNav, backTop };
 
   // ------------------------------------------------------------------ API
   async function api(path, opts = {}) {
@@ -240,6 +240,7 @@
       <nav class="nav${S.navOpen ? ' open' : ''}" id="nav">
         <a href="#/home" data-r="home">Home</a>
         <a href="#/discover" data-r="discover">Discover</a>
+        <a href="#/winners" data-r="winners">🏆 Winners</a>
         <a href="#/tasks" data-r="tasks">Tasks</a>
         <a href="#/wallet" data-r="wallet">Wallet</a>
         <a href="#/refer" data-r="refer">Refer</a>
@@ -352,26 +353,64 @@
   }
 
   async function loadHomeData() {
-    const [lb, feed, profiles] = await Promise.all([
-      api('/leaderboard'), api('/feed'), api('/profiles')
+    const [lb, feed, profiles, winners] = await Promise.all([
+      api('/leaderboard'), api('/feed'), api('/profiles'), api('/winners')
     ]);
-    return { lb, feed, profiles };
+    return { lb, feed, profiles, winners };
+  }
+
+  // Real-money announcement. Prizes are coins today; every winner is recorded
+  // and will be paid cash once real-money prizes launch.
+  const REAL_MONEY_HTML = `
+      <div class="notice cash-notice">
+        <b>💰 Real cash prizes are coming — stay tuned!</b> Right now every prize is paid in <b>free coins</b>.
+        We are <b>permanently recording every weekly, monthly &amp; season winner</b>. Once Grinbid is fully
+        operating and legally set up, real-money prizes switch on and <b>all winners — past and present — get paid out</b>.
+      </div>`;
+
+  const MEDALS = ['\uD83E\uDD47', '\uD83E\uDD48', '\uD83E\uDD49'];
+  const PERIOD_TABS = [['week', 'Weekly'], ['month', 'Monthly'], ['season', 'Season']];
+  const homePeriod = () => S.homePeriod || 'season';
+
+  // Fandom ranking = the celeb/character pages, ordered by love. Top 5.
+  function fandomRows(L) {
+    return (L.fandom || []).slice(0, 5).map((f, i) => `
+      <a class="list-row fandom-row" href="#/profile/${esc(f.slug)}">
+        <span class="tag rank-medal" style="width:44px">${MEDALS[i] || '#' + (i + 1)}</span>
+        ${f.image ? `<img class="fandom-thumb" src="${f.image}" alt="">` : `<span class="avatar">${esc(f.emoji || '\u2B50')}</span>`}
+        <span class="grow"><b>${esc(f.realName || f.name)}</b>${f.verified ? ' \uD83D\uDFE2' : ''}<br>
+          <span class="muted small">${esc(f.name)} · ${(CATS[f.category] || {}).label || f.category}</span></span>
+        <span class="tag">🔥 ${fmt(f.love)}</span>
+      </a>`).join('') || '<p class="muted">No fandom love yet — boost your idol to crown them!</p>';
+  }
+
+  // Fan ranking = the boosters, ordered by points (they win the coin prizes).
+  function fanRows(L, limit = 5) {
+    return (L.fans || []).slice(0, limit).map((u, i) => `
+      <div class="list-row">
+        <span class="tag" style="width:44px">${MEDALS[i] || '#' + (i + 1)}</span>
+        <span class="avatar">${esc(u.avatar)}</span>
+        <span class="grow"><b>${esc(u.displayName || u.username)}</b><br><span class="muted small">@${esc(u.username)}</span></span>
+        <span class="tag">${fmt(u.points)} pts</span>
+      </div>`).join('') || '<p class="muted">No boosters yet — be the first!</p>';
+  }
+
+  function periodTabsHtml(active) {
+    return `<div class="period-tabs" id="periodTabs">
+      ${PERIOD_TABS.map(([k, label]) => `<button class="period-tab${k === active ? ' on' : ''}" data-p="${k}" onclick="GB.setHomePeriod('${k}')">${label}</button>`).join('')}
+    </div>`;
   }
 
   // ------------------------------------------------------------------ Screens
   const VIEWS = {};
 
-  // ---- 1. Home
+  // ---- 1. Home — FANDOM FIRST (the idols), then the fans
   VIEWS.home = async () => {
     const data = await loadHomeData();
     const m = S.me;
-    const lbRows = data.lb.top.map((u, i) => `
-      <div class="list-row">
-        <span class="tag" style="width:44px">${['🥇', '🥈', '🥉'][i] || '#' + (i + 1)}</span>
-        <span class="avatar">${esc(u.avatar)}</span>
-        <span class="grow"><b>${esc(u.displayName || u.username)}</b><br><span class="muted small">@${esc(u.username)}</span></span>
-        <span class="tag">${fmt(u.points)} pts</span>
-      </div>`).join('') || '<p class="muted">No boosters yet — be the first!</p>';
+    const ladder = data.lb.ladders[homePeriod()] || data.lb.ladders.season;
+    const ends = new Date(ladder.endsAt).toLocaleDateString();
+    const prizeStr = (ladder.fanPrizes || []).map((x) => fmt(x)).join(' / ');
 
     const feedRows = data.feed.boosts.slice(0, 8).map((b) => `
       <div class="list-row">
@@ -379,7 +418,7 @@
         <span class="grow"><b>${esc(b.username)}</b> boosted <a href="#/profile/${esc(b.profileSlug)}">${b.profileEmoji} ${esc(b.profileName)}</a>
           <br><span class="muted small">${fmt(b.amount)} coins → ${fmt(b.value)} pts ${b.selfBoost ? '<span class="sticker self">self ×1.5</span>' : ''} · ${timeAgo(b.at)}</span></span>
         <span class="tag">🔥</span>
-      </div>`).join('') || '<p class="muted">The boost feed is quiet… start the party! 🎉</p>';
+      </div>`).join('') || '<p class="muted">The boost feed is quiet… start the party! \uD83C\uDF89</p>';
 
     const allProfiles = data.profiles.profiles || [];
     const top = allProfiles.slice(0, 8).map(p => profileCard(p)).join('');
@@ -387,29 +426,36 @@
     return `
       <section class="card hero">
         <span class="sticker fan">100% free coins</span>
-        <span class="sticker seed">no real money</span>
-        <h1>Who's on top? 🏆</h1>
-        <p class="tagline">Fans fight for their faves — Salman vs SRK, Hulk vs Iron Man, Ronaldo vs Messi. Boost your idol with free coins and push them to the top of the season.</p>
+        <span class="sticker seed">fandom first</span>
+        <h1>Crown your idol 🏆</h1>
+        <p class="tagline">In India we make a god out of our stars — Salman vs SRK, Hulk vs Iron Man, Ronaldo vs Messi. Boost your celeb or character with free coins and push them to <b>#1</b>. The most-loved fandom wins the crown; the fans behind them win coins.</p>
         <div class="row mt">
           ${m ? `<button class="btn big pink" onclick="document.getElementById('fanGrid')?.scrollIntoView({behavior:'smooth'})">🔥 Boost your fave</button>
-                 <button class="btn big" style="background:#fff" onclick="go('#/wallet')">🪙 My wallet</button>`
-             : `<button class="btn big pink" onclick="GB.openAuth('signup')">🎟️ Join free — get ${fmt(2500)} coins</button>
-                <button class="btn big" style="background:#fff" onclick="document.getElementById('fanGrid')?.scrollIntoView({behavior:'smooth'})">👀 See who's on top</button>`}
+                 <button class="btn big" style="background:#fff" onclick="go('#/wallet')">\uD83E\uDE99 My wallet</button>`
+             : `<button class="btn big pink" onclick="GB.openAuth('signup')">\uD83C\uDF9F️ Join free — get ${fmt(2500)} coins</button>
+                <button class="btn big" style="background:#fff" onclick="document.getElementById('fandomBoard')?.scrollIntoView({behavior:'smooth'})">👀 See who's on top</button>`}
         </div>
-        <p class="small" style="margin-top:14px">🪙 Virtual coins only — zero cash value, nothing to buy. Donations are non-reward and voluntary.</p>
+        <p class="small" style="margin-top:14px">\uD83E\uDE99 Virtual coins only — zero cash value today. Real cash prizes are coming; every winner is recorded. <a href="#/winners">See winners →</a></p>
       </section>
 
-      <h2 class="section-title">🏆 Season ${data.lb.season.id} leaderboard <span class="muted small">(season ends ${new Date(data.lb.season.endsAt).toLocaleDateString()} · prizes ${fmt(50000)} / ${fmt(25000)} / ${fmt(10000)})</span></h2>
-      <div class="card season-card">${lbRows}</div>
+      ${REAL_MONEY_HTML}
+
+      <h2 class="section-title" id="fandomBoard">🌟 Fandom leaderboard — top idols <span class="muted small">(${ladder.label} · crown resets ${ends})</span></h2>
+      ${periodTabsHtml(homePeriod())}
+      <div class="card season-card fandom-card">${fandomRows(ladder)}</div>
+
+      <h2 class="section-title">\uD83C\uDF96️ Top fans <span class="muted small">(${ladder.label} · coin prizes ${prizeStr})</span></h2>
+      <div class="card season-card">${fanRows(ladder)}</div>
+      <p class="muted small center">Fans earn points by boosting — 1 point per coin, ×1.5 on your own page. Top 3 fans win ${prizeStr} coins each ${ladder.label.toLowerCase()}. <a href="#/winners">Hall of winners →</a></p>
 
       <div class="stripe">
-        <div class="stat"><div class="n">🪙 ${fmt(2500)}</div><div class="l">Signup bonus</div></div>
-        <div class="stat"><div class="n">🔥 ${fmt(500)}+</div><div class="l">Daily claim</div></div>
-        <div class="stat"><div class="n">🍀 ${fmt(250)}–${fmt(2500)}</div><div class="l">Lucky drop</div></div>
-        <div class="stat"><div class="n">👥 10%</div><div class="l">Lifetime match</div></div>
+        <div class="stat"><div class="n">\uD83D\uDDD3️ Weekly</div><div class="l">${fmt(data.lb.ladders.week.fanPrizes[0])} top fan prize</div></div>
+        <div class="stat"><div class="n">\uD83D\uDCC5 Monthly</div><div class="l">${fmt(data.lb.ladders.month.fanPrizes[0])} top fan prize</div></div>
+        <div class="stat"><div class="n">🏆 Season</div><div class="l">${fmt(data.lb.ladders.season.fanPrizes[0])} grand prize</div></div>
+        <div class="stat"><div class="n">💰 Cash</div><div class="l">coming — winners recorded</div></div>
       </div>
 
-      <h2 class="section-title">💖 Fan pages — ranked by love <span class="muted small">${allProfiles.length} live</span></h2>
+      <h2 class="section-title">💖 All fan pages — ranked by love <span class="muted small">${allProfiles.length} live</span></h2>
       <div class="card mb row" id="homeSearch">
         <input id="homeQ" style="max-width:340px" placeholder="Search Salman, Hulk, Messi…" onkeydown="if(event.key==='Enter')GB.homeSearch()">
         <select id="homeCat" onchange="GB.homeSearch()">
@@ -442,6 +488,12 @@
       </div>`;
   };
 
+  // Switch the home fandom/fan board between weekly / monthly / season.
+  function setHomePeriod(p) {
+    S.homePeriod = (['week', 'month', 'season'].includes(p)) ? p : 'season';
+    reRender();
+  }
+
   async function homeSearch() {
     const q = $('#homeQ').value.trim();
     const cat = $('#homeCat').value;
@@ -454,6 +506,7 @@
     const more = $('#homeMore');
     if (more) more.innerHTML = '';
   }
+
 
   // ---- 2. Discover
   VIEWS.discover = async () => {
@@ -992,6 +1045,38 @@
   };
 
   // ---- 8. Donate
+  // ---- Hall of winners (permanent ledger; becomes the cash payout list)
+  VIEWS.winners = async () => {
+    const w = await api('/winners');
+    const rows = (w.winners || []).map((x) => {
+      const fans = (x.fans || []).map((f) =>
+        `${MEDALS[f.rank - 1] || '#' + f.rank} <b>${esc(f.displayName || f.username)}</b> <span class="muted small">(${fmt(f.points)} pts → ${fmt(f.coinPrize)} 🪙)</span>`).join('<br>') || '<span class="muted small">no ranked fans</span>';
+      const fandom = (x.fandom || []).slice(0, 3).map((f) =>
+        `${MEDALS[f.rank - 1] || '#' + f.rank} <a href="#/profile/${esc(f.slug)}">${esc(f.emoji || '⭐')} ${esc(f.realName || f.name)}</a> <span class="muted small">(${fmt(f.love)} 🔥)</span>`).join('<br>') || '<span class="muted small">no crowned page</span>';
+      return `<div class="card winner-card">
+        <div class="winner-head">
+          <span class="sticker fan">${x.label} #${x.periodId}</span>
+          <span class="muted small">${new Date(x.at).toLocaleDateString()}</span>
+        </div>
+        <div class="two-col">
+          <div><h4>🎖️ Fans who won coins</h4>${fans}</div>
+          <div><h4>🌟 Crowned fandom</h4>${fandom}</div>
+        </div>
+        <p class="muted small" style="margin-bottom:0">🪙 Paid in free coins · recorded for future cash payout</p>
+      </div>`;
+    }).join('') || '<div class="card"><p class="muted">No completed rounds yet. The first weekly, monthly and season winners will be crowned here.</p></div>';
+
+    return `
+      <h1 class="section-title">🏆 Hall of winners</h1>
+      ${REAL_MONEY_HTML}
+      <div class="card mb">
+        <p style="margin:0">Every <b>weekly</b>, <b>monthly</b> and <b>season</b> winner is recorded here permanently —
+        both the <b>top fans</b> (who win coins) and the <b>crowned fandom</b> (the most-loved celeb/character page).
+        When real-money prizes switch on after full legal setup, this is the list we pay out.</p>
+      </div>
+      ${rows}`;
+  };
+
   VIEWS.donate = async () => {
     const methods = await api('/donations/methods');
     return `
@@ -1080,11 +1165,17 @@
         </div>
       </div>
       <div class="card mt">
-        <div class="row spread">
-          <div><h3 style="margin:0">🏆 Season ${d.season.id}</h3>
-            <p class="muted small">Ends ${new Date(d.season.endsAt).toLocaleString()} · prizes ${fmt(50000)} / ${fmt(25000)} / ${fmt(10000)}</p></div>
-          <button class="btn orange" style="background:var(--orange)" onclick="GB.adminAction('season/settle', {})">Force settle now</button>
-        </div>
+        <h3 style="margin-top:0">🏆 Rank lists — settle &amp; crown winners</h3>
+        <p class="muted small">Settling closes the current round, pays the top 3 fans their coin prizes, crowns the top fandom, and records everyone in the winners ledger (the future cash-payout list).</p>
+        ${[['week', '🗓️ Weekly'], ['month', '📅 Monthly'], ['season', '🏆 Season']].map(([k, label]) => {
+          const p = (d.periods || {})[k] || d.season;
+          const prizes = k === 'season' ? [50000, 25000, 10000] : (k === 'month' ? [20000, 10000, 5000] : [5000, 2500, 1000]);
+          return `<div class="row spread" style="padding:8px 0;border-bottom:1px dashed var(--line,#eee)">
+            <div><b>${label}</b> #${p.id} <span class="muted small">· ends ${new Date(p.endsAt).toLocaleDateString()} · prizes ${prizes.map(fmt).join(' / ')}</span></div>
+            <button class="btn orange" style="background:var(--orange)" onclick="GB.adminAction('season/settle', {period:'${k}'})">Settle</button>
+          </div>`;
+        }).join('')}
+        <p class="muted small" style="margin-bottom:0">Total rounds recorded: <b>${d.winnersCount || 0}</b></p>
       </div>
       <div class="card mt" id="claimQueue"><h3>🏛️ Claim requests</h3><p class="muted">Loading…</p></div>
       <div class="card mt">
@@ -1099,7 +1190,11 @@
       toast('Done ✔', 'good');
       if (action === 'announce') S.announce = body.message;
       if (action === 'season/settle' && d.payout) {
-        toast(`Season settled! Payouts: ${d.payout.earned.map((e) => e.username + ' +' + fmt(e.prize)).join(', ')}`, 'good');
+        const fans = (d.payout.fans || []).map((e) => (e.displayName || e.username) + ' +' + fmt(e.prize));
+        const crown = (d.payout.fandom || [])[0];
+        toast(`${d.payout.label} #${d.payout.periodId} settled! ` +
+          (fans.length ? `Fans: ${fans.join(', ')}.` : 'No ranked fans. ') +
+          (crown ? ` Crowned ${crown.realName || crown.name} 👑` : ''), 'good');
       }
       render();
     } catch (err) { toast(err.message, 'bad'); }

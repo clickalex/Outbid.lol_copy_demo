@@ -287,10 +287,22 @@ test('admin: overview, announce, season settle, unauthorized blocked', async () 
   const ann = await fetch(`${base}/api/admin/announce`, { method: 'POST', headers: ah, body: JSON.stringify({ message: 'Testing broadcast' }) });
   assert.strictEqual(ann.status, 200);
 
-  const settle = await fetch(`${base}/api/admin/season/settle`, { method: 'POST', headers: ah, body: '{}' });
+  const settle = await fetch(`${base}/api/admin/season/settle`, { method: 'POST', headers: ah, body: JSON.stringify({ period: 'season' }) });
   const sd = await settle.json();
   assert.strictEqual(sd.ok, true);
-  assert.ok(Array.isArray(sd.payout.earned));
+  assert.ok(Array.isArray(sd.payout.fans));
+  assert.ok(Array.isArray(sd.payout.fandom));
+});
+
+test('leaderboard: fandom ladders + fans for week/month/season, winners ledger', async () => {
+  const lb = await fetch(`${base}/api/leaderboard`).then((x) => x.json());
+  assert.ok(lb.ladders && lb.ladders.week && lb.ladders.month && lb.ladders.season);
+  assert.ok(Array.isArray(lb.ladders.season.fandom));
+  assert.ok(Array.isArray(lb.ladders.season.fans));
+  assert.ok(lb.ladders.season.fanPrizes.length === 3);
+  const w = await fetch(`${base}/api/winners`).then((x) => x.json());
+  assert.ok(Array.isArray(w.winners));
+  assert.ok(typeof w.realMoneyNote === 'string' && w.realMoneyNote.length > 20);
 });
 
 test('signup requires email; email is private; duplicate email rejected', async () => {
