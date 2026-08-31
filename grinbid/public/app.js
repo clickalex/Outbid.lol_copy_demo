@@ -47,7 +47,11 @@
     community: { label: 'Community', color: 'mint' }
   };
 
-  window.GB = { api, toast, go, openAuth, openBoost, openClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, handleImage, homeSearch, search, setHomePeriod, demoBoost, demoApprove, demoSettle, demoAction, setDemoPeriod, adminLogin, adminAction, profileDecision, copyText, toggleNav, closeNav, backTop };
+  window.GB = { api, toast, go, openAuth, openBoost, openClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, handleImage, homeSearch, search, setHomePeriod, demoBoost, demoApprove, demoSettle, demoAction, setDemoPeriod, adminLogin, adminAction, profileDecision, copyText, toggleNav, closeNav, backTop, closeModal, awardUserCoins };
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
 
   // ------------------------------------------------------------------ API
   async function api(path, opts = {}) {
@@ -165,6 +169,7 @@
         <label class="field"><span class="lbl">Password (min 8 chars)</span>
           <input name="password" type="password" minlength="8" maxlength="128" required></label>
         <button class="btn big ${isSignup ? 'pink' : 'mint'}" type="submit" id="authSubmit" style="width:100%">${isSignup ? '🎟️ Claim my 2500 free coins' : '🚪 Log in'}</button>
+        <button class="btn ghost mt" type="button" onclick="GB.closeModal()" style="width:100%">Cancel</button>
       </form>
       <p class="center mt muted">
         ${isSignup ? 'Already a booster? ' : 'New to Grinbid? '}
@@ -669,6 +674,7 @@
         <input id="customAmt" type="number" min="50" step="10" placeholder="50+"></label>
       <div class="notice legal small" id="boostPreview"></div>
       <button class="btn big pink" style="width:100%" onclick="GB.doBoost('${esc(slug)}', this)">🚀 Boost now</button>
+      <button class="btn ghost mt" type="button" onclick="GB.closeModal()" style="width:100%">Cancel</button>
       <p class="muted small center mt">Boost cooldown: 2 seconds.</p>`);
     pickAmount(50, $('#chips button'));
   }
@@ -1320,6 +1326,7 @@
         <p class="muted small" style="margin-bottom:0">Total rounds recorded: <b>${d.winnersCount || 0}</b></p>
       </div>
       <div class="card mt" id="claimQueue"><h3>🏛️ Claim requests</h3><p class="muted">Loading…</p></div>
+      <div class="card mt" id="adminUsersList"><h3>👥 Registered Users</h3><p class="muted">Loading…</p></div>
       <div class="card mt">
         <h3>🧾 Funding intents (non-reward) · ${fmt(d.funding)} on record</h3>
         <p class="muted small">No coins are ever granted for donations.</p>
@@ -1403,6 +1410,39 @@
     } catch (err) { toast(err.message, 'bad'); }
   }
 
+  async function loadAdminUsers() {
+    try {
+      const d = await api('/admin/users');
+      const box = $('#adminUsersList');
+      if (!box) return;
+      const list = d.users || [];
+      if (!list.length) {
+        box.innerHTML = '<h3>👥 Registered Users</h3><p class="muted">No users found.</p>';
+        return;
+      }
+      box.innerHTML = `<h3>👥 Registered Users (${list.length})</h3>
+        <div style="max-height:360px;overflow-y:auto;margin-top:10px">
+        ${list.map((u) => `
+          <div class="list-row" style="align-items:center">
+            <span class="grow">
+              <b>@${esc(u.username)}</b> ${u.isAdmin ? '<span class="sticker verified">admin</span>' : ''}<br>
+              <span class="muted small">ID: <code>${esc(u.id)}</code> · Email: ${esc(u.email || 'none')} · Coins: <b>${fmt(u.coins)}</b> 🪙 · Season pts: <b>${fmt(u.seasonPoints)}</b> · Boosts: ${u.boosts}</span>
+            </span>
+            <button class="btn mint small" onclick="GB.awardUserCoins('${esc(u.id)}')">🎁 Award 1k</button>
+          </div>
+        `).join('')}
+        </div>`;
+    } catch (err) { /* not admin */ }
+  }
+
+  async function awardUserCoins(userId) {
+    try {
+      await api('/admin/user/award', { method: 'POST', body: { userId, amount: 1000 } });
+      toast('Awarded +1,000 coins successfully! 🎁', 'good');
+      loadAdminUsers();
+    } catch (err) { toast(err.message, 'bad'); }
+  }
+
   // ---- Claim modal
   function openClaim(slug) {
     if (!S.me) return openAuth('signup');
@@ -1411,7 +1451,8 @@
       <p class="muted">This is a <b>fan-created</b> page. If you represent the real ${esc(slug)}, submit evidence and a moderator will verify.</p>
       <label class="field"><span class="lbl">Evidence (why are you the real owner?)</span>
         <textarea id="claimEvidence" maxlength="500" placeholder="Website, social handle, registry link…"></textarea></label>
-      <button class="btn purple" onclick="GB.submitClaim('${esc(slug)}')">Send claim request</button>
+      <button class="btn purple" style="width:100%" onclick="GB.submitClaim('${esc(slug)}')">Send claim request</button>
+      <button class="btn ghost mt" type="button" onclick="GB.closeModal()" style="width:100%">Cancel</button>
       <p class="muted small mt">Claims are reviewed manually. This does not grant coins or boost advantages.</p>`);
   }
 
@@ -1512,7 +1553,7 @@
       if ($('#view')) $('#view').innerHTML = html;
       refreshHeader();
       if (route === 'wallet') startCountdowns();
-      if (route === 'admin') { loadClaims(); loadProfileQueue(); }
+      if (route === 'admin') { loadClaims(); loadProfileQueue(); loadAdminUsers(); }
       if (navigated || routeChanged) window.scrollTo(0, 0);
       else if (keepScroll && window.scrollY !== prevScrollY) window.scrollTo(0, prevScrollY);
     } catch (err) {
