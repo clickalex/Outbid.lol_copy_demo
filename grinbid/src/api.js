@@ -11,6 +11,7 @@ const { CONFIG } = require('./config');
 const eco = require('./economy');
 const auth = require('./auth');
 const san = require('./sanitize');
+const demo = require('./demo');
 const { RateLimiter, specFor } = require('./rateLimit');
 const { RouteError } = require('./router');
 
@@ -651,6 +652,91 @@ async function donate(ctx, state, sse) {
 }
 
 // ---------------------------------------------------------------------------
+// Demo sandbox (ADMIN ONLY) — isolated, in-memory, never touches the real DB
+// ---------------------------------------------------------------------------
+
+// A no-op SSE stand-in so real handlers can run against the demo state.
+const DEMO_SSE = { broadcast() {}, toUser() {}, get clientCount() { return 0; } };
+
+// Authorize against the REAL state, then hand back the isolated demo state.
+function demoGuard(ctx, state) {
+  requireAdmin(ctx, state);
+  return demo.getDemoState();
+}
+
+async function demoLeaderboard(ctx, state) { return leaderboard(ctx, demoGuard(ctx, state)); }
+async function demoProfiles(ctx, state) { return listProfiles(ctx, demoGuard(ctx, state)); }
+async function demoProfile(ctx, state) { return getProfile(ctx, demoGuard(ctx, state)); }
+async function demoFeed(ctx, state) { return feed(ctx, demoGuard(ctx, state)); }
+async function demoWinners(ctx, state) { return winners(ctx, demoGuard(ctx, state)); }
+
+async function demoReset(ctx, state) {
+  requireAdmin(ctx, state);
+  const d = demo.resetDemoState();
+  return ok({ ok: true, message: 'Demo sandbox reset.', users: Object.keys(d.users).length, profiles: Object.keys(d.profiles).length });
+}
+
+async function demoBoost(ctx, state) {
+  const d = demoGuard(ctx, state);
+  checkLimit(ctx, 'boost', 'boost');
+  const b = ctx.body || {};
+  const slug = san.sanitizeSlug(b.slug);
+  const amount = san.sanitizeAmount(b.amount, { min: CONFIG.ECONOMY.BOOST.MIN_BOOST, max: 1_000_000 });
+  const asName = san.sanitizeUsername(b.as) || 'boosterboi';
+  const profile = slug ? d.profiles[slug] : null;
+  if (!profile) throw new RouteError(404, 'not_found');
+  if (profile.status !== 'approved') return badRequest('page_not_live');
+  const user = d.userByUsername[asName] || d.userByUsername.boosterboi;
+  if (!user) throw new RouteError(404, 'demo_user_not_found');
+  if (amount === null) return badRequest('bad_amount');
+  const result = eco.applyBoost(d, user, profile, amount, Date.now());
+  if (!result.ok) {
+    const code = result.code || 400;
+    const err = new RouteError(code, result.reason);
+    err.extra = { balance: result.balance, waitMs: result.waitMs, min: result.min };
+    throw err;
+  }
+  return ok({ ok: true, ...result, demo: true });
+}
+
+async function demoApprove(ctx, state) {
+  const d = demoGuard(ctx, state);
+  const slug = san.sanitizeSlug((ctx.body || {}).slug);
+  const p = slug ? d.profiles[slug] : null;
+  if (!p) throw new RouteError(404, 'not_found');
+  p.status = 'approved';
+  p.reviewedAt = new Date().toISOString();
+  p.reviewNote = 'Approved in demo sandbox';
+  return ok({ ok: true, status: 'approved', demo: true });
+}
+
+async function demoClaim(ctx, state) {
+  const d = demoGuard(ctx, state);
+  const slug = san.sanitizeSlug((ctx.body || {}).slug);
+  const p = slug ? d.profiles[slug] : null;
+  const reqId = san.sanitizeId((ctx.body || {}).requestId, 64);
+  const approve = san.sanitizeBoolean((ctx.body || {}).approve);
+  if (!p || approve === null) return badRequest('bad_decision');
+  const req = (p.claimRequests || []).find((r) => r.id === reqId) || (p.claimRequests || [])[0];
+  if (!req) return badRequest('request_not_found');
+  req.status = approve ? 'approved' : 'rejected';
+  req.reviewedAt = new Date().toISOString();
+  if (approve) {
+    p.verified = true;
+    p.verifiedAt = new Date().toISOString();
+    p.claimedBy = d.userByUsername[req.username] ? d.userByUsername[req.username].id : p.createdBy;
+  }
+  return ok({ ok: true, verified: p.verified, demo: true });
+}
+
+async function demoSettle(ctx, state) {
+  const d = demoGuard(ctx, state);
+  const wanted = ['week', 'month', 'season'].includes((ctx.body || {}).period) ? ctx.body.period : 'week';
+  const result = eco.settlePeriod(d, wanted, true);
+  return ok(result);
+}
+
+// ---------------------------------------------------------------------------
 // Admin
 // ---------------------------------------------------------------------------
 
@@ -938,6 +1024,19 @@ function buildRouter(state, sse) {
   r.post('/api/admin/profile-decision', (ctx) => adminProfileDecision(ctx, state, sse));
   r.get('/api/admin/users', (ctx) => adminUsers(ctx, state));
   r.post('/api/admin/reset', (ctx) => adminReset(ctx, state, sse));
+
+  // Demo sandbox — ADMIN ONLY. All read/write handlers operate on an isolated,
+  // in-memory demo world that is never persisted and never shown to the public.
+  r.get('/api/demo/leaderboard', (ctx) => demoLeaderboard(ctx, state));
+  r.get('/api/demo/profiles', (ctx) => demoProfiles(ctx, state));
+  r.get('/api/demo/profiles/:slug', (ctx) => demoProfile(ctx, state));
+  r.get('/api/demo/feed', (ctx) => demoFeed(ctx, state));
+  r.get('/api/demo/winners', (ctx) => demoWinners(ctx, state));
+  r.post('/api/demo/reset', (ctx) => demoReset(ctx, state));
+  r.post('/api/demo/boost', (ctx) => demoBoost(ctx, state));
+  r.post('/api/demo/approve', (ctx) => demoApprove(ctx, state));
+  r.post('/api/demo/claim', (ctx) => demoClaim(ctx, state));
+  r.post('/api/demo/settle', (ctx) => demoSettle(ctx, state));
 
   // Realtime
   sse.state = state;

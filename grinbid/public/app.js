@@ -42,7 +42,7 @@
     community: { label: 'Community', color: 'mint' }
   };
 
-  window.GB = { api, toast, go, openAuth, openBoost, openClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, handleImage, homeSearch, search, setHomePeriod, adminLogin, adminAction, profileDecision, copyText, toggleNav, closeNav, backTop };
+  window.GB = { api, toast, go, openAuth, openBoost, openClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, handleImage, homeSearch, search, setHomePeriod, demoBoost, demoApprove, demoSettle, demoAction, setDemoPeriod, adminLogin, adminAction, profileDecision, copyText, toggleNav, closeNav, backTop };
 
   // ------------------------------------------------------------------ API
   async function api(path, opts = {}) {
@@ -248,6 +248,7 @@
         ${m ? '<a href="#/mine" data-r="mine">My page</a>' : ''}
         <a href="#/donate" data-r="donate">Donate</a>
         ${m && m.isAdmin ? '<a href="#/admin" data-r="admin">Admin</a>' : ''}
+        ${m && m.isAdmin ? '<a href="#/demo" data-r="demo">🧪 Demo</a>' : ''}
       </nav>
       ${m ? `
         <span class="streak-pill" title="Daily streak">🔥 ${m.streakCount}</span>
@@ -491,7 +492,7 @@
   // Switch the home fandom/fan board between weekly / monthly / season.
   function setHomePeriod(p) {
     S.homePeriod = (['week', 'month', 'season'].includes(p)) ? p : 'season';
-    reRender();
+    render();
   }
 
   async function homeSearch() {
@@ -1076,6 +1077,136 @@
       </div>
       ${rows}`;
   };
+
+  // ---- 🧪 Demo sandbox (ADMIN ONLY) — isolated fake data, not the live board
+  VIEWS.demo = async () => {
+    if (!S.me || !S.me.isAdmin) {
+      return `<div class="card danger"><h3>🔒 Admin only</h3><p>The demo sandbox is only available to admins.</p></div>`;
+    }
+    const period = S.demoPeriod || 'season';
+    const [lb, profs, winners] = await Promise.all([
+      api('/demo/leaderboard'), api('/demo/profiles'), api('/demo/winners')
+    ]);
+    const L = lb.ladders[period] || lb.ladders.season;
+    const live = (profs.profiles || []).filter((p) => p.status === 'approved');
+    const pending = (profs.profiles || []).filter((p) => p.status !== 'approved');
+
+    const demoFanOpts = ['boosterboi', 'fanqueen', 'salfan', 'srkfan', 'messifan']
+      .map((u) => `<option value="${u}">${u}</option>`).join('');
+
+    return `
+      <div class="notice" style="background:linear-gradient(135deg,#eaf7ff,#efe9ff);border:2px dashed #7c5cff;border-radius:16px;">
+        <b>🧪 DEMO SANDBOX</b> — this is <b>fake test data</b>, fully separate from the real site. Real fans never see it, nothing here affects the live leaderboard, and it is never saved. Test boosts, approvals, claims and settlements here.
+        <div class="row mt">
+          <button class="btn orange" style="background:#7c5cff" onclick="GB.demoAction('reset')">♻️ Reset demo data</button>
+          <a class="btn ghost" href="#/admin">← Back to admin</a>
+        </div>
+      </div>
+
+      <h2 class="section-title">🌟 Demo fandom board</h2>
+      ${periodTabsHtmlFor('demo', period)}
+      <div class="card season-card fandom-card">${fandomRows(L)}</div>
+      <h2 class="section-title">🎖️ Demo top fans</h2>
+      <div class="card season-card">${fanRows(L)}</div>
+
+      <div class="two-col mt">
+        <div class="card">
+          <h3 style="margin-top:0">💥 Test a boost</h3>
+          <p class="muted small">Simulate a fan boosting an idol (×1.5 if they boosted their own page).</p>
+          <label class="small muted">Fan (who boosts)</label>
+          <select id="demoAs">${demoFanOpts}</select>
+          <label class="small muted">Idol page</label>
+          <select id="demoSlug">${live.map((p) => `<option value="${esc(p.slug)}">${esc(p.emoji)} ${esc(p.realName)}</option>`).join('')}</select>
+          <label class="small muted">Coins (min 50)</label>
+          <input id="demoAmt" type="number" value="500" min="50">
+          <button class="btn pink mt" onclick="GB.demoBoost()">🚀 Boost</button>
+          <div id="demoBoostMsg"></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">📥 Moderation queue</h3>
+          <p class="muted small">Pages awaiting approval &amp; claim requests.</p>
+          ${pending.map((p) => `<div class="list-row">
+              <span class="avatar">${esc(p.emoji)}</span>
+              <span class="grow"><b>${esc(p.realName)}</b> <span class="sticker self">${esc(p.status)}</span><br><span class="muted small">by @${esc(p.createdByUsername)}</span></span>
+              <button class="btn mint small" onclick="GB.demoApprove('${esc(p.slug)}')">✓ Approve</button>
+            </div>`).join('') || '<p class="muted small">No pending pages.</p>'}
+          <div id="demoClaimBox"></div>
+        </div>
+      </div>
+
+      <h2 class="section-title mt">🏁 Settle a round (pay coins + crown + record winner)</h2>
+      <div class="card">
+        <p class="muted small">Settling closes the current demo round, pays the top 3 fans coins, crowns the top fandom page and adds it to the Hall of Winners below. Use week first to watch it fast.</p>
+        <div class="row">
+          <button class="btn orange" onclick="GB.demoSettle('week')">Settle Weekly</button>
+          <button class="btn orange" onclick="GB.demoSettle('month')">Settle Monthly</button>
+          <button class="btn orange" onclick="GB.demoSettle('season')">Settle Season</button>
+        </div>
+      </div>
+
+      <h2 class="section-title mt">🏆 Demo Hall of Winners</h2>
+      ${(winners.winners || []).map((x) => `<div class="card winner-card">
+          <div class="winner-head"><span class="sticker fan">${x.label} #${x.periodId || ''}</span><span class="muted small">${new Date(x.at).toLocaleDateString()}</span></div>
+          <div class="two-col">
+            <div><h4>🎖️ Fans</h4>${(x.fans || []).map((f) => `${MEDALS[f.rank - 1] || '#' + f.rank} <b>${esc(f.displayName || f.username)}</b> <span class="muted small">→ ${fmt(f.coinPrize)} 🪙</span>`).join('<br>') || '<span class="muted small">none</span>'}</div>
+            <div><h4>🌟 Crowned</h4>${(x.fandom || []).slice(0, 3).map((f) => `${MEDALS[f.rank - 1] || '#' + f.rank} ${esc(f.emoji || '⭐')} ${esc(f.realName || f.name)}`).join('<br>') || '<span class="muted small">none</span>'}</div>
+          </div>
+        </div>`).join('') || '<p class="muted">No rounds settled yet.</p>'}
+    `;
+  };
+
+  async function demoRefresh() { if ((S.current || '') === 'demo') render(); }
+
+  async function demoBoost() {
+    const slug = $('#demoSlug').value;
+    const as = $('#demoAs').value;
+    const amount = Number($('#demoAmt').value) || 0;
+    const box = $('#demoBoostMsg');
+    try {
+      const r = await api('/demo/boost', { method: 'POST', body: { slug, as, amount } });
+      if (box) box.innerHTML = `<p class="minted small">✅ Boosted ${r.value} pts ${r.selfBoost ? '(self ×1.5)' : ''}. Balance left ${fmt(r.balance)} coins.</p>`;
+      toast('Demo boost applied ✔', 'good');
+      render();
+    } catch (e) {
+      if (box) box.innerHTML = `<p class="muted small" style="color:var(--red)">⚠️ ${esc(e.message)}</p>`;
+    }
+  }
+
+  async function demoApprove(slug) {
+    try {
+      await api('/demo/approve', { method: 'POST', body: { slug } });
+      toast('Demo page approved ✔', 'good');
+      render();
+    } catch (e) { toast(e.message, 'bad'); }
+  }
+
+  async function demoSettle(period) {
+    try {
+      const r = await api('/demo/settle', { method: 'POST', body: { period } });
+      const crown = (r.payout.fandom || [])[0];
+      toast(`${r.payout.label} settled! ${crown ? 'Crowned ' + (crown.realName || crown.name) + ' 👑' : ''}`, 'good');
+      render();
+    } catch (e) { toast(e.message, 'bad'); }
+  }
+
+  async function demoAction(action) {
+    if (action === 'reset') {
+      if (!confirm('Reset the demo sandbox to its original fake data?')) return;
+      try { await api('/demo/reset', { method: 'POST' }); toast('Demo reset ♻️', 'good'); render(); }
+      catch (e) { toast(e.message, 'bad'); }
+    }
+  }
+
+  // period tabs used inside a specific view (demo) — switch S.demoPeriod.
+  function periodTabsHtmlFor(mode, active) {
+    return `<div class="period-tabs">
+      ${PERIOD_TABS.map(([k, label]) => `<button class="period-tab${k === active ? ' on' : ''}" onclick="GB.setDemoPeriod('${k}')">${label}</button>`).join('')}
+    </div>`;
+  }
+  function setDemoPeriod(p) {
+    S.demoPeriod = (['week', 'month', 'season'].includes(p)) ? p : 'season';
+    render();
+  }
 
   VIEWS.donate = async () => {
     const methods = await api('/donations/methods');

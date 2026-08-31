@@ -305,6 +305,37 @@ test('leaderboard: fandom ladders + fans for week/month/season, winners ledger',
   assert.ok(typeof w.realMoneyNote === 'string' && w.realMoneyNote.length > 20);
 });
 
+test('demo sandbox: public blocked, admin can read + boost, real DB untouched', async () => {
+  // 1. Public cannot reach demo endpoints.
+  const blocked = await fetch(`${base}/api/demo/leaderboard`);
+  assert.ok(blocked.status === 401 || blocked.status === 403);
+
+  // 2. Admin (password session) can read the populated demo world.
+  const login = await fetch(`${base}/api/admin/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: ADMIN_PASSWORD }) });
+  const ah = { 'Content-Type': 'application/json', Cookie: cookieFrom(login) };
+  const dlb = await fetch(`${base}/api/demo/leaderboard`, { headers: ah }).then((x) => x.json());
+  assert.ok(dlb.ladders && dlb.ladders.season);
+  assert.ok(dlb.ladders.season.fandom.length >= 3);
+  assert.ok(dlb.ladders.season.fans.length >= 1);
+  // Demo fans are the fake usernames, never the real test user.
+  const demoFanNames = dlb.ladders.season.fans.map((f) => f.username);
+  assert.ok(demoFanNames.includes('salfan'));
+
+  // 3. Demo boost works on an approved demo page.
+  const before = dlb.ladders.week.fandom.find((f) => f.slug === 'salman-khan').love;
+  const boost = await fetch(`${base}/api/demo/boost`, { method: 'POST', headers: ah, body: JSON.stringify({ slug: 'salman-khan', amount: 500, as: 'boosterboi' }) });
+  const bj = await boost.json();
+  assert.strictEqual(bj.ok, true);
+
+  // 4. The REAL board has none of the demo pages (salman-khan is demo-only).
+  const real = await fetch(`${base}/api/profiles`).then((x) => x.json());
+  assert.ok(!real.profiles.some((p) => p.slug === 'salman-khan'));
+
+  // 5. Reset works for admin.
+  const reset = await fetch(`${base}/api/demo/reset`, { method: 'POST', headers: ah }).then((x) => x.json());
+  assert.strictEqual(reset.ok, true);
+});
+
 test('signup requires email; email is private; duplicate email rejected', async () => {
   const noEmail = await fetch(`${base}/api/auth/signup`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
