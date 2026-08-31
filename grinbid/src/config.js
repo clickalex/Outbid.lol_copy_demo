@@ -7,8 +7,28 @@
  */
 
 const path = require('path');
+const fs = require('fs');
 
 const ROOT = path.join(__dirname, '..');
+
+// Load .env file if present
+try {
+  const envPath = path.join(ROOT, '.env');
+  if (fs.existsSync(envPath)) {
+    const lines = fs.readFileSync(envPath, 'utf8').split('\n');
+    for (const line of lines) {
+      const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)?\s*$/);
+      if (m) {
+        const key = m[1];
+        let val = m[2] || '';
+        val = val.replace(/^['"](.*)['"]$/, '$1').trim();
+        if (process.env[key] === undefined) {
+          process.env[key] = val;
+        }
+      }
+    }
+  }
+} catch (e) {}
 
 const CONFIG = Object.freeze({
   ROOT,
