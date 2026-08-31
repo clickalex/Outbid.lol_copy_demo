@@ -439,7 +439,7 @@
         <span class="sticker fan">100% free coins</span>
         <span class="sticker seed">fandom first</span>
         <h1>Crown your idol 🏆</h1>
-        <p class="tagline">In India we make a god out of our stars — Salman vs SRK, Hulk vs Iron Man, Ronaldo vs Messi. Boost your celeb or character with free coins and push them to <b>#1</b>. The most-loved fandom wins the crown; the fans behind them win coins.</p>
+        <p class="tagline">In India we don't just watch our stars — we live for them. Salman vs SRK, Hulk vs Iron Man, Ronaldo vs Messi. Boost your celeb or character with free coins and push them to <b>#1</b>. The most-loved fandom wins the crown; the fans behind them win coins.</p>
         <div class="row mt">
           ${m ? `<button class="btn big pink" onclick="document.getElementById('fanGrid')?.scrollIntoView({behavior:'smooth'})">🔥 Boost your fave</button>
                  <button class="btn big" style="background:#fff" onclick="go('#/wallet')">\uD83E\uDE99 My wallet</button>`
