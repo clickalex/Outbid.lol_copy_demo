@@ -765,6 +765,22 @@ async function adminLogin(ctx) {
   return ok({ ok: true, admin: true }, { headers: { 'Set-Cookie': cookie } });
 }
 
+// Lightweight check so the SPA can reveal admin-only screens (dashboard,
+// demo sandbox) when EITHER a founder-user session OR an admin-password
+// session is present.
+async function adminSession(ctx, state) {
+  let admin = false;
+  const me = findUserBySession(ctx, state);
+  if (me && eco.isAdminUser(me)) admin = true;
+  if (!admin) {
+    const cookies = auth.parseCookies(ctx.req.headers.cookie);
+    const token = cookies[CONFIG.AUTH.ADMIN_COOKIE];
+    const parsed = auth.verifyToken(token);
+    if (parsed && parsed.kind === 'admin') admin = true;
+  }
+  return ok({ admin });
+}
+
 async function adminOverview(ctx, state, sse) {
   requireAdmin(ctx, state);
   const users = Object.values(state.users);
@@ -1014,6 +1030,7 @@ function buildRouter(state, sse) {
 
   // Admin
   r.post('/api/admin/login', (ctx) => adminLogin(ctx));
+  r.get('/api/admin/session', (ctx) => adminSession(ctx, state));
   r.get('/api/admin/overview', (ctx) => adminOverview(ctx, state, sse));
   r.post('/api/admin/announce', (ctx) => adminAnnounce(ctx, state, sse));
   r.post('/api/admin/notify', (ctx) => adminNotify(ctx, state, sse));

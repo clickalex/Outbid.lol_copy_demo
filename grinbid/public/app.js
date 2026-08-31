@@ -27,9 +27,14 @@
     current: null,
     query: {},
     navOpen: false,
+    adminSession: false, // true when an admin-PASSWORD session is active
     sseTimer: null,
     sseClosed: false
   };
+
+  // Admin UI is visible to BOTH a founder-user (S.me.isAdmin) and an
+  // admin-password session (S.adminSession).
+  const isAdminUI = () => Boolean((S.me && S.me.isAdmin) || S.adminSession);
 
   const AVATARS = ['😀', '😎', '🤓', '🦊', '🐱', '🐶', '🦄', '🐸', '🐙', '👻', '🤖', '🐹', '🎤', '🎸', '🍕', '🍩', '🌈', '⚡', '⭐', '🍀'];
   const CATS = {
@@ -247,8 +252,8 @@
         <a href="#/create" data-r="create">Create</a>
         ${m ? '<a href="#/mine" data-r="mine">My page</a>' : ''}
         <a href="#/donate" data-r="donate">Donate</a>
-        ${m && m.isAdmin ? '<a href="#/admin" data-r="admin">Admin</a>' : ''}
-        ${m && m.isAdmin ? '<a href="#/demo" data-r="demo">🧪 Demo</a>' : ''}
+        ${isAdminUI() ? '<a href="#/admin" data-r="admin">Admin</a>' : ''}
+        ${isAdminUI() ? '<a href="#/demo" data-r="demo">🧪 Demo</a>' : ''}
       </nav>
       ${m ? `
         <span class="streak-pill" title="Daily streak">🔥 ${m.streakCount}</span>
@@ -346,11 +351,16 @@
     try {
       const data = await api('/me');
       S.me = data.user;
-      return data.user;
     } catch (err) {
+      S.me = null;
       if (!quiet) toast(err.message, 'bad');
-      return null;
     }
+    // Detect an admin-password session too (founder users are admin via /me).
+    try {
+      const asess = await api('/admin/session');
+      S.adminSession = Boolean(asess.admin);
+    } catch { S.adminSession = false; }
+    return S.me;
   }
 
   async function loadHomeData() {
@@ -1080,7 +1090,7 @@
 
   // ---- 🧪 Demo sandbox (ADMIN ONLY) — isolated fake data, not the live board
   VIEWS.demo = async () => {
-    if (!S.me || !S.me.isAdmin) {
+    if (!isAdminUI()) {
       return `<div class="card danger"><h3>🔒 Admin only</h3><p>The demo sandbox is only available to admins.</p></div>`;
     }
     const period = S.demoPeriod || 'season';
@@ -1250,7 +1260,7 @@
     // The admin panel is hidden: it exists nowhere in the navigation, and a
     // visitor who types the URL in either is an admin (sees the dashboard) or
     // sees an ordinary 404-style page — no password prompt to hint at.
-    if (!S.me || !S.me.isAdmin) {
+    if (!isAdminUI()) {
       return `
         <div class="card center" style="max-width:520px;margin:60px auto">
           <div style="font-size:3rem">🎪</div>
@@ -1268,6 +1278,7 @@
     try {
       await api('/admin/login', { method: 'POST', body: { password: new FormData(ev.target).get('password') } });
       toast('Admin logged in 🔐', 'good');
+      await refresh();   // picks up the admin-password session for nav/views
       render();
     } catch (err) { toast('Wrong password', 'bad'); }
   }
