@@ -177,7 +177,8 @@ Outbid.lol_copy_demo/
 | `#/create` | **Create fan page** | 1. Approval/email notice → 2. Form: real person/character · category (incl. **Character**) · page name · slug · **photo upload (auto-resized)** or emoji · tagline · description · tags → 3. “Submit for approval”. |
 | `#/mine` | **My page** | 1. Pending/approved/rejected banner (with email note) → 2. Your page card → 3. Boost (×1.5) / view. |
 | `#/donate` | **Donate** | Non-reward donation methods (UPI/PayPal/BMC/Razorpay), zero-perks notice. |
-| `#/admin` | **Admin dashboard** (hidden; `alexami` only) | 1. Stat stripe (users, boosts, **pages to review**, open claims) → 2. **🧐 Fan pages awaiting approval** queue (photo, creator email, Approve / Needs changes / Preview) → 3. Broadcast → 4. Message a user → 5. Season force-settle → 6. Claim requests → 7. Funding intents. |
+| `#/admin` | **Admin dashboard** (hidden; `alexami` only) | 1. Stat stripe (users, boosts, **pages to review**, open claims) → 2. **🧐 Fan pages awaiting approval** queue (photo, creator email, Approve / Needs changes / Preview) → 3. Broadcast → 4. Message a user → 5. Season force-settle → 6. Claim requests (each opens the verification screen) → 7. Funding intents. |
+| `#/admin/claims/:slug/:id` | **Claim verification screen** (hidden; admin only) | 1. Request header (id, status, timestamps) → 2. **The fan page being claimed** (photo, category, creator + email, boost stats, live-page link) → 3. **The claimant** (avatar, email, join date, coins, boosts, their other claims) → 4. **Evidence submitted** + competing claims → 5. **Verification checklist & decision** (optional note, Approve = verify 🟢 / Reject). |
 | `#/terms` `#/privacy` | Legal | Condensed terms/privacy with link to the full static page. |
 
 **Home page order rationale:** it leads with the **season leaderboard** and the **ranked fan pages** so a visitor instantly sees *who’s on top*, exactly as requested.

@@ -75,6 +75,10 @@ Hash-routed SPA: `#/home` · `#/discover` · `#/profile/:slug` · `#/wallet` ·
 - **My page** — your created page + one-tap ×1.5 self-boost.
 - **Donate** — strictly non-reward intents only.
 - **Admin** — stats, broadcast, notify, season settle, claim queue, reseed.
+  Every claim opens a dedicated **verification screen** (`#/admin/claims/:slug/:id`)
+  showing the page dossier, the claimant's account history, the submitted
+  evidence, competing claims and an approve/reject decision with an optional
+  note that is delivered to the claimant.
 
 ---
 
