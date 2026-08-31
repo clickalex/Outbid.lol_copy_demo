@@ -98,10 +98,18 @@ test('applyBoost: full flow with 1.5x self boost, cooldown and funds', () => {
   const state = createSeedState();
   const user = makeUser({ coins: 1000 });
   state.users[user.id] = user;
-  const profile = state.profiles['luna-starr'];
-  profile.createdBy = user.id; // self-boost
+  // No pages are pre-seeded — build a fan page the way a real fan would.
+  state.profiles['test-fave'] = {
+    id: 'p_test-fave', slug: 'test-fave', name: 'Test Fave', realName: 'Test Fave',
+    category: 'celebrity', emoji: '⭐', image: null, tagline: '', tags: [],
+    description: '', status: 'approved', fanCreated: true, seed: false,
+    createdBy: user.id, createdByUsername: user.username, boostTotal: 0,
+    boostCount: 0, fanCount: 0, fanIds: [], recentBoosts: [], claimRequests: []
+  };
+  const profile = state.profiles['test-fave'];
 
-  const r = eco.applyBoost(state, user, profile, 200, Date.now());
+  const base = Date.parse('2026-02-01T12:00:00Z');
+  const r = eco.applyBoost(state, user, profile, 200, base);
   assert.strictEqual(r.ok, true);
   assert.strictEqual(r.value, 300);            // 200 × 1.5
   assert.strictEqual(user.coins, 800);         // paid exactly 200
@@ -113,19 +121,19 @@ test('applyBoost: full flow with 1.5x self boost, cooldown and funds', () => {
   assert.strictEqual(r.selfBoost, true);
 
   // 2-second cooldown enforced.
-  const r2 = eco.applyBoost(state, user, profile, 100, Date.now() + 1000);
+  const r2 = eco.applyBoost(state, user, profile, 100, base + 1000);
   assert.strictEqual(r2.ok, false);
   assert.strictEqual(r2.reason, 'cooldown');
   assert.ok(r2.waitMs >= 999);
 
   // After cooldown, works again.
-  const r3 = eco.applyBoost(state, user, profile, 100, Date.now() + 2100);
+  const r3 = eco.applyBoost(state, user, profile, 100, base + 2100);
   assert.strictEqual(r3.ok, true);
   assert.strictEqual(r3.value, 150);
   assert.strictEqual(user.coins, 700);
 
   // Min boost of 50 rejected below.
-  const r4 = eco.applyBoost(state, user, profile, 49, Date.now() + 5000);
+  const r4 = eco.applyBoost(state, user, profile, 49, base + 5000);
   assert.strictEqual(r4.ok, false);
   assert.strictEqual(r4.reason, 'min_boost');
 
@@ -177,19 +185,29 @@ test('tasks: unlocks, completion and claims', () => {
 
 test('season: awards 50k/25k/10k to top 3 and resets points', () => {
   const state = createSeedState();
-  const u1 = makeUser({ id: 'u_1', username: 'a', seasonPoints: 500 });
-  const u2 = makeUser({ id: 'u_2', username: 'b', seasonPoints: 300 });
-  const u3 = makeUser({ id: 'u_3', username: 'c', seasonPoints: 100 });
+  const u1 = makeUser({ id: 'u_1', username: 'a' });
+  const u2 = makeUser({ id: 'u_2', username: 'b' });
+  const u3 = makeUser({ id: 'u_3', username: 'c' });
   state.users[u1.id] = u1; state.users[u2.id] = u2; state.users[u3.id] = u3;
+  // Record season fan points via the ladder map (the shape boosts use).
+  eco.ensurePeriods(state);
+  state.fanPoints.season[u1.id] = 500;
+  state.fanPoints.season[u2.id] = 300;
+  state.fanPoints.season[u3.id] = 100;
 
   const r = eco.settleSeason(state, true);
   assert.strictEqual(r.ok, true);
   assert.strictEqual(u1.coins, 50000);
   assert.strictEqual(u2.coins, 25000);
   assert.strictEqual(u3.coins, 10000);
-  assert.strictEqual(u1.seasonPoints, 0);
-  assert.strictEqual(state.season.id, 2);
-  assert.strictEqual(r.payout.earned.length, 3);
+  assert.strictEqual(state.fanPoints.season[u1.id] || 0, 0);
+  assert.ok(state.season.id >= 3); // forced settle closes the current in-progress season
+  assert.ok(Array.isArray(r.payout.fans));
+  assert.strictEqual(r.payout.fans.length, 3);
+  // Fandom + winners ledger recorded.
+  assert.ok(Array.isArray(r.payout.fandom));
+  assert.ok(Array.isArray(state.winners));
+  assert.ok(state.winners.some((w) => w.type === 'season'));
 });
 
 test('awardCoins feeds 10% lifetime match to active referrer', () => {
@@ -206,4 +224,76 @@ test('awardCoins feeds 10% lifetime match to active referrer', () => {
   assert.strictEqual(referee.coins, 2500);
   assert.strictEqual(referrer.coins, 250);
   assert.strictEqual(referrer.referral.lifetimeMatchEarned, 250);
+});
+
+test('periods: a boost scores on weekly, monthly AND season ladders (fans + fandom)', () => {
+  const state = createSeedState();
+  const fan = makeUser({ id: 'u_fan', username: 'fanx', coins: 100000 });
+  state.users[fan.id] = fan;
+  state.profiles['srk'] = {
+    id: 'p_srk', slug: 'srk', name: 'SRK Army', realName: 'Shah Rukh Khan',
+    category: 'celebrity', emoji: '❤️', image: null, tagline: '', tags: [],
+    description: '', status: 'approved', fanCreated: true, seed: false,
+    createdBy: 'u_other', createdByUsername: 'other', boostTotal: 0,
+    boostCount: 0, fanCount: 0, fanIds: [], recentBoosts: [], claimRequests: []
+  };
+  const at = Date.parse('2026-03-01T12:00:00Z');
+  const res = eco.applyBoost(state, fan, state.profiles['srk'], 1000, at);
+  assert.strictEqual(res.ok, true);
+  // standard (not owner) => 1000 points to each ladder for fan
+  assert.strictEqual(state.fanPoints.week[fan.id], 1000);
+  assert.strictEqual(state.fanPoints.month[fan.id], 1000);
+  assert.strictEqual(state.fanPoints.season[fan.id], 1000);
+  // fandom love on each ladder
+  assert.strictEqual(state.fandomPoints.season['srk'].love, 1000);
+  assert.strictEqual(state.fandomPoints.week['srk'].realName, 'Shah Rukh Khan');
+  // fandom rankings put SRK first
+  const top = eco.fandomRankings(state, 'season', 5);
+  assert.strictEqual(top[0].slug, 'srk');
+  assert.strictEqual(top[0].love, 1000);
+  // fan rankings
+  const fans = eco.fanRankings(state, 'week', 3);
+  assert.strictEqual(fans[0].username, 'fanx');
+});
+
+test('weekly settle: pays weekly fan prizes, crowns fandom, records ledger, resets only week', () => {
+  const state = createSeedState();
+  const w1 = makeUser({ id: 'u_w1', username: 'w1', coins: 100000 });
+  state.users[w1.id] = w1;
+  state.profiles['hulk'] = {
+    id: 'p_hulk', slug: 'hulk', name: 'Hulk Smash', realName: 'Hulk',
+    category: 'character', emoji: '💚', image: null, tagline: '', tags: [],
+    description: '', status: 'approved', fanCreated: true, seed: false,
+    createdBy: 'u_other2', boostTotal: 0, boostCount: 0, fanCount: 0,
+    fanIds: [], recentBoosts: [], claimRequests: []
+  };
+  const at = Date.parse('2026-04-01T12:00:00Z');
+  eco.applyBoost(state, w1, state.profiles['hulk'], 2000, at);
+  const beforeWeekPts = state.fanPoints.week[w1.id];
+
+  const r = eco.settlePeriod(state, 'week', true, at);
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.payout.type, 'week');
+  // weekly rank-1 prize = 5000
+  assert.strictEqual(w1.coins, 100000 - 2000 + 5000);
+  // fandom crowned = Hulk
+  assert.strictEqual(r.payout.fandom[0].realName, 'Hulk');
+  // ledger entry with cash payout NOT yet paid
+  const entry = state.winners[state.winners.length - 1];
+  assert.strictEqual(entry.type, 'week');
+  assert.strictEqual(entry.fans[0].cashPaid, false);
+  assert.strictEqual(entry.cashStatus, 'recorded_pending_launch');
+  // week reset, season intact
+  assert.strictEqual(state.fanPoints.week[w1.id] || 0, 0);
+  assert.strictEqual(state.fanPoints.season[w1.id], beforeWeekPts);
+  assert.strictEqual(state.fandomPoints.season['hulk'].love, 2000);
+});
+
+test('ensurePeriods: fresh state has zero winners and future-dated ladders', () => {
+  const state = createSeedState();
+  eco.ensurePeriods(state);
+  assert.strictEqual(state.winners.length, 0);
+  assert.ok(Date.parse(state.periods.week.endsAt) > Date.now());
+  assert.ok(Date.parse(state.periods.month.endsAt) > Date.now());
+  assert.ok(Date.parse(state.periods.season.endsAt) > Date.now());
 });

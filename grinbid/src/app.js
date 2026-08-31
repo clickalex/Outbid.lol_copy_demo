@@ -14,7 +14,7 @@ const { JsonStore } = require('./store');
 const { SseHub } = require('./sse');
 const { buildRouter } = require('./api');
 const { createSeedState } = require('./seed');
-const { maybeAutoSettleSeason } = require('./economy');
+const { ensurePeriods, maybeAutoSettle } = require('./economy');
 const { RouteError } = require('./router');
 
 async function createApp(opts = {}) {
@@ -28,22 +28,48 @@ async function createApp(opts = {}) {
   const state = store.data;
   state.meta.bootCount = (state.meta.bootCount || 0) + 1;
 
-  const settled = maybeAutoSettleSeason(state, Date.now());
-  if (settled && settled.ok) {
-    console.log(`[grinbid] Auto-settled season ${settled.payout.seasonId} on boot.`);
+  ensurePeriods(state, Date.now());
+  const settled = maybeAutoSettle(state, Date.now());
+  if (settled) {
+    for (const s of settled) {
+      if (s && s.ok) console.log(`[grinbid] Auto-settled ${s.payout.label} #${s.payout.periodId} on boot.`);
+    }
   }
   await store.flush();
+
+  // Production safety nags.
+  if (!process.env.ADMIN_PASSWORD) {
+    console.warn('[grinbid] ⚠️  ADMIN_PASSWORD is not set — the admin console is using the built-in DEV password. Set ADMIN_PASSWORD in production.');
+  }
+  if (!process.env.ADMIN_USERNAMES) {
+    console.warn('[grinbid] ADMIN_USERNAMES not set — default founder username "alexami" will be admin on signup.');
+  }
+  console.log(`[grinbid] Admin usernames: ${CONFIG.AUTH.ADMIN_USERNAMES.join(', ')}`);
+  console.log('[grinbid] Demo sandbox available to admins only at #/demo (in-memory, never persisted).');
 
   const sse = new SseHub();
   const router = buildRouter(state, sse);
 
   const server = http.createServer(async (req, res) => {
     res.setHeader('X-Powered-By', 'Grinbid (100% free virtual coins)');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+    // CSP: nothing is loaded from external origins (zero npm deps, no CDNs).
+    // The single self-hosted app.js plus small inline bootstrap/event
+    // attributes are allowed; uploaded fan photos are data: URLs.
+    res.setHeader('Content-Security-Policy',
+      "default-src 'self'; " +
+      "img-src 'self' data:; " +
+      "style-src 'self' 'unsafe-inline'; " +
+      "script-src 'self' 'unsafe-inline'; " +
+      "connect-src 'self'; " +
+      "frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
     try {
-      maybeAutoSettleSeason(state, Date.now());
+      ensurePeriods(state, Date.now());
+      maybeAutoSettle(state, Date.now());
       await router.dispatch(req, res);
     } catch (err) {
       if (err instanceof RouteError) {

@@ -66,9 +66,28 @@ function sanitizeAmount(value, { min = 0, max = 1_000_000_000 } = {}) {
 }
 
 function sanitizeCategory(value) {
-  const ALLOWED = new Set(['celebrity', 'influencer', 'estate', 'venue', 'brand', 'community']);
+  const ALLOWED = new Set(['celebrity', 'character', 'influencer', 'estate', 'venue', 'brand', 'community']);
   const s = cleanText(value, { max: 20 }).toLowerCase();
   return ALLOWED.has(s) ? s : null;
+}
+
+function sanitizeEmail(value) {
+  const s = cleanText(value, { max: 120 }).toLowerCase();
+  return CONFIG.AUTH.EMAIL_RE.test(s) ? s : null;
+}
+
+/**
+ * Profile images are accepted as small data URLs only. The browser resizes
+ * uploads to a compact JPEG/PNG before sending, so we just enforce the
+ * prefix allowlist and a hard size cap here. Returns the data URL or null.
+ */
+function sanitizeImageDataUrl(value) {
+  if (value === null || value === undefined) return null;
+  const s = String(value);
+  if (s.length === 0) return null;
+  if (s.length > CONFIG.IMAGE.MAX_DATA_URL_LENGTH) return null;
+  const ok = CONFIG.IMAGE.PREFIXES.some((p) => s.startsWith(p));
+  return ok ? s : null;
 }
 
 function sanitizeBoolean(value) {
@@ -91,6 +110,8 @@ module.exports = {
   sanitizeId,
   sanitizeAmount,
   sanitizeCategory,
+  sanitizeEmail,
+  sanitizeImageDataUrl,
   sanitizeBoolean,
   hashIp
 };

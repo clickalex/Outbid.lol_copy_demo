@@ -17,7 +17,7 @@
 <body>
 <div class="wrap">
   <div class="doc-nav">
-    <a href="https://grinbid-8h5e.onrender.com/" target="_blank" rel="noopener" class="btn ghost small">🎪 Play Grinbid</a>
+    <a href="/" class="btn ghost small">🎪 Play Grinbid</a>
     <a href="how-it-works.html" class="btn ghost small">How it works</a>
     <a href="rules.html" class="btn ghost small">Rules</a>
     <a href="leaderboard.html" class="btn ghost small">Leaderboard</a>
@@ -47,24 +47,23 @@
     <div class="card"><h3>🌐 Zero dependencies</h3><p class="muted">Node built-ins only, vanilla JS SPA, no install.</p></div>
   </div>
 
-  <h2 class="section-title">Where it runs</h2>
+  <h2 class="section-title">How it's built</h2>
   <div class="card">
     <ul style="margin:0;padding-left:20px;">
-      <li><b>Live app</b> — deployed and playable at <a href="https://grinbid-8h5e.onrender.com/">grinbid-8h5e.onrender.com</a> (free Render plan).</li>
-      <li><b>Zero-dependency Node app</b> — <code>node server.js</code> with a real API, SSE live feed and JSON store; source in <code>src/</code>, served from <code>public/</code>.</li>
+      <li><b>Zero-dependency Node app</b> — <code>node server.js</code> with a real API, SSE live feed and JSON store.</li>
+      <li><b>Vanilla JS SPA</b> — no framework, no build step, no install.</li>
       <li><b>Info pages</b> — How it works, Rules, Leaderboard, Coins, FAQ, Terms, Privacy.</li>
-      <li><b>Docs</b> — <code>PROJECT-SPEC.md</code> (full rebuild spec), <code>deploy/</code> (Render + Oracle).</li>
     </ul>
   </div>
 
   <h2 class="section-title">How to play</h2>
   <div class="card">
-    <p><a href="https://grinbid-8h5e.onrender.com/" target="_blank" rel="noopener" class="btn pink">🎪 Open Grinbid</a> <a href="how-it-works.html" class="btn ghost">How it works</a></p>
+    <p><a href="/" class="btn pink">🎪 Play Grinbid</a> <a href="how-it-works.html" class="btn ghost">How it works</a></p>
     <p class="muted mt">Sign-up is free and gives you 2,500 coins to start — no payment details, ever. Coins are 100% virtual with zero cash value.</p>
   </div>
 
   <div class="notice legal mt">Grinbid is a fan-made game. Coins are virtual, free and non-redeemable. Donations are voluntary and never grant rewards.</div>
 </div>
-  <script src="enhance.js" defer></script>
+  <script src="enhance.js" defer data-standalone="1"></script>
 </body>
 </html>

@@ -11,10 +11,21 @@ const { CONFIG } = require('./config');
 const eco = require('./economy');
 const auth = require('./auth');
 const san = require('./sanitize');
+const demo = require('./demo');
 const { RateLimiter, specFor } = require('./rateLimit');
 const { RouteError } = require('./router');
 
 const limiter = new RateLimiter();
+
+// Shown on the leaderboard/winners pages. Today all prizes are paid in free
+// virtual coins. We record every winner permanently; once Grinbid is fully
+// operating and legally set up for real-money prizes, those launch and past
+// winners are the list who get paid out in cash.
+const REAL_MONEY_NOTE =
+  'Real-money cash prizes are NOT live yet. Until Grinbid is fully operating ' +
+  'and legally set up, every prize is paid in free coins. Every weekly, ' +
+  'monthly and season winner is permanently recorded — once real-money ' +
+  'prizes launch, all winners (including past ones) will be paid out. Stay tuned!';
 
 function ok(body, extra = {}) {
   return { status: 200, body, ...extra };
@@ -50,6 +61,7 @@ function checkLimit(ctx, route, authLevel) {
 function publicUserView(state, user, opts = {}) {
   const view = eco.publicUser(state, user);
   if (opts.withPrivate) {
+    view.email = user.email || null;
     view.referralCode = user.referral ? user.referral.code : null;
     view.referralCodeShared = Boolean(user.referral && user.referral.codeSharedAt);
     view.referrals = (user.referral && user.referral.referrals || [])
@@ -106,10 +118,13 @@ async function signup(ctx, state, sse) {
   const username = san.sanitizeUsername(b.username);
   const displayName = san.sanitizeDisplayName(b.displayName) || username;
   const avatar = san.sanitizeAvatar(b.avatar);
+  const email = san.sanitizeEmail(b.email);
   const password = String(b.password || '');
   if (!username) return badRequest('invalid_username');
+  if (!email) return badRequest('invalid_email');
   if (password.length < 8 || password.length > 128) return badRequest('invalid_password');
   if (state.userByUsername[username]) return badRequest('username_taken');
+  if (Object.values(state.users).some((u) => u.email === email)) return badRequest('email_in_use');
 
   const ipHash = san.hashIp(clientIp(ctx));
   const now = Date.now();
@@ -118,6 +133,7 @@ async function signup(ctx, state, sse) {
     username,
     displayName,
     avatar,
+    email,
     coins: 0,
     totalCoinsEarned: 0,
     totalCoinsSpent: 0,
@@ -234,20 +250,56 @@ async function me(ctx, state) {
 // ---------------------------------------------------------------------------
 
 async function leaderboard(ctx, state) {
-  const top = Object.values(state.users)
-    .filter((u) => u.username)
-    .map((u) => ({ id: u.id, username: u.username, displayName: u.displayName, avatar: u.avatar, points: u.seasonPoints, boostCount: u.stats.boosts }))
-    .sort((a, b) => b.points - a.points || a.username.localeCompare(b.username))
-    .slice(0, 10);
+  eco.ensurePeriods(state);
+  // Fandom comes FIRST (the celeb/character pages), then the fan boosters.
+  // Three ladders each: weekly / monthly / season.
+  const ladders = {};
+  for (const t of ['week', 'month', 'season']) {
+    const p = state.periods[t];
+    ladders[t] = {
+      id: p.id,
+      label: p.label,
+      startsAt: p.startedAt,
+      endsAt: p.endsAt,
+      fanPrizes: CONFIG.ECONOMY.PERIODS[t].fanPrizes,
+      fandom: eco.fandomRankings(state, t, CONFIG.ECONOMY.PERIODS[t].fandomTop),
+      fans: eco.fanRankings(state, t, 10)
+    };
+  }
+  // Back-compat: legacy clients read `season` + `top` (season fan board).
   return ok({
-    season: { id: state.season.id, endsAt: state.season.endsAt },
+    season: { id: state.periods.season.id, endsAt: state.periods.season.endsAt },
     prizes: CONFIG.ECONOMY.SEASON_PRIZES,
-    top
+    top: ladders.season.fans,
+    ladders
+  });
+}
+
+async function winners(ctx, state) {
+  eco.ensurePeriods(state);
+  const list = (state.winners || []).slice().reverse().slice(0, 60).map((w) => ({
+    at: w.at,
+    type: w.type,
+    label: w.label,
+    periodId: w.periodId,
+    fans: w.fans,
+    fandom: w.fandom
+  }));
+  return ok({
+    realMoneyNote: REAL_MONEY_NOTE,
+    realMoneyLive: false,
+    winners: list
   });
 }
 
 async function feed(ctx, state) {
-  const boo = state.boosts.slice(-40).reverse();
+  const boo = state.boosts
+    .filter((b) => {
+      const p = state.profiles[b.profileSlug];
+      return !p || p.status === 'approved';
+    })
+    .slice(-40)
+    .reverse();
   return ok({ boosts: boo.map((b) => ({
     id: b.id,
     username: b.username,
@@ -265,13 +317,18 @@ async function feed(ctx, state) {
 async function listProfiles(ctx, state) {
   const q = san.cleanText(ctx.query.q || '', { max: 40 }).toLowerCase();
   const cat = san.sanitizeCategory(ctx.query.category);
-  let list = Object.values(state.profiles);
+  const me = findUserBySession(ctx, state);
+  const canSeeHidden = (p) =>
+    p.status === 'approved' ||
+    (me && (p.createdBy === me.id || eco.isAdminUser(me)));
+  let list = Object.values(state.profiles).filter(canSeeHidden);
   if (cat) list = list.filter((p) => p.category === cat);
-  if (q) list = list.filter((p) => (p.name + ' ' + p.tagline + ' ' + (p.tags || []).join(' ')).toLowerCase().includes(q));
-  list.sort((a, b) => b.boostTotal - a.boostTotal || a.name.localeCompare(b.name));
+  if (q) list = list.filter((p) => ((p.realName || p.name) + ' ' + p.name + ' ' + p.tagline + ' ' + (p.tags || []).join(' ')).toLowerCase().includes(q));
+  // Most-backed first — the same ordering drives the home-page ranking.
+  list.sort((a, b) => b.boostTotal - a.boostTotal || b.fanCount - a.fanCount || a.name.localeCompare(b.name));
   return ok({
     profiles: list.map((p) => ({ ...eco.publicProfile(state, p), boostTotal: p.boostTotal, boostCount: p.boostCount, fanCount: p.fanCount })),
-    categories: ['celebrity', 'influencer', 'estate', 'venue', 'brand', 'community'],
+    categories: ['celebrity', 'character', 'influencer', 'estate', 'venue', 'brand', 'community'],
     total: list.length
   });
 }
@@ -280,8 +337,10 @@ async function getProfile(ctx, state) {
   const slug = san.sanitizeSlug(ctx.params.slug);
   const p = slug ? state.profiles[slug] || Object.values(state.profiles).find((x) => x.id === slug) : null;
   if (!p) throw new RouteError(404, 'not_found');
-  const view = eco.publicProfile(state, p);
   const user = findUserBySession(ctx, state);
+  const allowed = p.status === 'approved' || (user && (p.createdBy === user.id || eco.isAdminUser(user)));
+  if (!allowed) throw new RouteError(404, 'not_found');
+  const view = eco.publicProfile(state, p);
   view.isMineProfile = Boolean(user && p.createdBy === user.id);
   view.selfBoostMultiplier = eco.boostValue(100, view.isMineProfile) / 100;
   return ok({ profile: view });
@@ -295,10 +354,12 @@ async function createProfile(ctx, state, sse) {
     const slug = san.sanitizeSlug(b.slug);
     const category = san.sanitizeCategory(b.category);
     const emoji = san.sanitizeAvatar(b.emoji, '⭐');
-    const tagline = san.cleanText(b.tagline, { max: 60 });
-    const description = san.cleanText(b.description, { max: 400, allowNewlines: true });
+    const image = san.sanitizeImageDataUrl(b.image);
+    const realName = san.cleanText(b.realName || b.name, { max: 60 }) || name;
+    const tagline = san.cleanText(b.tagline, { max: 80 });
+    const description = san.cleanText(b.description, { max: 600, allowNewlines: true });
     const tags = Array.isArray(b.tags)
-      ? b.tags.map((t) => san.cleanText(t, { max: 20 })).filter(Boolean).slice(0, 6)
+      ? b.tags.map((t) => san.cleanText(t, { max: 20 })).filter(Boolean).slice(0, 8)
       : [];
     if (!name || !slug || !category) return badRequest('invalid_profile_fields');
     if (user.createdProfileSlug) return { status: 400, body: { error: 'one_profile_per_user' } };
@@ -308,19 +369,30 @@ async function createProfile(ctx, state, sse) {
     const profile = {
       id: `p_${slug}`,
       slug,
+      // Display name of the fan page (e.g. "Bhaijaan Fans") + the real
+      // person/character the page is about (e.g. "Salman Khan").
       name,
+      realName,
       category,
       emoji,
-      tagline: tagline || `${name} — fan-made page`,
+      image,
+      tagline: tagline || `${realName} — fan-made page`,
       tags,
-      description: description || 'Fan-created profile. Boost to show love!',
+      description: description || 'Fan-created page. Boost to show love!',
       seed: false,
       fanCreated: true,
+      // New pages go live only after an admin approves them. The creator can
+      // see their own page meanwhile (filtered in list/get handlers).
+      status: 'pending',
+      submittedAt: new Date(now).toISOString(),
+      reviewedAt: null,
+      reviewNote: null,
       verified: false,
       verifiedAt: null,
       claimedBy: null,
       createdBy: user.id,
       createdByUsername: user.username,
+      creatorEmail: user.email || null,
       createdAt: new Date(now).toISOString(),
       boostTotal: 0,
       boostCount: 0,
@@ -333,8 +405,14 @@ async function createProfile(ctx, state, sse) {
     state.profiles[slug] = profile;
     user.createdProfileSlug = slug;
     eco.syncTasks(user, state, now);
-    sse.broadcast('profile_new', { slug, name, emoji, category });
-    return created({ profile: eco.publicProfile(state, profile), ok: true });
+    // Notify admins via SSE — no profile goes public until reviewed.
+    sse.broadcast('profile_pending', { slug, name, emoji, category });
+    return created({
+      profile: eco.publicProfile(state, profile),
+      ok: true,
+      moderation: 'pending',
+      message: 'Your fan page was submitted. An admin reviews it before it goes live — fans will be able to boost it right after approval.'
+    });
   });
 }
 
@@ -349,6 +427,11 @@ async function boost(ctx, state, sse) {
     const slug = san.sanitizeSlug(b.slug || b.profileSlug);
     const profile = slug ? state.profiles[slug] : null;
     if (!profile) throw new RouteError(404, 'not_found');
+    // Pending/rejected pages are not boostable by the public; the creator
+    // self-boosting their own submission still works.
+    if (profile.status !== 'approved' && profile.createdBy !== user.id) {
+      return badRequest('page_not_live');
+    }
     const amount = san.sanitizeAmount(b.amount, { min: 1, max: 10_000_000 });
     if (amount === null) return badRequest('invalid_amount');
 
@@ -496,7 +579,8 @@ async function requestClaim(ctx, state, sse) {
     const slug = san.sanitizeSlug(ctx.params.slug);
     const p = slug ? state.profiles[slug] : null;
     if (!p) throw new RouteError(404, 'not_found');
-    if (!p.seed) return badRequest('only_seeded_fan_profiles_can_be_claimed');
+    // Every page is fan-created; the real person (or their team) can submit
+    // evidence to claim/verify any live tribute page.
     if (p.claimedBy && p.claimedBy !== user.id) return badRequest('already_claimed');
     const existing = p.claimRequests.find((r) => r.userId === user.id);
     if (existing) return ok({ ok: true, status: existing.status, note: 'already_submitted' });
@@ -568,15 +652,106 @@ async function donate(ctx, state, sse) {
 }
 
 // ---------------------------------------------------------------------------
+// Demo sandbox (ADMIN ONLY) — isolated, in-memory, never touches the real DB
+// ---------------------------------------------------------------------------
+
+// A no-op SSE stand-in so real handlers can run against the demo state.
+const DEMO_SSE = { broadcast() {}, toUser() {}, get clientCount() { return 0; } };
+
+// Authorize against the REAL state, then hand back the isolated demo state.
+function demoGuard(ctx, state) {
+  requireAdmin(ctx, state);
+  return demo.getDemoState();
+}
+
+async function demoLeaderboard(ctx, state) { return leaderboard(ctx, demoGuard(ctx, state)); }
+async function demoProfiles(ctx, state) { return listProfiles(ctx, demoGuard(ctx, state)); }
+async function demoProfile(ctx, state) { return getProfile(ctx, demoGuard(ctx, state)); }
+async function demoFeed(ctx, state) { return feed(ctx, demoGuard(ctx, state)); }
+async function demoWinners(ctx, state) { return winners(ctx, demoGuard(ctx, state)); }
+
+async function demoReset(ctx, state) {
+  requireAdmin(ctx, state);
+  const d = demo.resetDemoState();
+  return ok({ ok: true, message: 'Demo sandbox reset.', users: Object.keys(d.users).length, profiles: Object.keys(d.profiles).length });
+}
+
+async function demoBoost(ctx, state) {
+  const d = demoGuard(ctx, state);
+  checkLimit(ctx, 'boost', 'boost');
+  const b = ctx.body || {};
+  const slug = san.sanitizeSlug(b.slug);
+  const amount = san.sanitizeAmount(b.amount, { min: CONFIG.ECONOMY.BOOST.MIN_BOOST, max: 1_000_000 });
+  const asName = san.sanitizeUsername(b.as) || 'boosterboi';
+  const profile = slug ? d.profiles[slug] : null;
+  if (!profile) throw new RouteError(404, 'not_found');
+  if (profile.status !== 'approved') return badRequest('page_not_live');
+  const user = d.userByUsername[asName] || d.userByUsername.boosterboi;
+  if (!user) throw new RouteError(404, 'demo_user_not_found');
+  if (amount === null) return badRequest('bad_amount');
+  const result = eco.applyBoost(d, user, profile, amount, Date.now());
+  if (!result.ok) {
+    const code = result.code || 400;
+    const err = new RouteError(code, result.reason);
+    err.extra = { balance: result.balance, waitMs: result.waitMs, min: result.min };
+    throw err;
+  }
+  return ok({ ok: true, ...result, demo: true });
+}
+
+async function demoApprove(ctx, state) {
+  const d = demoGuard(ctx, state);
+  const slug = san.sanitizeSlug((ctx.body || {}).slug);
+  const p = slug ? d.profiles[slug] : null;
+  if (!p) throw new RouteError(404, 'not_found');
+  p.status = 'approved';
+  p.reviewedAt = new Date().toISOString();
+  p.reviewNote = 'Approved in demo sandbox';
+  return ok({ ok: true, status: 'approved', demo: true });
+}
+
+async function demoClaim(ctx, state) {
+  const d = demoGuard(ctx, state);
+  const slug = san.sanitizeSlug((ctx.body || {}).slug);
+  const p = slug ? d.profiles[slug] : null;
+  const reqId = san.sanitizeId((ctx.body || {}).requestId, 64);
+  const approve = san.sanitizeBoolean((ctx.body || {}).approve);
+  if (!p || approve === null) return badRequest('bad_decision');
+  const req = (p.claimRequests || []).find((r) => r.id === reqId) || (p.claimRequests || [])[0];
+  if (!req) return badRequest('request_not_found');
+  req.status = approve ? 'approved' : 'rejected';
+  req.reviewedAt = new Date().toISOString();
+  if (approve) {
+    p.verified = true;
+    p.verifiedAt = new Date().toISOString();
+    p.claimedBy = d.userByUsername[req.username] ? d.userByUsername[req.username].id : p.createdBy;
+  }
+  return ok({ ok: true, verified: p.verified, demo: true });
+}
+
+async function demoSettle(ctx, state) {
+  const d = demoGuard(ctx, state);
+  const wanted = ['week', 'month', 'season'].includes((ctx.body || {}).period) ? ctx.body.period : 'week';
+  const result = eco.settlePeriod(d, wanted, true);
+  return ok(result);
+}
+
+// ---------------------------------------------------------------------------
 // Admin
 // ---------------------------------------------------------------------------
 
 function requireAdmin(ctx, state) {
+  // Two ways to hold admin powers:
+  //  1. a logged-in user whose username is in CONFIG.AUTH.ADMIN_USERNAMES
+  //     (the founder account — no separate password), or
+  //  2. the separate admin-password session (gb_admin cookie).
+  const me = findUserBySession(ctx, state);
+  if (me && eco.isAdminUser(me)) return { user: me };
   const cookies = auth.parseCookies(ctx.req.headers.cookie);
   const token = cookies[CONFIG.AUTH.ADMIN_COOKIE];
   const parsed = auth.verifyToken(token);
   if (!parsed || parsed.kind !== 'admin') throw new RouteError(401, 'admin_required');
-  return true;
+  return { user: null };
 }
 
 async function adminLogin(ctx) {
@@ -590,6 +765,22 @@ async function adminLogin(ctx) {
   return ok({ ok: true, admin: true }, { headers: { 'Set-Cookie': cookie } });
 }
 
+// Lightweight check so the SPA can reveal admin-only screens (dashboard,
+// demo sandbox) when EITHER a founder-user session OR an admin-password
+// session is present.
+async function adminSession(ctx, state) {
+  let admin = false;
+  const me = findUserBySession(ctx, state);
+  if (me && eco.isAdminUser(me)) admin = true;
+  if (!admin) {
+    const cookies = auth.parseCookies(ctx.req.headers.cookie);
+    const token = cookies[CONFIG.AUTH.ADMIN_COOKIE];
+    const parsed = auth.verifyToken(token);
+    if (parsed && parsed.kind === 'admin') admin = true;
+  }
+  return ok({ admin });
+}
+
 async function adminOverview(ctx, state, sse) {
   requireAdmin(ctx, state);
   const users = Object.values(state.users);
@@ -600,8 +791,11 @@ async function adminOverview(ctx, state, sse) {
     profiles: profiles.length,
     boosts: state.boosts.length,
     coinsFloating: users.reduce((s, u) => s + u.coins, 0),
-    season: state.season,
+    season: state.periods.season,
+    periods: state.periods,
+    winnersCount: (state.winners || []).length,
     openClaimRequests: profiles.reduce((n, p) => n + (p.claimRequests || []).filter((r) => r.status === 'pending').length, 0),
+    pendingProfiles: profiles.filter((p) => p.status === 'pending').length,
     funding: state.donationIntents.reduce((s, d) => s + d.amount, 0),
     sseClients: sse.clientCount
   });
@@ -630,7 +824,10 @@ async function adminNotify(ctx, state, sse) {
 
 async function adminSettleSeason(ctx, state, sse) {
   requireAdmin(ctx, state);
-  const result = eco.settleSeason(state, true);
+  const wanted = ['week', 'month', 'season'].includes((ctx.body || {}).period)
+    ? ctx.body.period
+    : ((ctx.body || {}).period || 'season');
+  const result = eco.settlePeriod(state, wanted, true);
   if (result.ok) {
     sse.broadcast('season', { settled: true, payout: result.payout });
   }
@@ -683,7 +880,12 @@ async function adminClaimRequests(ctx, state) {
 async function adminUsers(ctx, state) {
   requireAdmin(ctx, state);
   const users = Object.values(state.users)
-    .map((u) => ({ id: u.id, username: u.username, coins: u.coins, seasonPoints: u.seasonPoints, boosts: u.stats.boosts, createdAt: u.createdAt }))
+    .map((u) => ({
+      id: u.id, username: u.username, email: u.email || null,
+      isAdmin: eco.isAdminUser(u),
+      coins: u.coins, seasonPoints: u.seasonPoints, boosts: u.stats.boosts,
+      createdProfileSlug: u.createdProfileSlug || null, createdAt: u.createdAt
+    }))
     .sort((a, b) => b.seasonPoints - a.seasonPoints);
   return ok({ users });
 }
@@ -695,6 +897,81 @@ async function adminReset(ctx, state, sse) {
   Object.assign(state, fresh);
   sse.broadcast('admin_reset', { at: new Date().toISOString() });
   return ok({ ok: true, message: 'Database reseeded. All users/profiles replaced.' });
+}
+
+// ---------------------------------------------------------------------------
+// Fan-page moderation queue (new pages need admin approval to go live)
+// ---------------------------------------------------------------------------
+
+async function adminProfileQueue(ctx, state) {
+  requireAdmin(ctx, state);
+  const pending = Object.values(state.profiles)
+    .filter((p) => p.status === 'pending' || p.status === 'rejected')
+    .sort((a, b) => (b.submittedAt || b.createdAt || '').localeCompare(a.submittedAt || a.createdAt || ''))
+    .map((p) => ({
+      slug: p.slug,
+      name: p.name,
+      realName: p.realName || p.name,
+      category: p.category,
+      emoji: p.emoji,
+      image: p.image || null,
+      tagline: p.tagline,
+      description: p.description,
+      tags: p.tags,
+      status: p.status,
+      createdByUsername: p.createdByUsername,
+      creatorEmail: p.creatorEmail, // admin-only: used to mail the page maker
+      submittedAt: p.submittedAt || p.createdAt,
+      reviewedAt: p.reviewedAt || null,
+      reviewNote: p.reviewNote || null
+    }));
+  return ok({ pending: pending.filter((p) => p.status === 'pending'), rejected: pending.filter((p) => p.status === 'rejected') });
+}
+
+async function adminProfileDecision(ctx, state, sse) {
+  requireAdmin(ctx, state);
+  const b = ctx.body || {};
+  const slug = san.sanitizeSlug(b.slug);
+  const p = slug ? state.profiles[slug] : null;
+  if (!p || p.seed) throw new RouteError(404, 'not_found');
+  const approve = san.sanitizeBoolean(b.approve);
+  if (approve === null) return badRequest('bad_decision');
+  const note = san.cleanText(b.note, { max: 280 });
+  p.reviewedAt = new Date().toISOString();
+  p.reviewNote = note || null;
+  const creator = p.createdBy ? state.users[p.createdBy] : null;
+  if (approve) {
+    p.status = 'approved';
+    sse.broadcast('profile_new', { slug, name: p.name, emoji: p.emoji, category: p.category });
+    if (creator) {
+      creator.notifications = creator.notifications || [];
+      creator.notifications.push({
+        id: `n_${Date.now()}`,
+        text: `🎉 Your fan page “${p.name}” was approved! Fans can boost it now — email ${creator.email || ''} for details.`,
+        at: new Date().toISOString(), read: false
+      });
+    }
+    sse.toUser(p.createdBy, 'announce', {
+      message: `🎉 Good news — your fan page “${p.name}” is live and on the leaderboard! Check your email (${p.creatorEmail || ''}) for a note from us.`,
+      at: new Date().toISOString()
+    });
+  } else {
+    p.status = 'rejected';
+    if (creator) {
+      creator.notifications = creator.notifications || [];
+      creator.notifications.push({
+        id: `n_${Date.now()}_r`,
+        text: `Your fan page “${p.name}” needs changes before it can go live${note ? ': ' + note : '.'}`,
+        at: new Date().toISOString(), read: false
+      });
+    }
+    sse.toUser(p.createdBy, 'announce', {
+      message: `We reviewed “${p.name}” and it needs a change before going live${note ? ': ' + note : '.'} — email us at ${p.creatorEmail ? '' : 'the address you signed up with'} for questions.`,
+      at: new Date().toISOString()
+    });
+  }
+  sse.broadcast('profile_reviewed', { slug, status: p.status, name: p.name });
+  return ok({ ok: true, status: p.status, profile: eco.publicProfile(state, p) });
 }
 
 // ---------------------------------------------------------------------------
@@ -732,6 +1009,7 @@ function buildRouter(state, sse) {
 
   // Social
   r.get('/api/leaderboard', (ctx) => leaderboard(ctx, state));
+  r.get('/api/winners', (ctx) => winners(ctx, state));
   r.get('/api/feed', (ctx) => feed(ctx, state));
 
   // Economy
@@ -752,14 +1030,30 @@ function buildRouter(state, sse) {
 
   // Admin
   r.post('/api/admin/login', (ctx) => adminLogin(ctx));
+  r.get('/api/admin/session', (ctx) => adminSession(ctx, state));
   r.get('/api/admin/overview', (ctx) => adminOverview(ctx, state, sse));
   r.post('/api/admin/announce', (ctx) => adminAnnounce(ctx, state, sse));
   r.post('/api/admin/notify', (ctx) => adminNotify(ctx, state, sse));
   r.post('/api/admin/season/settle', (ctx) => adminSettleSeason(ctx, state, sse));
   r.get('/api/admin/claim-requests', (ctx) => adminClaimRequests(ctx, state));
   r.post('/api/admin/claim-request', (ctx) => adminClaimRequest(ctx, state, sse));
+  r.get('/api/admin/profile-queue', (ctx) => adminProfileQueue(ctx, state));
+  r.post('/api/admin/profile-decision', (ctx) => adminProfileDecision(ctx, state, sse));
   r.get('/api/admin/users', (ctx) => adminUsers(ctx, state));
   r.post('/api/admin/reset', (ctx) => adminReset(ctx, state, sse));
+
+  // Demo sandbox — ADMIN ONLY. All read/write handlers operate on an isolated,
+  // in-memory demo world that is never persisted and never shown to the public.
+  r.get('/api/demo/leaderboard', (ctx) => demoLeaderboard(ctx, state));
+  r.get('/api/demo/profiles', (ctx) => demoProfiles(ctx, state));
+  r.get('/api/demo/profiles/:slug', (ctx) => demoProfile(ctx, state));
+  r.get('/api/demo/feed', (ctx) => demoFeed(ctx, state));
+  r.get('/api/demo/winners', (ctx) => demoWinners(ctx, state));
+  r.post('/api/demo/reset', (ctx) => demoReset(ctx, state));
+  r.post('/api/demo/boost', (ctx) => demoBoost(ctx, state));
+  r.post('/api/demo/approve', (ctx) => demoApprove(ctx, state));
+  r.post('/api/demo/claim', (ctx) => demoClaim(ctx, state));
+  r.post('/api/demo/settle', (ctx) => demoSettle(ctx, state));
 
   // Realtime
   sse.state = state;

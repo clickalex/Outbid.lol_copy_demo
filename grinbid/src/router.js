@@ -125,7 +125,9 @@ function isStaticPath(p) {
   return [
     '/index.html', '/app.js', '/styles.css', '/favicon.ico',
     '/manifest.webmanifest', '/terms.html', '/privacy.html',
-    '/legal.html', '/offline.html', '/robots.txt'
+    '/legal.html', '/offline.html', '/robots.txt', '/enhance.js',
+    '/about.html', '/how-it-works.html', '/rules.html',
+    '/leaderboard.html', '/coins.html', '/faq.html'
   ].includes(p) || /^\/assets\/[A-Za-z0-9._-]+$/.test(p);
 }
 
