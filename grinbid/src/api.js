@@ -843,9 +843,11 @@ async function adminClaimRequest(ctx, state, sse) {
   if (!p) throw new RouteError(404, 'not_found');
   const reqId = san.sanitizeId(b.requestId, 64);
   const approve = san.sanitizeBoolean(b.approve);
+  const note = san.cleanText(b.note, { max: 500, allowNewlines: true }) || '';
   if (approve === null || !reqId) return badRequest('bad_decision');
   const req = (p.claimRequests || []).find((r) => r.id === reqId);
   if (!req) throw new RouteError(404, 'request_not_found');
+  if (req.status !== 'pending') return badRequest('already_decided');
   if (approve) {
     if (p.claimedBy && p.claimedBy !== req.userId) return badRequest('already_claimed');
     p.claimedBy = req.userId;
@@ -853,29 +855,117 @@ async function adminClaimRequest(ctx, state, sse) {
     p.verifiedAt = new Date().toISOString();
     req.status = 'approved';
     req.decidedAt = new Date().toISOString();
+    req.decisionNote = note;
     const claimant = state.users[req.userId];
     if (claimant) {
-      claimant.notifications.push({ id: `n_${Date.now()}`, text: `🎉 You now power ${p.name}!`, at: new Date().toISOString(), read: false });
+      claimant.notifications.push({ id: `n_${Date.now()}`, text: `🎉 You now power ${p.name}!${note ? ' — ' + note : ''}`, at: new Date().toISOString(), read: false });
     }
-    sse.toUser(req.userId, 'announce', { message: `🎉 Your claim of ${p.name} was approved!`, at: new Date().toISOString() });
+    sse.toUser(req.userId, 'announce', { message: `🎉 Your claim of ${p.name} was approved!${note ? ' — ' + note : ''}`, at: new Date().toISOString() });
   } else {
     req.status = 'rejected';
     req.decidedAt = new Date().toISOString();
-    sse.toUser(req.userId, 'announce', { message: `Your claim request for ${p.name} was reviewed and not approved.`, at: new Date().toISOString() });
+    req.decisionNote = note;
+    const claimant = state.users[req.userId];
+    if (claimant) {
+      claimant.notifications.push({ id: `n_${Date.now()}`, text: `Your claim request for ${p.name} was reviewed and not approved.${note ? ' Reviewer note: ' + note : ''}`, at: new Date().toISOString(), read: false });
+    }
+    sse.toUser(req.userId, 'announce', { message: `Your claim request for ${p.name} was reviewed and not approved.${note ? ' Reviewer note: ' + note : ''}`, at: new Date().toISOString() });
   }
   sse.broadcast('claim_updated', { profileSlug: p.slug, status: req.status, verified: p.verified });
   return ok({ ok: true, profile: eco.publicProfile(state, p), request: req });
 }
 
+// Compact summary of a claim request + the page + the claimant, used by the
+// admin claim queue and the dedicated verification screen.
+function claimRequestSummary(state, p, r) {
+  const claimant = state.users[r.userId] || null;
+  return {
+    id: r.id,
+    profileSlug: p.slug,
+    profileName: p.name,
+    profileRealName: p.realName || p.name,
+    profileEmoji: p.emoji || '⭐',
+    profileImage: p.image || null,
+    profileCategory: p.category,
+    profileVerified: Boolean(p.verified),
+    profileStatus: p.status || 'approved',
+    userId: r.userId,
+    username: r.username,
+    claimantAvatar: claimant ? claimant.avatar : '👤',
+    claimantEmail: claimant ? claimant.email || null : null,
+    evidence: r.evidence,
+    at: r.at,
+    status: r.status,
+    decidedAt: r.decidedAt || null,
+    decisionNote: r.decisionNote || ''
+  };
+}
+
 async function adminClaimRequests(ctx, state) {
   requireAdmin(ctx, state);
-  const out = [];
+  const pending = [];
+  const decided = [];
   for (const p of Object.values(state.profiles)) {
     for (const r of p.claimRequests || []) {
-      if (r.status === 'pending') out.push({ profileSlug: p.slug, profileName: p.name, ...r });
+      const row = claimRequestSummary(state, p, r);
+      if (r.status === 'pending') pending.push(row);
+      else decided.push(row);
     }
   }
-  return ok({ requests: out });
+  pending.sort((a, b) => Date.parse(a.at) - Date.parse(b.at)); // oldest first — FIFO queue
+  decided.sort((a, b) => Date.parse(b.decidedAt || b.at) - Date.parse(a.decidedAt || a.at));
+  return ok({ requests: pending, decided: decided.slice(0, 20) });
+}
+
+// Full dossier for ONE claim request — powers the admin verification screen
+// at #/admin/claims/:slug/:id (page details, claimant history, evidence).
+async function adminClaimReview(ctx, state) {
+  requireAdmin(ctx, state);
+  const slug = san.sanitizeSlug(ctx.params.slug);
+  const p = slug ? state.profiles[slug] : null;
+  if (!p) throw new RouteError(404, 'not_found');
+  const reqId = san.sanitizeId(ctx.params.id, 64);
+  const req = (p.claimRequests || []).find((r) => r.id === reqId);
+  if (!req) throw new RouteError(404, 'request_not_found');
+  const claimant = state.users[req.userId] || null;
+  // Other claims this user has filed across the site (context for the reviewer).
+  const otherClaims = [];
+  for (const prof of Object.values(state.profiles)) {
+    for (const r of prof.claimRequests || []) {
+      if (r.userId === req.userId && r.id !== req.id) {
+        otherClaims.push({ profileSlug: prof.slug, profileName: prof.name, status: r.status, at: r.at });
+      }
+    }
+  }
+  // Competing claims on this same page.
+  const competing = (p.claimRequests || [])
+    .filter((r) => r.id !== req.id)
+    .map((r) => ({ id: r.id, username: r.username, status: r.status, at: r.at, evidence: r.evidence }));
+  return ok({
+    request: claimRequestSummary(state, p, req),
+    profile: {
+      ...eco.publicProfile(state, p),
+      creatorEmail: p.creatorEmail || null, // admin-only field
+      submittedAt: p.submittedAt || null,
+      verifiedAt: p.verifiedAt || null
+    },
+    claimant: claimant ? {
+      id: claimant.id,
+      username: claimant.username,
+      displayName: claimant.displayName || claimant.username,
+      avatar: claimant.avatar,
+      email: claimant.email || null,
+      createdAt: claimant.createdAt,
+      coins: claimant.coins,
+      seasonPoints: claimant.seasonPoints,
+      boosts: claimant.stats ? claimant.stats.boosts : 0,
+      streakCount: claimant.streakCount || 0,
+      createdProfileSlug: claimant.createdProfileSlug || null,
+      isAdmin: eco.isAdminUser(claimant)
+    } : null,
+    otherClaims,
+    competing
+  });
 }
 
 async function adminUsers(ctx, state) {
@@ -1050,6 +1140,7 @@ function buildRouter(state, sse) {
   r.post('/api/admin/notify', (ctx) => adminNotify(ctx, state, sse));
   r.post('/api/admin/season/settle', (ctx) => adminSettleSeason(ctx, state, sse));
   r.get('/api/admin/claim-requests', (ctx) => adminClaimRequests(ctx, state));
+  r.get('/api/admin/claim-review/:slug/:id', (ctx) => adminClaimReview(ctx, state));
   r.post('/api/admin/claim-request', (ctx) => adminClaimRequest(ctx, state, sse));
   r.get('/api/admin/profile-queue', (ctx) => adminProfileQueue(ctx, state));
   r.post('/api/admin/profile-decision', (ctx) => adminProfileDecision(ctx, state, sse));

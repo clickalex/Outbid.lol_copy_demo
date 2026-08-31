@@ -47,7 +47,7 @@
     community: { label: 'Community', color: 'mint' }
   };
 
-  window.GB = { api, toast, go, openAuth, openBoost, openClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, handleImage, homeSearch, search, setHomePeriod, demoBoost, demoApprove, demoSettle, demoAction, setDemoPeriod, adminLogin, adminAction, profileDecision, copyText, toggleNav, closeNav, backTop, closeModal, awardUserCoins };
+  window.GB = { api, toast, go, openAuth, openBoost, openClaim, submitClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, handleImage, homeSearch, search, setHomePeriod, demoBoost, demoApprove, demoSettle, demoAction, setDemoPeriod, adminLogin, adminAction, profileDecision, claimDecision, copyText, toggleNav, closeNav, backTop, closeModal, awardUserCoins };
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeModal();
@@ -1354,15 +1354,149 @@
       const d = await api('/admin/claim-requests');
       const box = $('#claimQueue');
       if (!box) return;
-      if (!d.requests.length) { box.innerHTML = '<h3>🏛️ Claim requests</h3><p class="muted">None pending. 🎉</p>'; return; }
-      box.innerHTML = '<h3>🏛️ Claim requests</h3>' + d.requests.map((r) => `
-        <div class="list-row">
-          <span class="grow"><b>${esc(r.profileName)}</b> (${esc(r.profileSlug)})<br>
-            <span class="muted small">by ${esc(r.username)} · ${timeAgo(r.at)}<br>${esc(r.evidence)}</span></span>
-          <button class="btn mint small" onclick="GB.adminAction('claim-request', {slug:'${esc(r.profileSlug)}', requestId:'${esc(r.id)}', approve:true})">✓ Approve</button>
-          <button class="btn small" style="background:#fff" onclick="GB.adminAction('claim-request', {slug:'${esc(r.profileSlug)}', requestId:'${esc(r.id)}', approve:false})">✕ Reject</button>
+      const pending = d.requests || [];
+      const decided = d.decided || [];
+      const pendingRows = pending.map((r) => `
+        <div class="list-row queue-row">
+          ${r.profileImage ? `<img class="profile-img small" src="${r.profileImage}" alt="">` : `<span class="avatar">${esc(r.profileEmoji || '⭐')}</span>`}
+          <span class="grow">
+            <b>${esc(r.profileName)}</b> <span class="muted small">(${esc(r.profileSlug)})</span>
+            <span class="status-chip pending">⏳ pending</span><br>
+            <span class="muted small">claimed by <b>@${esc(r.username)}</b> · ${timeAgo(r.at)}</span><br>
+            <span class="muted small evidence-snippet">“${esc((r.evidence || '').slice(0, 120))}${(r.evidence || '').length > 120 ? '…' : ''}”</span>
+          </span>
+          <span class="queue-actions">
+            <a class="btn purple small" href="#/admin/claims/${esc(r.profileSlug)}/${esc(r.id)}">🔍 Review &amp; verify</a>
+          </span>
         </div>`).join('');
+      const decidedRows = decided.slice(0, 6).map((r) => `
+        <div class="list-row">
+          <span class="grow small">
+            <b>${esc(r.profileName)}</b> · @${esc(r.username)}
+            <span class="status-chip ${r.status === 'approved' ? 'ok' : 'no'}">${r.status === 'approved' ? '✓ approved' : '✕ rejected'}</span>
+            <span class="muted">· ${timeAgo(r.decidedAt || r.at)}</span>
+          </span>
+          <a class="btn ghost small" href="#/admin/claims/${esc(r.profileSlug)}/${esc(r.id)}">View</a>
+        </div>`).join('');
+      box.innerHTML = `<h3>🏛️ Claim requests ${pending.length ? `<span class="count-pill">${pending.length}</span>` : ''}</h3>
+        <p class="muted small">Each claim gets a full verification screen — page details, claimant history and evidence side by side.</p>
+        ${pending.length ? pendingRows : '<p class="muted">None pending. 🎉</p>'}
+        ${decided.length ? `<h4 class="mt" style="margin-bottom:4px">Recently decided</h4>${decidedRows}` : ''}`;
     } catch (err) { /* not admin */ }
+  }
+
+  // ---- Admin: dedicated claim VERIFICATION screen (#/admin/claims/:slug/:id)
+  async function adminClaimReviewView(slug, reqId) {
+    const d = await api(`/admin/claim-review/${encodeURIComponent(slug)}/${encodeURIComponent(reqId)}`);
+    const r = d.request, p = d.profile, u = d.claimant;
+    const pendingReq = r.status === 'pending';
+    const statusChip = pendingReq
+      ? '<span class="status-chip pending">⏳ awaiting verification</span>'
+      : (r.status === 'approved'
+        ? '<span class="status-chip ok">✓ approved</span>'
+        : '<span class="status-chip no">✕ rejected</span>');
+
+    const otherClaims = (d.otherClaims || []).map((c) => `
+      <div class="list-row"><span class="grow small"><b>${esc(c.profileName)}</b>
+        <span class="status-chip ${c.status === 'approved' ? 'ok' : c.status === 'rejected' ? 'no' : 'pending'}">${esc(c.status)}</span>
+        <span class="muted">· ${timeAgo(c.at)}</span></span></div>`).join('');
+
+    const competing = (d.competing || []).map((c) => `
+      <div class="list-row"><span class="grow small"><b>@${esc(c.username)}</b>
+        <span class="status-chip ${c.status === 'approved' ? 'ok' : c.status === 'rejected' ? 'no' : 'pending'}">${esc(c.status)}</span>
+        <span class="muted">· ${timeAgo(c.at)}</span><br>
+        <span class="muted">“${esc((c.evidence || '').slice(0, 140))}”</span></span></div>`).join('');
+
+    return `
+      <div class="review-head">
+        <a class="btn ghost small" href="#/admin">← Admin dashboard</a>
+        <h1 class="section-title" style="margin:10px 0 2px">🏛️ Verify claim — ${esc(p.realName || p.name)}</h1>
+        <p class="muted" style="margin:0">Request <code>${esc(r.id)}</code> ${statusChip} · submitted ${timeAgo(r.at)}${r.decidedAt ? ` · decided ${timeAgo(r.decidedAt)}` : ''}</p>
+      </div>
+
+      <div class="review-grid mt">
+        <div class="card">
+          <h3 style="margin-top:0">📄 The fan page being claimed</h3>
+          <div class="row" style="align-items:flex-start">
+            ${p.image ? `<img class="profile-img big" src="${p.image}" alt="" style="width:110px;height:110px">` : `<span class="profile-emoji">${esc(p.emoji || '⭐')}</span>`}
+            <div class="grow">
+              <b style="font-size:1.15rem">${esc(p.realName || p.name)}</b> ${p.verified ? '<span class="sticker verified">verified 🟢</span>' : ''}<br>
+              <span class="muted small">${esc(p.name)} · <span class="cat-badge">${esc((CATS[p.category] || { label: p.category }).label)}</span></span>
+              <p class="muted small" style="margin:6px 0 0">${esc(p.tagline || '')}</p>
+            </div>
+          </div>
+          <div class="kv mt">
+            <div><span class="k">Slug</span><span class="v"><code>${esc(p.slug)}</code></span></div>
+            <div><span class="k">Status</span><span class="v">${esc(p.status)}</span></div>
+            <div><span class="k">Created by</span><span class="v">@${esc(p.createdByUsername || '—')}</span></div>
+            <div><span class="k">Creator email</span><span class="v">${p.creatorEmail ? `<a href="mailto:${esc(p.creatorEmail)}">${esc(p.creatorEmail)}</a>` : '—'}</span></div>
+            <div><span class="k">Boost total</span><span class="v">${fmt(p.boostTotal)} · ${fmt(p.fanCount)} fans</span></div>
+            <div><span class="k">Currently claimed</span><span class="v">${p.claimedByUsername ? '@' + esc(p.claimedByUsername) : 'No — unclaimed'}</span></div>
+          </div>
+          <p class="muted small mt">${esc((p.description || '').slice(0, 300))}</p>
+          <a class="btn sky small" href="#/profile/${esc(p.slug)}" target="_blank">👀 Open the live page</a>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0">🙋 The claimant</h3>
+          ${u ? `
+          <div class="row">
+            <span class="avatar big">${esc(u.avatar)}</span>
+            <div class="grow">
+              <b style="font-size:1.1rem">${esc(u.displayName)}</b> ${u.isAdmin ? '<span class="sticker verified">admin</span>' : ''}<br>
+              <span class="muted small">@${esc(u.username)} · <code>${esc(u.id)}</code></span>
+            </div>
+          </div>
+          <div class="kv mt">
+            <div><span class="k">Email</span><span class="v">${u.email ? `<a href="mailto:${esc(u.email)}?subject=${encodeURIComponent('Your Grinbid claim of ' + (p.realName || p.name))}">${esc(u.email)}</a>` : '—'}</span></div>
+            <div><span class="k">Joined</span><span class="v">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'} (${u.createdAt ? timeAgo(u.createdAt) : '—'})</span></div>
+            <div><span class="k">Coins</span><span class="v">${fmt(u.coins)} 🪙</span></div>
+            <div><span class="k">Season points</span><span class="v">${fmt(u.seasonPoints)}</span></div>
+            <div><span class="k">Boosts made</span><span class="v">${fmt(u.boosts)}</span></div>
+            <div><span class="k">Own fan page</span><span class="v">${u.createdProfileSlug ? `<a href="#/profile/${esc(u.createdProfileSlug)}">${esc(u.createdProfileSlug)}</a>` : '—'}</span></div>
+          </div>
+          ${otherClaims ? `<h4 class="mt" style="margin-bottom:4px">Their other claims</h4>${otherClaims}` : '<p class="muted small mt">No other claims filed by this user.</p>'}
+          ` : '<p class="muted">⚠️ This user account no longer exists.</p>'}
+        </div>
+      </div>
+
+      <div class="card mt">
+        <h3 style="margin-top:0">🧾 Evidence submitted</h3>
+        <blockquote class="evidence-box">${esc(r.evidence || 'No evidence provided.')}</blockquote>
+        ${competing ? `<h4 style="margin-bottom:4px">⚔️ Competing claims on this page</h4>${competing}` : ''}
+      </div>
+
+      ${pendingReq ? `
+      <div class="card mt decision-card">
+        <h3 style="margin-top:0">✅ Verification checklist &amp; decision</h3>
+        <ul class="check-list muted small">
+          <li>The evidence links to an official site / social account that plausibly belongs to <b>${esc(p.realName || p.name)}</b>.</li>
+          <li>The claimant's email domain or handle matches the person / team being claimed.</li>
+          <li>No stronger competing claim is pending on this page.</li>
+          <li>The page content itself doesn't break the rules (impersonation, private individuals, NSFW…).</li>
+        </ul>
+        <label class="field"><span class="lbl">Note to the claimant (optional — sent with the decision)</span>
+          <input id="claimNote" maxlength="500" placeholder="e.g. Verified via the official website's contact page."></label>
+        <div class="row">
+          <button class="btn mint" onclick="GB.claimDecision('${esc(p.slug)}','${esc(r.id)}',true)">✓ Approve — verify page 🟢</button>
+          <button class="btn" style="background:#fff;color:var(--red)" onclick="GB.claimDecision('${esc(p.slug)}','${esc(r.id)}',false)">✕ Reject claim</button>
+        </div>
+        <p class="muted small" style="margin-bottom:0">Approving flips the page to <b>verified 🟢</b> and hands it to @${esc(r.username)}. The claimant is notified in-app either way.</p>
+      </div>` : `
+      <div class="card mt">
+        <h3 style="margin-top:0">Decision</h3>
+        <p>${r.status === 'approved' ? '✓ Approved' : '✕ Rejected'} ${r.decidedAt ? timeAgo(r.decidedAt) : ''}${r.decisionNote ? ` — <span class="muted">“${esc(r.decisionNote)}”</span>` : ''}</p>
+      </div>`}`;
+  }
+
+  async function claimDecision(slug, requestId, approve) {
+    if (!approve && !confirm('Reject this claim request?')) return;
+    try {
+      await api('/admin/claim-request', { method: 'POST', body: { slug, requestId, approve, note: gbv('claimNote') } });
+      toast(approve ? 'Claim approved — page is now verified 🟢' : 'Claim rejected.', approve ? 'good' : '');
+      if (approve) confetti(60);
+      go('#/admin');
+    } catch (err) { toast(err.message, 'bad'); }
   }
 
   async function loadProfileQueue() {
@@ -1547,13 +1681,16 @@
     try {
       let html;
       if (route === 'profile' && seg[1]) html = await VIEWS.profile(seg[1]);
+      else if (route === 'admin' && seg[1] === 'claims' && seg[2] && seg[3]) {
+        html = isAdminUI() ? await adminClaimReviewView(seg[2], seg[3]) : await VIEWS.admin();
+      }
       else if (VIEWS[route]) html = await VIEWS[route]();
       else html = await VIEWS.home();
       if (seq !== renderSeq) return;                     // a newer render superseded this one
       if ($('#view')) $('#view').innerHTML = html;
       refreshHeader();
       if (route === 'wallet') startCountdowns();
-      if (route === 'admin') { loadClaims(); loadProfileQueue(); loadAdminUsers(); }
+      if (S.current === 'admin') { loadClaims(); loadProfileQueue(); loadAdminUsers(); }
       if (navigated || routeChanged) window.scrollTo(0, 0);
       else if (keepScroll && window.scrollY !== prevScrollY) window.scrollTo(0, prevScrollY);
     } catch (err) {
@@ -1634,8 +1771,8 @@
       toast(`✨ New fan page: ${d.name}!`, 'good');
       if (S.current === 'discover' || S.current === 'home' || S.current === 'mine') debounceRender();
     });
-    es.addEventListener('claim_request', () => { if (S.current === 'admin') debounceRender(); });
-    es.addEventListener('claim_updated', () => { if (S.current === 'admin' || S.current.startsWith('profile/')) debounceRender(); });
+    es.addEventListener('claim_request', () => { if (S.current.startsWith('admin')) debounceRender(); });
+    es.addEventListener('claim_updated', () => { if (S.current.startsWith('admin') || S.current.startsWith('profile/')) debounceRender(); });
     es.addEventListener('season', (e) => { toast('🏆 Season settled!', 'good'); if (S.current === 'admin' || S.current === 'home') debounceRender(); });
     es.addEventListener('donation', (e) => {
       let d = {}; try { d = JSON.parse(e.data); } catch { }
