@@ -47,7 +47,7 @@
     community: { label: 'Community', color: 'mint' }
   };
 
-  window.GB = { api, toast, go, openAuth, openBoost, openClaim, submitClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, handleImage, homeSearch, search, setHomePeriod, demoBoost, demoApprove, demoSettle, demoAction, setDemoPeriod, adminLogin, adminAction, profileDecision, claimDecision, copyText, toggleNav, closeNav, backTop, closeModal, awardUserCoins };
+  window.GB = { api, toast, go, openAuth, openBoost, openClaim, submitClaim, claimDaily, claimLucky, doBoost, refresh, setAvatar, submitAuth, logout, shareCode, claimTask, donate, createProfile, handleImage, homeSearch, search, setHomePeriod, demoBoost, demoApprove, demoSettle, demoAction, setDemoPeriod, adminLogin, adminAction, profileDecision, claimDecision, copyText, toggleNav, closeNav, backTop, closeModal, awardUserCoins, pickAmount, customAmount, pickDonate, setDiscoverPage, setProfileBoostPage, setWalletTxnPage, setReferralPage, setWinnersPage, setAdminUsersPage, setDecidedClaimsPage };
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeModal();
@@ -142,6 +142,21 @@
     (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
       .then(() => toast('Copied! 📋', 'good'))
       .catch(() => toast('Copy failed — select manually', 'bad'));
+  }
+
+  function paginationHtml(page, totalPages, totalItems, actionFnName, label = 'items') {
+    if (totalPages <= 1 && totalItems <= 0) return '';
+    const prevDisabled = page <= 1 ? 'disabled' : '';
+    const nextDisabled = page >= totalPages ? 'disabled' : '';
+    return `
+      <div class="pagination">
+        <span class="page-info">Showing page <b>${page}</b> of <b>${totalPages}</b> (${totalItems} ${label})</span>
+        <div class="page-controls">
+          <button class="btn ghost small" type="button" ${prevDisabled} onclick="${actionFnName}(${page - 1})">← Prev</button>
+          <span class="page-info" style="padding:0 4px"><b>${page}</b> / ${totalPages}</span>
+          <button class="btn ghost small" type="button" ${nextDisabled} onclick="${actionFnName}(${page + 1})">Next →</button>
+        </div>
+      </div>`;
   }
 
   // ------------------------------------------------------------------ Auth (modal)
@@ -531,6 +546,14 @@
     const params = new URLSearchParams();
     if (q) params.set('q', q); if (cat) params.set('category', cat);
     const data = await api('/profiles' + (params.toString() ? '?' + params : ''));
+    const allProfiles = data.profiles || [];
+    const PAGE_SIZE = 9;
+    const total = allProfiles.length;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    S.discoverPage = Math.min(Math.max(1, S.discoverPage || 1), totalPages);
+    const start = (S.discoverPage - 1) * PAGE_SIZE;
+    const pagedProfiles = allProfiles.slice(start, start + PAGE_SIZE);
+
     return `
       <h1 class="section-title">🔭 Discover</h1>
       <div class="card mb row">
@@ -546,9 +569,17 @@
         estates, venues or brands shown. Real owners can <b>claim</b> a page — the badge flips to 🟢 when verified by moderators.
       </div>
       <div class="grid" id="profileGrid">
-        ${data.profiles.map(profileCard).join('') || '<p class="muted">Nothing matches. Try another search!</p>'}
-      </div>`;
+        ${pagedProfiles.map(profileCard).join('') || '<p class="muted">Nothing matches. Try another search!</p>'}
+      </div>
+      ${totalPages > 1 ? paginationHtml(S.discoverPage, totalPages, total, 'GB.setDiscoverPage', 'fan pages') : ''}`;
   };
+
+  function setDiscoverPage(pg) {
+    S.discoverPage = Math.max(1, pg);
+    render();
+    const grid = $('#profileGrid');
+    if (grid) grid.scrollIntoView({ behavior: 'smooth' });
+  }
 
   function profileMedia(p, big) {
     if (p.image) {
@@ -588,7 +619,15 @@
     const cat = CATS[p.category] || { label: p.category };
     const m = S.me;
     const selfBoost = p.isMineProfile;
-    const boostRows = (p.recentBoosts || []).slice(0, 8).map((b) => `
+
+    const allBoosts = p.recentBoosts || [];
+    const BOOST_PAGE_SIZE = 6;
+    const totalBoostPages = Math.max(1, Math.ceil(allBoosts.length / BOOST_PAGE_SIZE));
+    S.profileBoostPage = Math.min(Math.max(1, S.profileBoostPage || 1), totalBoostPages);
+    const boostStart = (S.profileBoostPage - 1) * BOOST_PAGE_SIZE;
+    const pagedBoosts = allBoosts.slice(boostStart, boostStart + BOOST_PAGE_SIZE);
+
+    const boostRows = pagedBoosts.map((b) => `
       <div class="list-row">
         <span class="avatar">${esc(b.avatar)}</span>
         <span class="grow"><b>${esc(b.username)}</b> · ${fmt(b.amount)} 🪙 → ${fmt(b.value)} pts ${b.selfBoost ? '<span class="sticker self">own page ×1.5</span>' : ''}</span>
@@ -643,23 +682,52 @@
         <div class="card">
           <h3>⚡ Recent boosts</h3>
           ${boostRows}
+          ${totalBoostPages > 1 ? paginationHtml(S.profileBoostPage, totalBoostPages, allBoosts.length, 'GB.setProfileBoostPage', 'boosts') : ''}
         </div>
       </div>
+
+      ${!p.verified && p.isMineProfile ? `
+      <div class="card" style="border-left:4px solid var(--purple);background:#fdf4ff;margin-top:14px">
+        <div class="row spread">
+          <div>
+            <b>🟢 Get your Verified Owner Badge</b>
+            <p class="muted small" style="margin:4px 0 0">After creation, pages start as fan-made. If you represent the real <b>${esc(p.realName || p.name)}</b>, submit a claim with verification proof to receive the official <b>🟢 verified owner badge</b>.</p>
+          </div>
+          <button class="btn purple small" onclick="GB.openClaim('${esc(p.slug)}')">🏛️ Claim for verified badge</button>
+        </div>
+      </div>` : ''}
 
       ${p.verified ? '' : `
       <div class="card mt" id="claimBox">
         <div class="row spread">
           <div>
-            <h3 style="margin:0">🏛️ Are you the real ${esc(p.realName || p.name)}?</h3>
-            <p class="muted small">This is a fan-made page. If you represent the real person/team, submit a claim — an admin verifies it and the page gets the 🟢 badge.</p>
+            <h3 style="margin:0">🏛️ Are you the real ${esc(p.realName || p.name)}? Get the 🟢 verified badge</h3>
+            <p class="muted small">This is currently a fan-made page. If you represent the real person, celebrity, brand or team, submit a claim — once verified by moderators, the page receives the <b>🟢 verified owner badge</b>.</p>
           </div>
-          <button class="btn purple" onclick="GB.openClaim('${esc(p.slug)}')">Claim page</button>
+          <button class="btn purple" onclick="GB.openClaim('${esc(p.slug)}')">🏛️ Claim page</button>
         </div>
       </div>`}
     `;
   };
 
   let boostSlug = null;
+  function updateBoostPreview(amt) {
+    const pv = $('#boostPreview');
+    if (!pv) return;
+    const num = Number(amt) || 0;
+    const self = S.me && S.me.createdProfileSlug === boostSlug;
+    const mult = self ? 1.5 : 1;
+    const pts = Math.round(num * mult);
+    const bal = S.me ? S.me.coins : 0;
+    if (num < 50) {
+      pv.innerHTML = `Spending <b>${fmt(num)}</b> 🪙 <span style="color:var(--red)">— Minimum boost is 50 coins</span>. Your balance: <b>${fmt(bal)}</b> 🪙`;
+    } else if (num > bal) {
+      pv.innerHTML = `Spending <b>${fmt(num)}</b> 🪙 → page gets <b>${fmt(pts)}</b> pts${self ? ' (×1.5 self-boost 💖)' : ''}. <span style="color:var(--red)">⚠️ Insufficient coins (balance: <b>${fmt(bal)}</b> 🪙).</span>`;
+    } else {
+      pv.innerHTML = `Spending <b>${fmt(num)}</b> 🪙 → page gets <b>${fmt(pts)}</b> pts${self ? ' (×1.5 self-boost 💖)' : ''}. Your balance: <b>${fmt(bal)}</b> 🪙`;
+    }
+  }
+
   function openBoost(slug) {
     if (!S.me) return openAuth('signup');
     boostSlug = slug;
@@ -670,8 +738,8 @@
       <div class="amount-chips" id="chips">
         ${[50, 100, 250, 500, 1000].map((a) => `<button type="button" data-a="${a}" onclick="GB.pickAmount('${a}', this)">${fmt(a)}</button>`).join('')}
       </div>
-      <label class="field mt"><span class="lbl">Or custom amount</span>
-        <input id="customAmt" type="number" min="50" step="10" placeholder="50+"></label>
+      <label class="field mt"><span class="lbl">Or enter custom amount (min 50 🪙)</span>
+        <input id="customAmt" type="number" min="50" step="10" placeholder="50+" value="50" oninput="GB.customAmount(this)" onfocus="this.select()"></label>
       <div class="notice legal small" id="boostPreview"></div>
       <button class="btn big pink" style="width:100%" onclick="GB.doBoost('${esc(slug)}', this)">🚀 Boost now</button>
       <button class="btn ghost mt" type="button" onclick="GB.closeModal()" style="width:100%">Cancel</button>
@@ -680,20 +748,25 @@
   }
 
   function pickAmount(a, btn) {
-    $$('#chips button').forEach((b) => b.classList.remove('sel'));
-    if (btn) btn.classList.add('sel');
-    const amt = Number(a);
-    const self = S.me && S.me.createdProfileSlug === boostSlug;
-    const mult = self ? 1.5 : 1;
-    const pv = $('#boostPreview');
-    if (pv) pv.innerHTML = `Spending <b>${fmt(amt)}</b> 🪙 → page gets <b>${fmt(Math.round(amt * mult))}</b> pts${self ? ' (×1.5 self-boost 💖)' : ''}. Your balance: <b>${fmt(S.me.coins)}</b> 🪙`;
+    const amt = Number(a) || 50;
+    const inp = $('#customAmt');
+    if (inp) inp.value = amt;
+    $$('#chips button').forEach((b) => b.classList.toggle('sel', Number(b.dataset.a) === amt));
+    updateBoostPreview(amt);
+  }
+
+  function customAmount(input) {
+    const amt = Number(input && input.value !== undefined ? input.value : input) || 0;
+    $$('#chips button').forEach((b) => b.classList.toggle('sel', Number(b.dataset.a) === amt));
+    updateBoostPreview(amt);
   }
 
   async function doBoost(slug, btn) {
-    let amt = Number(($('#customAmt') || {}).value || 0);
+    const inp = $('#customAmt');
     const sel = $('#chips button.sel');
-    if (!amt && sel) amt = Number(sel.dataset.a);
+    let amt = inp && inp.value !== '' ? Number(inp.value) : (sel ? Number(sel.dataset.a) : 0);
     if (!amt || amt < 50) return toast('Minimum boost is 50 coins', 'bad');
+    if (S.me && amt > S.me.coins) return toast('Not enough coins — claim your daily streak and lucky drops!', 'bad');
     if (btn) btn.disabled = true;
     try {
       const data = await api('/boost', { method: 'POST', body: { slug, amount: amt } });
@@ -716,11 +789,24 @@
     return err.message;
   }
 
+  function setProfileBoostPage(pg) {
+    S.profileBoostPage = Math.max(1, pg);
+    render();
+  }
+
   // ---- 4. Wallet
   VIEWS.wallet = async () => {
     if (!S.me) return requireLogin();
     const m = S.me;
-    const txnRows = (m.transactions || []).slice().reverse().map((t) => `
+    const allTxns = (m.transactions || []).slice().reverse();
+    const PAGE_SIZE = 8;
+    const totalTxns = allTxns.length;
+    const totalPages = Math.max(1, Math.ceil(totalTxns / PAGE_SIZE));
+    S.walletTxnPage = Math.min(Math.max(1, S.walletTxnPage || 1), totalPages);
+    const start = (S.walletTxnPage - 1) * PAGE_SIZE;
+    const pagedTxns = allTxns.slice(start, start + PAGE_SIZE);
+
+    const txnRows = pagedTxns.map((t) => `
       <div class="list-row">
         <span>${t.amount >= 0 ? '🪙' : '💸'}</span>
         <span class="grow">${esc(t.note)}<br><span class="muted small">${timeAgo(t.at)}</span></span>
@@ -758,8 +844,16 @@
       </div>
 
       <h2 class="section-title">🧾 History</h2>
-      <div class="card">${txnRows}</div>`;
+      <div class="card">
+        ${txnRows}
+        ${totalPages > 1 ? paginationHtml(S.walletTxnPage, totalPages, totalTxns, 'GB.setWalletTxnPage', 'transactions') : ''}
+      </div>`;
   };
+
+  function setWalletTxnPage(pg) {
+    S.walletTxnPage = Math.max(1, pg);
+    render();
+  }
 
   function ecoNextReward(m) {
     const s = m.dailyClaim.streak + 1;
@@ -829,7 +923,15 @@
   VIEWS.refer = async () => {
     if (!S.me) return requireLogin();
     const m = S.me;
-    const rows = (m.referrals || []).slice().reverse().map((r) => `
+    const allRefs = (m.referrals || []).slice().reverse();
+    const PAGE_SIZE = 6;
+    const totalRefs = allRefs.length;
+    const totalPages = Math.max(1, Math.ceil(totalRefs / PAGE_SIZE));
+    S.referralPage = Math.min(Math.max(1, S.referralPage || 1), totalPages);
+    const start = (S.referralPage - 1) * PAGE_SIZE;
+    const pagedRefs = allRefs.slice(start, start + PAGE_SIZE);
+
+    const rows = pagedRefs.map((r) => `
       <div class="list-row">
         <span class="avatar">🧑‍🚀</span>
         <span class="grow"><b>${esc(r.username)}</b><br>
@@ -853,12 +955,18 @@
           </div>
         </div>
         <div class="card">
-          <h3>Your squad (${(m.referrals || []).length})</h3>
+          <h3>Your squad (${totalRefs})</h3>
           ${rows}
+          ${totalPages > 1 ? paginationHtml(S.referralPage, totalPages, totalRefs, 'GB.setReferralPage', 'referrals') : ''}
           <p class="muted small mt">Lifetime match earned: 🪙 <b>${fmt(m.lifetimeMatchEarned || 0)}</b></p>
         </div>
       </div>`;
   };
+
+  function setReferralPage(pg) {
+    S.referralPage = Math.max(1, pg);
+    render();
+  }
 
   async function shareCode() {
     try {
@@ -878,6 +986,9 @@
         🏷️ This is a <b>fan-made tribute page</b> — not an official page, not affiliated, not an endorsement.
         Every new page is reviewed by an admin <b>before it goes live</b>. We'll email you at
         <b>${esc(S.me.email || 'your signup email')}</b> when your page is promoted up or needs changes.
+        <br><br>
+        🟢 <b>Verified badge note:</b> All pages start as fan-created. If you are the real person, artist, brand or official representative, you need to <b>claim the page after creation</b> with verification proof to get the official <b>🟢 verified owner badge</b>.
+        <br><br>
         You can create <b>one page</b>, and boosting your own page earns the <b>×1.5 self-boost</b>.
       </div>
       <div class="card">
@@ -912,7 +1023,7 @@
           <label class="field"><span class="lbl">Why this fave deserves the top spot</span><textarea name="description" maxlength="600" placeholder="Tell other fans what makes them legendary…"></textarea></label>
           <label class="field"><span class="lbl">Tags (comma separated, max 8)</span><input name="tags" placeholder="bollywood, bhai, action"></label>
           <button class="btn big purple" type="submit" id="createSubmit">📨 Submit for approval</button>
-          <p class="muted small mt">Your page stays private to you until an admin approves it — then fans can boost it up the leaderboard.</p>
+          <p class="muted small mt">Your page stays private to you until an admin approves it. After creation, if you represent the real owner, <b>submit a claim to receive the 🟢 verified badge</b>.</p>
         </form>
       </div>`;
   };
@@ -975,9 +1086,9 @@
       await refresh();
       confetti();
       if (data.moderation === 'pending') {
-        toast('Submitted! 📨 An admin will review it before it goes live — check your email.', 'good');
+        toast('Submitted! 📨 After creation, claim the page if you represent the real owner to get the 🟢 verified badge.', 'good');
       } else {
-        toast('Fan page created! 🎉', 'good');
+        toast('Fan page created! 🎉 Claim the page to get your 🟢 verified badge if you are the real owner.', 'good');
       }
       go('#/profile/' + data.profile.slug);
     } catch (err) {
@@ -1026,9 +1137,24 @@
              <p class="muted small" style="margin:.3em 0 0">${esc(p.reviewNote || 'An admin reviewed it.')} Check your email (${esc(S.me.email || '')}) for details.</p>
            </div>`
         : '';
+    const verifiedBadgeBanner = !p.verified
+      ? `<div class="card mt" style="border-left:4px solid var(--purple);background:#fdf4ff">
+           <div class="row spread">
+             <div>
+               <b>🟢 Get the Verified Badge</b>
+               <p class="muted small" style="margin:4px 0 0">After creation, pages start as fan-made. If you represent the real <b>${esc(p.realName || p.name)}</b>, submit a claim with verification proof to receive the official <b>🟢 verified owner badge</b>.</p>
+             </div>
+             <button class="btn purple small" onclick="GB.openClaim('${esc(p.slug)}')">🏛️ Claim for verified badge</button>
+           </div>
+         </div>`
+      : `<div class="card mt" style="border-left:4px solid var(--mint);background:var(--mint-soft)">
+           <b>🟢 Verified Owner</b>
+           <p class="muted small" style="margin:4px 0 0">This page is officially verified with the 🟢 verified owner badge.</p>
+         </div>`;
     return `
       <h1 class="section-title">🎪 My creation</h1>
       ${pendingBanner}
+      ${verifiedBadgeBanner}
       <div class="card">
         ${p.image ? `<img class="profile-img big" src="${p.image}" alt="${esc(p.realName || p.name)}" style="margin-bottom:12px">` : ''}
         <div class="row spread">
@@ -1065,7 +1191,15 @@
   // ---- Hall of winners (permanent ledger; becomes the cash payout list)
   VIEWS.winners = async () => {
     const w = await api('/winners');
-    const rows = (w.winners || []).map((x) => {
+    const allWinners = w.winners || [];
+    const PAGE_SIZE = 6;
+    const totalWinners = allWinners.length;
+    const totalPages = Math.max(1, Math.ceil(totalWinners / PAGE_SIZE));
+    S.winnersPage = Math.min(Math.max(1, S.winnersPage || 1), totalPages);
+    const start = (S.winnersPage - 1) * PAGE_SIZE;
+    const pagedWinners = allWinners.slice(start, start + PAGE_SIZE);
+
+    const rows = pagedWinners.map((x) => {
       const fans = (x.fans || []).map((f) =>
         `${MEDALS[f.rank - 1] || '#' + f.rank} <b>${esc(f.displayName || f.username)}</b> <span class="muted small">(${fmt(f.points)} pts → ${fmt(f.coinPrize)} 🪙)</span>`).join('<br>') || '<span class="muted small">no ranked fans</span>';
       const fandom = (x.fandom || []).slice(0, 3).map((f) =>
@@ -1091,8 +1225,15 @@
         both the <b>top fans</b> (who win coins) and the <b>crowned fandom</b> (the most-loved celeb/character page).
         When real-money prizes switch on after full legal setup, this is the list we pay out.</p>
       </div>
-      ${rows}`;
+      ${rows}
+      ${totalPages > 1 ? paginationHtml(S.winnersPage, totalPages, totalWinners, 'GB.setWinnersPage', 'rounds') : ''}`;
   };
+
+  function setWinnersPage(pg) {
+    S.winnersPage = Math.max(1, pg);
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   // ---- 🧪 Demo sandbox (ADMIN ONLY) — isolated fake data, not the live board
   VIEWS.demo = async () => {
@@ -1369,7 +1510,14 @@
             <a class="btn purple small" href="#/admin/claims/${esc(r.profileSlug)}/${esc(r.id)}">🔍 Review &amp; verify</a>
           </span>
         </div>`).join('');
-      const decidedRows = decided.slice(0, 6).map((r) => `
+
+      const DECIDED_PAGE_SIZE = 6;
+      const totalDecidedPages = Math.max(1, Math.ceil(decided.length / DECIDED_PAGE_SIZE));
+      S.adminDecidedClaimsPage = Math.min(Math.max(1, S.adminDecidedClaimsPage || 1), totalDecidedPages);
+      const decidedStart = (S.adminDecidedClaimsPage - 1) * DECIDED_PAGE_SIZE;
+      const pagedDecided = decided.slice(decidedStart, decidedStart + DECIDED_PAGE_SIZE);
+
+      const decidedRows = pagedDecided.map((r) => `
         <div class="list-row">
           <span class="grow small">
             <b>${esc(r.profileName)}</b> · @${esc(r.username)}
@@ -1381,8 +1529,13 @@
       box.innerHTML = `<h3>🏛️ Claim requests ${pending.length ? `<span class="count-pill">${pending.length}</span>` : ''}</h3>
         <p class="muted small">Each claim gets a full verification screen — page details, claimant history and evidence side by side.</p>
         ${pending.length ? pendingRows : '<p class="muted">None pending. 🎉</p>'}
-        ${decided.length ? `<h4 class="mt" style="margin-bottom:4px">Recently decided</h4>${decidedRows}` : ''}`;
+        ${decided.length ? `<h4 class="mt" style="margin-bottom:4px">Recently decided (${decided.length})</h4>${decidedRows}${totalDecidedPages > 1 ? paginationHtml(S.adminDecidedClaimsPage, totalDecidedPages, decided.length, 'GB.setDecidedClaimsPage', 'claims') : ''}` : ''}`;
     } catch (err) { /* not admin */ }
+  }
+
+  function setDecidedClaimsPage(pg) {
+    S.adminDecidedClaimsPage = Math.max(1, pg);
+    loadClaims();
   }
 
   // ---- Admin: dedicated claim VERIFICATION screen (#/admin/claims/:slug/:id)
@@ -1554,9 +1707,15 @@
         box.innerHTML = '<h3>👥 Registered Users</h3><p class="muted">No users found.</p>';
         return;
       }
+      const PAGE_SIZE = 8;
+      const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+      S.adminUsersPage = Math.min(Math.max(1, S.adminUsersPage || 1), totalPages);
+      const start = (S.adminUsersPage - 1) * PAGE_SIZE;
+      const pagedList = list.slice(start, start + PAGE_SIZE);
+
       box.innerHTML = `<h3>👥 Registered Users (${list.length})</h3>
-        <div style="max-height:360px;overflow-y:auto;margin-top:10px">
-        ${list.map((u) => `
+        <div style="margin-top:10px">
+        ${pagedList.map((u) => `
           <div class="list-row" style="align-items:center">
             <span class="grow">
               <b>@${esc(u.username)}</b> ${u.isAdmin ? '<span class="sticker verified">admin</span>' : ''}<br>
@@ -1565,8 +1724,14 @@
             <button class="btn mint small" onclick="GB.awardUserCoins('${esc(u.id)}')">🎁 Award 1k</button>
           </div>
         `).join('')}
-        </div>`;
+        </div>
+        ${totalPages > 1 ? paginationHtml(S.adminUsersPage, totalPages, list.length, 'GB.setAdminUsersPage', 'users') : ''}`;
     } catch (err) { /* not admin */ }
+  }
+
+  function setAdminUsersPage(pg) {
+    S.adminUsersPage = Math.max(1, pg);
+    loadAdminUsers();
   }
 
   async function awardUserCoins(userId) {
@@ -1581,20 +1746,21 @@
   function openClaim(slug) {
     if (!S.me) return openAuth('signup');
     modal(`
-      <h2>🏛️ Verify & claim ${esc(slug)}</h2>
-      <p class="muted">This is a <b>fan-created</b> page. If you represent the real ${esc(slug)}, submit evidence and a moderator will verify.</p>
-      <label class="field"><span class="lbl">Evidence (why are you the real owner?)</span>
-        <textarea id="claimEvidence" maxlength="500" placeholder="Website, social handle, registry link…"></textarea></label>
-      <button class="btn purple" style="width:100%" onclick="GB.submitClaim('${esc(slug)}')">Send claim request</button>
+      <h2>🏛️ Claim &amp; Verify ${esc(slug)}</h2>
+      <p class="muted">After creation, all pages start as fan-made. If you represent the real person, brand, or team, submit verification evidence to receive the official <b>🟢 verified owner badge</b>.</p>
+      <label class="field"><span class="lbl">Proof of identity or representation</span>
+        <textarea id="claimEvidence" maxlength="500" placeholder="Official website contact page, verified social handle, official email domain, registry link…"></textarea></label>
+      <div class="notice legal small">Our moderators review your evidence. Once verified, the page is granted the <b>🟢 verified owner badge</b>.</div>
+      <button class="btn purple mt" style="width:100%" onclick="GB.submitClaim('${esc(slug)}')">Send claim request for 🟢 verified badge</button>
       <button class="btn ghost mt" type="button" onclick="GB.closeModal()" style="width:100%">Cancel</button>
-      <p class="muted small mt">Claims are reviewed manually. This does not grant coins or boost advantages.</p>`);
+      <p class="muted small mt center">Claims are reviewed manually by moderators.</p>`);
   }
 
   async function submitClaim(slug) {
     try {
       const d = await api('/profiles/' + slug + '/claim', { method: 'POST', body: { evidence: gbv('claimEvidence') } });
       closeModal();
-      toast('Claim submitted! Moderators will review. 🏛️', 'good');
+      toast('Claim submitted! 🏛️ Moderators will review your request for the 🟢 verified badge.', 'good');
       render();
     } catch (err) { toast(err.message, 'bad'); }
   }

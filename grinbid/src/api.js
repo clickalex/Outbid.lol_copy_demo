@@ -411,7 +411,7 @@ async function createProfile(ctx, state, sse) {
       profile: eco.publicProfile(state, profile),
       ok: true,
       moderation: 'pending',
-      message: 'Your fan page was submitted. An admin reviews it before it goes live — fans will be able to boost it right after approval.'
+      message: 'Your fan page was submitted. After creation, if you represent the real person or team, submit a claim to receive the 🟢 verified badge.'
     });
   });
 }
