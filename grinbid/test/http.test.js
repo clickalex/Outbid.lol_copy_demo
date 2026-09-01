@@ -377,6 +377,7 @@ test('new fan pages start pending: hidden publicly, admin approves, then live', 
   assert.strictEqual(d.moderation, 'pending');
   assert.strictEqual(d.profile.realName, 'Salman Khan');
   assert.strictEqual(d.profile.image, img);
+  assert.ok(d.message.includes('verified badge') || d.message.includes('claim'));
 
   // anonymous public listing must NOT contain the pending page
   const anon = await fetch(`${base}/api/profiles`).then((x) => x.json());
@@ -466,6 +467,13 @@ test('static + legal pages serve; SPA fallback works', async () => {
   const spa = await fetch(`${base}/some/spa/route`);
   assert.strictEqual(spa.status, 200);
   assert.match(await spa.text(), /app\.js/);
+
+  const js = await fetch(`${base}/app.js`);
+  assert.strictEqual(js.status, 200);
+  const code = await js.text();
+  assert.match(code, /pickAmount/);
+  assert.match(code, /customAmount/);
+  assert.match(code, /pickDonate/);
 });
 
 test('SSE stream: headers + hello + boost event', async () => {
