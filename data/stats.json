@@ -1,23 +1,23 @@
 {
-  "runAt": "2026-09-05T07:38:42+00:00",
+  "runAt": "2026-09-06T07:53:11+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-09-05T07:38:42.668Z",
-  "boardsTotal": 477,
-  "boardsMeasured": 328,
-  "cloneMeasured": 327,
-  "claimedTotalUsd": 337010.36,
-  "cloneTotalUsd": 81504.27,
-  "originalCollectedUsd": 255506.09,
-  "originalShare": 0.7582,
-  "cloneMedianUsd": 20.88,
-  "top10CloneShareOfCloneMoney": 0.6119,
+  "apiGeneratedAt": "2026-09-06T07:53:12.147Z",
+  "boardsTotal": 503,
+  "boardsMeasured": 331,
+  "cloneMeasured": 330,
+  "claimedTotalUsd": 339482.5,
+  "cloneTotalUsd": 83429.81,
+  "originalCollectedUsd": 256052.69,
+  "originalShare": 0.7542,
+  "cloneMedianUsd": 21.0,
+  "top10CloneShareOfCloneMoney": 0.5978,
   "categories": {
     "Websites & products": 254,
-    "X accounts": 62,
-    "AI tools & agents": 42,
+    "X accounts": 64,
+    "AI tools & agents": 63,
     "Ads & billboards": 37,
     "Crypto & tokens": 27,
-    "Games & clips": 23,
+    "Games & clips": 26,
     "Regional & other currencies": 19,
     "Directories of bid sites": 13
   },
@@ -25,7 +25,7 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$255,506.09"
+      "claimed": "$256,052.69"
     },
     {
       "host": "lamborghini.lol",
@@ -90,22 +90,22 @@
     "highestBidHost": null
   },
   "entrySimulator": {
-    "measuredClones": 327,
-    "meanUsd": 249.25,
-    "medianUsd": 20.88,
+    "measuredClones": 330,
+    "meanUsd": 252.82,
+    "medianUsd": 21.0,
     "percentiles": {
       "p25": 5.0,
-      "p50": 20.88,
-      "p75": 71.15,
-      "p90": 395.2,
-      "p95": 997.6,
-      "p99": 2885.74
+      "p50": 21.0,
+      "p75": 71.58,
+      "p90": 404.5,
+      "p95": 1182.3,
+      "p99": 2882.71
     },
-    "shareOver100": 0.208,
-    "shareOver1000": 0.052,
-    "shareExactlyZero": 0.1009,
+    "shareOver100": 0.2061,
+    "shareOver1000": 0.0545,
+    "shareExactlyZero": 0.1,
     "bottomHalfShareOfMoney": 0.0127,
-    "top10ShareOfCloneMoney": 0.6119,
+    "top10ShareOfCloneMoney": 0.5978,
     "bestCategoryByMedian": {
       "name": "Regional & other currencies",
       "medianUsd": 33.63,
@@ -113,12 +113,12 @@
     },
     "categoryMedians": {
       "Regional & other currencies": 33.63,
-      "AI tools & agents": 32.0,
+      "AI tools & agents": 31.0,
       "Websites & products": 25.0,
-      "Directories of bid sites": 18.15,
+      "Directories of bid sites": 15.0,
+      "X accounts": 14.5,
       "Ads & billboards": 14.0,
-      "X accounts": 14.0,
-      "Crypto & tokens": 7.0,
+      "Crypto & tokens": 6.5,
       "Games & clips": 6.0
     }
   },
