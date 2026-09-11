@@ -71,7 +71,7 @@
 <nav class="site-nav" aria-label="Website navigation"><a class="site-logo" href="index.html"><span>↑$</span><strong>Outbid OS</strong></a><button class="nav-toggle" type="button" aria-expanded="false">Menu</button><div class="site-links"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a><a href="idea-picker.html" data-page="picker">Picker</a><a href="entry-simulator.html" data-page="simulator">Simulator</a><a href="launch-checklist.html" data-page="checklist">Checklist</a><a href="revenue-calculator.html" data-page="calculator">Calculator</a><a href="changelog.html" data-page="changelog">Changelog</a><a href="about.html" data-page="about">About</a><a href="legal-checklist.html" data-page="legal">Legal</a></div></nav>
   <nav class="mobile-bottom-nav" aria-label="Quick mobile navigation"><a href="index.html" data-page="audit">Audit</a><a href="ideas.html" data-page="ideas">Ideas</a><a href="tools.html" data-page="tools">Tools</a><a href="search.html" data-page="search">Search</a></nav>
 
-<main><p class="eyebrow">Money model</p><h1>Know the net before <i>you buy the domain.</i></h1><p class="deck">Estimate what a pay-to-rank board keeps after payment fees, visitor rewards and fixed costs. Defaults are conservative because the measured median clone is only $18.90.</p>
+<main><p class="eyebrow">Money model</p><h1>Know the net before <i>you buy the domain.</i></h1><p class="deck">Estimate what a pay-to-rank board keeps after payment fees, visitor rewards and fixed costs. Defaults are conservative because the measured median clone is only <span data-stat="clone-median">$20.88</span>.</p>
 <div class="layout"><section class="panel"><div class="form">
 <div class="row"><label><span>Unique bidders</span><input id="bidders" type="number" value="20" min="0"></label><label><span>Average bid</span><input id="avgBid" type="number" value="10" min="1"></label></div>
 <div class="row"><label><span>Rebids per bidder</span><input id="rebids" type="number" value="1.5" min="0" step="0.1"></label><label><span>Minimum bid</span><input id="minBid" type="number" value="5" min="1"></label></div>
@@ -86,5 +86,18 @@ function calc(){let bidders=+$('bidders').value||0,avg=+$('avgBid').value||0,reb
 document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',calc));$('reset').onclick=()=>{$('bidders').value=20;$('avgBid').value=10;$('rebids').value=1.5;$('minBid').value=5;$('rail').value='card';$('reward').value=0;$('cost').value=120;$('monthly').value=15;calc()};$('copySummary').onclick=()=>navigator.clipboard?.writeText(`Revenue summary: gross ${$('gross').textContent}, fees ${$('fees').textContent}, net ${$('net').textContent}, break-even bidders ${$('breakEven').textContent}. ${$('verdict').textContent}`);calc();
 </script>
 
+<script>
+(function () {
+  var el = document.querySelector('[data-stat="clone-median"]');
+  if (!el) return;
+  fetch('data/stats.json', { cache: 'no-store', headers: { 'Accept': 'application/json' } })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function (s) {
+      var v = s && s.cloneMedianUsd;
+      if (typeof v === 'number') el.textContent = '$' + v.toFixed(2);
+    })
+    .catch(function () { /* keep the snapshot value baked into the markup */ });
+})();
+</script>
   <script src="assets/site-enhancements.js"></script>
 </body></html>

@@ -39,6 +39,9 @@ function add(severity, check, file, detail) {
 }
 
 function listPages(dir) {
+  // optional directories (the launch kit used to live in launch/) must not
+  // crash the audit when they are not present in a checkout
+  if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true })
     .filter(d => d.isFile() && d.name.endsWith('.html'))
     .map(d => path.join(dir, d.name));

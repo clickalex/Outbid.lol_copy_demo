@@ -161,8 +161,9 @@
       border-bottom: 1px solid var(--line);
       overflow: hidden;
     }
+    /* bot-owned: the hero watermark is inventory + 1, rewritten by patch_hero_number() */
     .hero::after {
-      content: "414";
+      content: "509";
       position: absolute;
       z-index: -1;
       right: -30px;
@@ -937,7 +938,7 @@
           <div class="hero-actions">
             <a class="btn primary" href="#inventory">Explore all sites ↓</a>
             <a class="btn" href="ideas.html">Open idea list →</a>
-            <a class="btn" href="entry-simulator.html">Should you ship #416? →</a>
+            <a class="btn" href="entry-simulator.html">Should you ship <span data-live-next data-stat="next-board-index">#509</span>? →</a>
             <a class="btn" href="https://outbid.lol/" target="_blank" rel="noopener">Open outbid.lol ↗</a>
             <button class="btn" type="button" onclick="window.print()">Print / save PDF</button>
           </div>
@@ -983,7 +984,7 @@
         <article class="dash-card" style="min-height:auto;margin-bottom:18px;border-color:rgba(217,255,101,.42)">
           <b>BEST IDEA OF THE DAY</b>
           <strong>BlogRank — pay to rank, watch/read to earn</strong>
-          <span>Why this is highlighted: it fixes fake clicks, creates a visitor benefit, and stays meaningfully different from the 415-board inventory. MVP: paid content wall, click timer, attention quiz, payout ledger, anti-fraud rules.</span>
+          <span>Why this is highlighted: it fixes fake clicks, creates a visitor benefit, and stays meaningfully different from the <span data-live-total data-stat="boards-total">508</span>-board inventory. MVP: paid content wall, click timer, attention quiz, payout ledger, anti-fraud rules.</span>
         </article>
         <div class="dash-grid">
           <a class="dash-card" href="ideas.html"><b>01</b><strong>Browse open ideas</strong><span>Verified vertical gaps, visitor-earn mechanics and marked duplicates.</span></a>
@@ -1314,7 +1315,7 @@
             <article class="rec"><b>03 / RETENTION</b><h3>Build return reasons beyond novelty</h3><p>Keep the 24-hour board, add category alerts and bidder performance history, and let buyers compare spend, clicks and effective CPC without promising outcomes.</p></article>
             <article class="rec"><b>04 / RELIABILITY</b><h3>Separate “down” from “invalid”</h3><p>Monitor DNS, TLS, server response, rendered board and checkout independently. A stale or bot-blocked render should not be reported as site downtime.</p></article>
             <article class="rec"><b>05 / MODERATION</b><h3>Operationalize review</h3><p>Move category corrections and takedowns from an X DM into a ticket flow with ownership proof, status, reason codes and appeal handling.</p></article>
-            <article class="rec"><b>06 / NEW ENTRANTS</b><h3>Do not ship clone <span data-stat="next-clone-index">#509</span></h3><p>Win a vertical audience first. Use expiring rounds, a meaningful prize, local payment rails or a new visual mechanic—then prove repeat attention before charging. <a href="ideas.html">Browse open ideas →</a> · <a href="entry-simulator.html">Model the odds first →</a></p></article>
+            <article class="rec"><b>06 / NEW ENTRANTS</b><h3>Do not ship clone <span data-live-next data-stat="next-clone-index">#509</span></h3><p>Win a vertical audience first. Use expiring rounds, a meaningful prize, local payment rails or a new visual mechanic—then prove repeat attention before charging. <a href="ideas.html">Browse open ideas →</a> · <a href="entry-simulator.html">Model the odds first →</a></p></article>
           </div>
 
           <h3 style="margin:34px 0 0">Risk register</h3>

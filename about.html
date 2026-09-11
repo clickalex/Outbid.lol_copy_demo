@@ -36,7 +36,7 @@
     <article class="card layer">
       <span class="num">01 · RESEARCH</span>
       <h3>Market intelligence</h3>
-      <p>Evidence first: what exists, how big it is, and whether a new entrant should ship board #451.</p>
+      <p>Evidence first: what exists, how big it is, and whether a new entrant should ship board <span data-live-next data-stat="next-board-index">#509</span>.</p>
       <ul>
         <li><a href="index.html">Report 001 — the market audit</a> with a live inventory of every verified board</li>
         <li><a href="entry-simulator.html">Report 001b — the entry simulator</a>: odds, medians and break-even</li>
@@ -81,13 +81,13 @@
   <span class="eyebrow">By the numbers</span>
   <h2 id="numbers-title">The market, the project, the discipline.</h2>
   <div class="stats">
-    <div class="card stat"><b><span data-stat="about-boards-total">450</span></b><span>verified pay-to-rank boards in the live inventory <em>(fetched at runtime; snapshot 27 Aug 2026)</em></span></div>
-    <div class="card stat"><b>313</b><span>boards with published figures — the rest are verified but unmeasured</span></div>
-    <div class="card stat"><b>$191,307</b><span>claimed total take across original + clones — <strong>66%</strong> of it is still the original board</span></div>
-    <div class="card stat"><b>$18.95</b><span>median clone take — the number every would-be clone should read first</span></div>
+    <div class="card stat"><b><span data-stat="about-boards-total">508</span></b><span>verified pay-to-rank boards in the live inventory <em>(fetched at runtime; bot-refreshed daily)</em></span></div>
+    <div class="card stat"><b><span data-stat="about-measured-count">332</span></b><span>boards with published figures — the rest are verified but unmeasured</span></div>
+    <div class="card stat"><b><span data-stat="about-claimed-total">$342,748</span></b><span>claimed total take across original + clones — <strong><span data-stat="about-original-share">75%</span></strong> of it is still the original board</span></div>
+    <div class="card stat"><b><span data-stat="about-clone-median">$20.88</span></b><span>median clone take — the number every would-be clone should read first</span></div>
     <div class="card stat"><b>30</b><span>structured ideas, every one keyword-verified against the full inventory</span></div>
     <div class="card stat"><b>9</b><span>documents in the Level&nbsp;0 launch pack — terms to go/no-go gate</span></div>
-    <div class="card stat"><b>19</b><span>static pages and tools, zero build steps, one daily bot</span></div>
+    <div class="card stat"><b>17</b><span>static pages and tools in Outbid OS (plus Grinbid's nine), zero build steps, one daily bot</span></div>
     <div class="card stat"><b>20</b><span>consecutive error-free audit passes behind the last release — <a href="docs/audit-log.md" style="color:inherit">the log</a></span></div>
   </div>
 </section>
@@ -118,7 +118,8 @@
 <script>
 (function () {
   var els = document.querySelectorAll('[data-stat="about-boards-total"]');
-  if (!els.length) return;
+  var nextEls = document.querySelectorAll('[data-live-next]');
+  if (!els.length && !nextEls.length) return;
   fetch('https://outoutbid.lol/api/directory.json?pageSize=500&sort=new', {
     cache: 'no-store',
     headers: { 'Accept': 'application/json' }
@@ -128,6 +129,8 @@
       var total = (payload.meta && Number(payload.meta.total)) || (Array.isArray(payload.boards) ? payload.boards.length : 0);
       if (!total) throw new Error('No board total returned');
       els.forEach(function (el) { el.textContent = Number(total).toLocaleString(); });
+      // the board a new entrant would ship is the next index in the market
+      nextEls.forEach(function (el) { el.textContent = '#' + (Number(total) + 1).toLocaleString(); });
     })
     .catch(function (error) {
       // The snapshot value baked into the HTML remains as the offline fallback.

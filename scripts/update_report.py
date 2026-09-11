@@ -47,6 +47,7 @@ REPO = Path(__file__).resolve().parent.parent
 HTML_PATH = REPO / "index.html"
 SIM_PATH = REPO / "entry-simulator.html"
 IDEAS_PATH = REPO / "ideas.html"
+ABOUT_PATH = REPO / "about.html"
 CSV_PATH = REPO / "data" / "outbid-market-inventory.csv"
 STATS_PATH = REPO / "data" / "stats.json"
 
@@ -178,6 +179,10 @@ def fmt_pct1(fraction: float) -> str:
 
 def fmt_pct0(fraction: float) -> str:
     return f"{round(fraction * 100):.0f}%"
+
+
+def fmt_money0(number: float) -> str:
+    return f"${number:,.0f}"
 
 
 def fmt_money2(number: float) -> str:
@@ -319,6 +324,42 @@ def patch_scalars(html: str, values: dict) -> tuple[str, list]:
         if count == 0:
             unpatched.append(key)
     return html, unpatched
+
+
+def patch_meta(html: str, values: dict) -> tuple[str, list]:
+    """Replace content="…" on <meta> tags carrying data-stat="key".
+
+    A meta tag has no inner text, so :func:`patch_scalars` cannot own it —
+    running both over the same key would eat the whitespace that follows the
+    tag. Meta keys are therefore always used through this helper only.
+    """
+    unpatched = []
+    for key, value in values.items():
+        pattern = re.compile(
+            r'(<meta[^>]*\bdata-stat="' + re.escape(key) + r'"[^>]*\bcontent=")([^"]*)(")'
+        )
+        html, count = pattern.subn(lambda m: m.group(1) + value + m.group(3), html)
+        if count == 0:
+            unpatched.append(key)
+    return html, unpatched
+
+
+# tolerant of a comment or another property between "{" and "content:", but
+# never crosses the closing brace, so it cannot eat an unrelated rule
+HERO_NUMBER_RE = re.compile(r'(\.hero::after[^{]*\{[^}]*?content:\s*")[^"]*("\s*;)')
+
+
+def patch_hero_number(html: str, number: str) -> tuple[str, list]:
+    """Refresh the hero watermark — index.html and entry-simulator.html.
+
+    It is a CSS ``::after { content: "509" }`` value, so it cannot carry a
+    ``data-stat`` element. The rule is kept on one line and marked with a
+    ``/* bot-owned */`` comment; ``scripts/audit.py`` re-checks the number
+    against ``data/stats.json`` so a reformat that breaks the patch is a
+    hard audit failure rather than a silent staleness bug.
+    """
+    html, count = HERO_NUMBER_RE.subn(lambda m: m.group(1) + number + m.group(2), html)
+    return html, ([] if count else ["hero-number"])
 
 
 def replace_block(html: str, sentinel: str, body: str, *, where: str = "index.html") -> str:
@@ -872,9 +913,14 @@ def main() -> int:
     stamp_full = started.strftime("%d %b %Y · %H:%M UTC")
     clock = started.strftime("%H:%M UTC")
 
+    # The next board a new entrant would ship is always inventory + 1. Publish
+    # it once, in both forms, and reuse it on every page that quotes it.
+    next_index = int(stats["total"]) + 1
+
     scalars = {
         "boards-total": fmt_int(stats["total"]),
-        "next-clone-index": f"#{int(stats['total']) + 1}",
+        "next-board-index": f"#{next_index}",
+        "next-clone-index": f"#{next_index}",
         "claimed-total-short": fmt_k(stats["claimed_total"]),
         "measured-count-note": f"{fmt_int(stats['measured'])} boards measured at source",
         "original-share": fmt_pct1(stats["original_share"]),
@@ -915,6 +961,9 @@ def main() -> int:
     html = HTML_PATH.read_text(encoding="utf-8")
     status_map = extract_status_map(html)
     html, unpatched = patch_scalars(html, scalars)
+    # the giant hero watermark is inventory + 1 on both report pages
+    html, hero_unpatched = patch_hero_number(html, str(next_index))
+    unpatched.extend(hero_unpatched)
     html = replace_block(html, "category-bars", render_category_bars(stats["categories"]))
     html = replace_block(html, "top-table", render_top_table(stats["ranked"], status_map, routes))
     fallback_pattern = re.compile(r"(//\s*bot:fallback-boards)[\s\S]*?(//\s*/bot:fallback-boards)")
@@ -932,10 +981,26 @@ def main() -> int:
         sim_html = SIM_PATH.read_text(encoding="utf-8")
         sim_values = dict(sim_scalars(sim))
         # shared stamps/figures so both pages always agree
-        for shared in ("clone-median", "table-refreshed", "side-updated", "bot-updated"):
+        for shared in (
+            "clone-median", "table-refreshed", "side-updated", "bot-updated",
+            "next-board-index",
+        ):
             if shared in scalars:
                 sim_values[shared] = scalars[shared]
+        # the simulator's own headline: "should you ship board #<next>?"
+        sim_values["sim-title"] = f"Should You Ship Board #{next_index}? — Outbid Market Audit"
+        sim_meta = {
+            "sim-meta-description": (
+                f"An entry simulator for the pay-to-rank market: model what board #{next_index} "
+                f"would realistically take, using the measured outcomes of {fmt_int(sim['count'])} "
+                "clone boards in the public outoutbid.lol directory."
+            ),
+        }
         sim_html, sim_unpatched = patch_scalars(sim_html, sim_values)
+        sim_html, sim_meta_unpatched = patch_meta(sim_html, sim_meta)
+        sim_html, sim_hero_unpatched = patch_hero_number(sim_html, str(next_index))
+        sim_unpatched.extend(f"meta:{key}" for key in sim_meta_unpatched)
+        sim_unpatched.extend(sim_hero_unpatched)
         for sentinel, body in (
             ("category-ladder", render_category_ladder(sim)),
             ("outcome-bands", render_outcome_bands(sim)),
@@ -975,6 +1040,23 @@ def main() -> int:
         unpatched.extend(f"ideas:{key}" for key in ideas_unpatched)
     else:
         print(f"[bot] note - {IDEAS_PATH.name} not present; skipped", flush=True)
+
+    # ---- about.html: the "by the numbers" cards ----------------------------
+    if ABOUT_PATH.exists():
+        about_html = ABOUT_PATH.read_text(encoding="utf-8")
+        about_html, about_unpatched = patch_scalars(about_html, {
+            "about-boards-total": fmt_int(stats["total"]),
+            "about-measured-count": fmt_int(stats["measured"]),
+            "next-board-index": f"#{next_index}",
+            "about-claimed-total": fmt_money0(stats["claimed_total"]),
+            "about-original-share": fmt_pct0(stats["original_share"]),
+            "about-clone-median": fmt_money2(stats["clone_median"]),
+        })
+        write_atomic(ABOUT_PATH, about_html)
+        print(f"[bot] patched {ABOUT_PATH}", flush=True)
+        unpatched.extend(f"about:{key}" for key in about_unpatched)
+    else:
+        print(f"[bot] note - {ABOUT_PATH.name} not present; skipped", flush=True)
 
     if unpatched:
         print(f"[bot] WARNING - markers not found: {', '.join(sorted(set(unpatched)))}", flush=True)

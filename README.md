@@ -18,7 +18,10 @@ Three layers, one repository:
 - a live, searchable all-site inventory powered by the public `outoutbid.lol` API, including a Free / Freemium / Paid bid-rate filter (with a transparent “Not disclosed” state when the source does not publish enough pricing detail);
 - risks, recommendations, methodology, limitations, and source links.
 
-**`entry-simulator.html` — report 001b, “Should you ship board #416?”:**
+**`entry-simulator.html` — report 001b, “Should you ship board #509?”:**
+
+*(The number in that headline is not written by hand: it is the inventory total plus one, refreshed by the daily
+bot on this page, on the home page and on `about.html`.)*
 
 The audit answers *how big is this market*. The companion page answers the question a reader is left holding: *should I build one too?* It turns the same inventory into an interactive model of a new entrant's odds —
 
@@ -112,7 +115,9 @@ script rewrites any stale local link to the live URL automatically).
 | **`docs/level0-launch-pack/`** | **The Level 0 document set** (9 files): pack index → terms → privacy → refunds → ad content policy & screening → disclosure spec → invoicing/books/tax → entity/bank/PG/trademark → ops SOP & pre-launch gate → guardrails. Niche-agnostic, written for BlogRank. |
 | `scripts/update_report.py` | The update bot (Python 3.9+, standard library only; all writes atomic). |
 | `run-bot.sh` | Hands-off wrapper for manual/screen runs of the bot: `--loop` (daily, retries after failures), `--commit` (commit + push the bot files), `--log FILE` (default `bot.log`, git-ignored). |
-| `scripts/audit.py` + `scripts/audit_dom.js` | One-command full-repo audit pass: syntax (Python/JS/bash/JSON/CSV/YAML/SVG), HTML structure and tag balance, duplicate ids, internal links and anchors, bot-sentinel integrity, stats↔CSV↔page consistency, and a jsdom runtime smoke test of every page. `python3 scripts/audit.py` (exit 0 = clean; `--json` for machine output). The DOM checks need `jsdom` (`npm i jsdom`) and are skipped with a warning when absent. |
+| `scripts/audit.py` + `scripts/audit_dom.js` | One-command full-repo audit pass: syntax (Python/JS/bash/JSON/CSV/YAML/SVG), HTML structure and tag balance, duplicate ids, internal links and anchors, bot-sentinel integrity, stats↔CSV↔page consistency, board-count / next-board-index consistency against
+`data/stats.json` (including the CSS hero watermark), a scan for hand-written board counts the bot cannot
+refresh, and a jsdom runtime smoke test of every page. `python3 scripts/audit.py` (exit 0 = clean; `--json` for machine output). The DOM checks need `jsdom` (`npm i jsdom`) and are skipped with a warning when absent. |
 | `docs/daily-update.yml` | Reference copy of the GitHub Actions workflow. The live file is already committed at `.github/workflows/daily-update.yml` and active; only a fresh fork needs it copied (see below). |
 
 ## Grinbid is live on Render 🚀
@@ -156,7 +161,9 @@ request. The full walkthrough is in `grinbid/deploy/RENDER.md`; `grinbid/index.h
 4. **Refreshes `index.html`** — every figure marked with a `data-stat="…"` attribute or a `<!--bot:…-->` sentinel is recomputed: headline totals, claimed-money concentration, clone median, zero/under-$10/under-$100 buckets, category bars, the top-10 table, route statuses, the offline fallback records, and the “last refreshed” stamps. `data/stats.json` records what the run produced.
 5. **Refreshes `entry-simulator.html`** — the same run recomputes the simulator's baseline figures, outcome bands, percentiles, concentration split, category ladder and both written call-outs, and re-embeds the per-category dataset the page's model runs on. Shared values (clone median, refresh stamps) are copied from the same run so the two pages can never drift apart. The page is skipped gracefully if the file is absent.
 6. **Refreshes `ideas.html`** — only the live counters (`ideas-boards-total`, `ideas-watch-count`, `ideas-collision-count`, last-scan stamp) and the automated `<!--bot:idea-collision-watch-->` block. Idea cards and verification verdicts are never rewritten.
-7. **Commits and pushes** only when something actually changed.
+7. **Refreshes `about.html`** — the “by the numbers” cards (board total, measured boards, claimed total, original’s share, clone median) and the next-board index. Hand-written story text and the principles are never rewritten.
+8. **Refreshes the next-board index everywhere** — `next-board-index` (`#509`) / `next-board-number` (`509`) are always inventory + 1, so the home-page CTA, the simulator headline and `<title>`, its hero watermark and the about page can never quote a board number the market has already passed.
+9. **Commits and pushes** only when something actually changed.
 
 Failure behaviour is conservative: if the directory API is unreachable after retries, the run **aborts before writing anything** (previous files stay intact, non-zero exit). If the About-page parse fails, the previous counter values are kept. If a bot marker is missing from a page, the bot logs a warning and records it in `data/stats.json` (`unpatchedMarkers`) without failing the run. Every file is written atomically (temp file + rename), so an interrupted run can never leave a truncated CSV or HTML behind — the worst case is a partially updated tree, fixed by simply running the bot again.
 
@@ -169,8 +176,9 @@ Failure behaviour is conservative: if the directory API is unreachable after ret
 | Top-10 amounts and ranking (status labels carry over per host) | The “also spotted” activity list |
 | outbid.lol route statuses, About counters (revenue, visitors, top bid) | Recommendations and risk register |
 | **001b:** baseline odds, percentiles, outcome bands, category ladder, the two written call-outs and the embedded simulator dataset | **001b:** the readiness checklist weights, the three paths and the assumptions section |
+| **About:** board total, measured-board count, claimed total, original’s share, clone median, next-board index | **About:** the story timeline, the five principles, the colophon |
 | *(nothing — `ideas.html` is excluded by design)* | **002:** the entire idea list — static, human-maintained, never refreshed by the bot |
-| *(nothing — untouched)* | **The whole site chrome and product:** `assets/nav.css`, `assets/site-enhancements.js`, every tool page, and all of `docs/level0-launch-pack/`. The bot patches only the three report files and `data/`. |
+| *(nothing — untouched)* | **The whole site chrome and product:** `assets/nav.css`, `assets/site-enhancements.js`, every tool page, and all of `docs/level0-launch-pack/`. The bot patches only the report files it owns (`index.html`, `entry-simulator.html`, `ideas.html`, `about.html`) and `data/`. |
 
 ### Running the bot yourself
 
@@ -178,11 +186,11 @@ Failure behaviour is conservative: if the directory API is unreachable after ret
 python3 scripts/update_report.py
 ```
 
-A single run fetches the API, re-checks outbid.lol, and rewrites `data/outbid-market-inventory.csv`, `data/stats.json` and the bot-managed figures in `index.html`, `entry-simulator.html` and `ideas.html` (print statements show each step, and a summary JSON at the end). Details:
+A single run fetches the API, re-checks outbid.lol, and rewrites `data/outbid-market-inventory.csv`, `data/stats.json` and the bot-managed figures in `index.html`, `entry-simulator.html`, `ideas.html` and `about.html` (print statements show each step, and a summary JSON at the end). Details:
 
 - **Requirements:** Python 3.9+ (standard library only) and outbound HTTPS access to `outoutbid.lol` and `outbid.lol`. On networks that block those hosts the run fails early with a connection/TLS error and writes nothing — the script does not degrade to empty data.
 - **Run from anywhere:** the script resolves the repo root from its own path, so it does not matter which directory you run it from.
-- **It does not commit or push.** Committing and pushing happen in the GitHub Actions workflow only. A local run just updates your working tree — commit the changed files yourself afterwards (`git add data/outbid-market-inventory.csv data/stats.json index.html entry-simulator.html ideas.html && git commit …`), or use **Actions → Daily market refresh → Run workflow** (`workflow_dispatch`) for a hands-off run on any branch.
+- **It does not commit or push.** Committing and pushing happen in the GitHub Actions workflow only. A local run just updates your working tree — commit the changed files yourself afterwards (`git add data/outbid-market-inventory.csv data/stats.json index.html entry-simulator.html ideas.html about.html && git commit …`), or use **Actions → Daily market refresh → Run workflow** (`workflow_dispatch`) for a hands-off run on any branch.
 - **Duration:** one run takes a minute or two (pagination + 8 route checks + the About page, each with retries).
 
 #### Running it manually from `screen`/`tmux`
@@ -222,7 +230,7 @@ A sensible pattern: let the GitHub Action own the daily refresh, and use a local
 
 ### One-time activation of the daily schedule (repo admin)
 
-**Already done in this repo:** the workflow is committed at `.github/workflows/daily-update.yml` and active — its `git add` line stages all five bot-managed files (`data/outbid-market-inventory.csv`, `data/stats.json`, `index.html`, `entry-simulator.html`, `ideas.html`), matching the reference copy in [`docs/daily-update.yml`](docs/daily-update.yml). Nothing needs to be copied anywhere.
+**Already done in this repo:** the workflow is committed at `.github/workflows/daily-update.yml` and active — its `git add` line stages all six bot-managed files (`data/outbid-market-inventory.csv`, `data/stats.json`, `index.html`, `entry-simulator.html`, `ideas.html`, `about.html`), matching the reference copy in [`docs/daily-update.yml`](docs/daily-update.yml). Nothing needs to be copied anywhere.
 
 Activation is therefore only ever needed on a **fresh fork or new clone** that lacks the file:
 
