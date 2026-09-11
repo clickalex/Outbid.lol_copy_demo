@@ -1570,15 +1570,34 @@
       }
 
       function updateSummary() {
+        const newest = [...state.boards].sort((a,b) => new Date(b.listedAt || 0) - new Date(a.listedAt || 0))[0];
+        if (state.usingFallback) {
+          // Offline: the embedded rows are a small recent sample, not the
+          // inventory — keep the bot-baked snapshot for every live total AND
+          // every next-board marker instead of overwriting them with a wrong
+          // small number.
+          $('inventorySummary').textContent = `Live API unavailable. Showing ${state.boards.length} embedded recent records; the written figures reflect the bot’s last successful refresh.`;
+          return;
+        }
         const total = state.meta?.total || state.boards.length;
         const measured = state.boards.filter(b => b.figures?.collected != null).length;
         const zero = state.boards.filter(isZero).length;
-        const newest = [...state.boards].sort((a,b) => new Date(b.listedAt || 0) - new Date(a.listedAt || 0))[0];
+        // The board a new entrant would ship is always inventory + 1 — the same
+        // rule the daily bot bakes into the snapshot (see update_report.py).
+        const next = '#' + (Number(total) + 1).toLocaleString();
         document.querySelectorAll('[data-live-total]').forEach(el => el.textContent = total.toLocaleString());
+        document.querySelectorAll('[data-live-next]').forEach(el => el.textContent = next);
         $('inventoryTotal').textContent = total.toLocaleString();
-        $('inventorySummary').textContent = state.usingFallback
-          ? `Live API unavailable. Showing ${state.boards.length} embedded recent records; the written figures reflect the bot’s last successful refresh.`
-          : `${measured} with a public total in the API · ${zero} explicitly at zero · newest: ${newest?.host || '—'}`;
+        // The hero watermark is CSS (.hero::after content), so refresh it with a
+        // runtime override whenever the live total moved past the snapshot.
+        let liveStyle = document.getElementById('liveHeroNumber');
+        if (!liveStyle) {
+          liveStyle = document.createElement('style');
+          liveStyle.id = 'liveHeroNumber';
+          document.head.appendChild(liveStyle);
+        }
+        liveStyle.textContent = `.hero::after{content:"${Number(total) + 1}"}`;
+        $('inventorySummary').textContent = `${measured} with a public total in the API · ${zero} explicitly at zero · newest: ${newest?.host || '—'}`;
         if (state.meta?.generatedAt) {
           const text = `API updated ${exactTime(state.meta.generatedAt)}`;
           $('sideUpdated').textContent = text;

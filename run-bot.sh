@@ -47,7 +47,7 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-BOT_FILES=(data/outbid-market-inventory.csv data/stats.json index.html entry-simulator.html ideas.html)
+BOT_FILES=(data/outbid-market-inventory.csv data/stats.json index.html entry-simulator.html ideas.html about.html)
 
 run_once() {
   echo "=== run started $(date -u '+%F %T UTC') ===" >> "$LOG"
