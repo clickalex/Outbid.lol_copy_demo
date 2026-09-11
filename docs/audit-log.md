@@ -6,11 +6,13 @@ improvements, and add any that are found; **(3)** any fix or addition resets the
 counter; **(4)** the loop ends after **20 consecutive passes with zero findings and nothing
 left to add**.
 
-Tooling: `python3 scripts/audit.py` (17 check families: Python/bash/JS/JSON/CSV/YAML/SVG
+Tooling: `python3 scripts/audit.py` (19 check families: Python/bash/JS/JSON/CSV/YAML/SVG
 syntax, HTML tag balance, duplicate ids, head requirements, internal link + anchor
-resolution, bot-sentinel integrity, stats↔CSV↔page consistency, jsdom structural checks
-per page, jsdom runtime smoke test per page, nav-set consistency, launch-kit rebuild
-idempotence). Exit 0 = clean pass.
+resolution, bot-sentinel integrity, stats↔CSV↔page consistency, **board-count /
+next-board-index consistency against `data/stats.json` (including the CSS hero
+watermark)**, **a scan for hand-written board counts the bot cannot refresh**, jsdom
+structural checks per page, jsdom runtime smoke test per page, nav-set consistency,
+launch-kit rebuild idempotence). Exit 0 = clean pass.
 
 ## Part A — market-gap re-scan (before the loop)
 
@@ -67,6 +69,50 @@ and its "static by design, no build step" contract:
 - **RSS / sitemap / analytics** — a dated, one-time report kit; the daily bot already owns freshness;
 - **i18n** — content is intentionally English + domain-specific (INR/India angles called out inline);
 - **client-side routing / framework** — the repo's contract is "no build step, no framework, no backend".
+
+## Part C — next-board index audit (11 Sep 2026)
+
+A second loop, opened because the published "next board" number had drifted from the
+market: the home page and the entry simulator still quoted **#416** (and two dead CSS
+watermarks still read **414**) while the inventory stood at **508 verified boards**.
+
+| Pass | Result | Findings / work done | Streak |
+|---|---|---|---|
+| 1 | findings (7E) | **Stale figures:** home-page CTA `#416`, "415-board inventory" card, simulator headline + `<title>` + meta description + hero watermark, `about.html` `#451`. **Real bugs:** `index.html` hero watermark frozen at 414; `entry-simulator.html` carried a *second*, contradictory `content: "414"` declaration; `search.html` claimed "page and doc search still work" on an `ideas.json` failure but never rendered (regression of the pass-2 fix); `scripts/audit_dom.js` crashed when the optional `launch/` kit is absent. | 0 |
+| 2 | findings (1E) | `revenue-calculator.html` quoted a stale **$18.90** median clone (current: $20.88) — now reads `data/stats.json` at runtime with the committed value as the offline fallback. `ideas.html` prose still said "450-board inventory" — re-dated to the snapshot instead of a bare count. | 0 |
+| 3 | findings (1E) | **Auditor bug (destructive):** `check_js_syntax()` deleted every `assets/*.js` it had just checked whenever the checkout itself lived under the system temp dir — its "is this a temp file?" test was `path.startswith(tempfile.gettempdir())`, and `/tmp/my-repo/assets/site-enhancements.js` passes it. Only its own temp files are tracked and removed now. **Bot bug:** `patch_hero_number()` missed `index.html`'s watermark rule because a comment sat between `{` and `content:` — both caught by the simulated-market run below. | 0 |
+| 4–23 | **clean** | 0 errors, 0 warnings with the jsdom DOM smoke tests enabled. | **20** |
+| 24 | findings (coverage pass) | `board-count` only watched the four bot-patched pages, so `revenue-calculator.html`'s baked-in median fallback could still drift. Coverage extended to "stats-reader" pages (pages that read `data/stats.json` at runtime instead of being patched). Feature additions reset the counter by design. | 0 |
+| 25–44 | **clean** | 0 errors, 0 warnings. | **20** |
+
+**Fixes shipped:** every "next board" and inventory count on `index.html`,
+`entry-simulator.html`, `ideas.html` and `about.html` now derives from the inventory
+total (`next-board-index` = `#509`, `next-board-number` = `509`) and is rewritten by
+`scripts/update_report.py`; `about.html` became a bot-managed file (board total,
+measured count, claimed total, original's share, clone median) and is staged by the
+workflow; `patch_meta()` and `patch_hero_number()` were added so the simulator's
+`<meta name="description">` and CSS watermark can be owned like any other figure.
+
+**Guard rails added:** `board-count` (every bot-owned marker — and both hero watermarks —
+must equal `data/stats.json`) and `hardcoded-count` (a bare `#509` / `508-board` in page
+prose is an error, so a hand-written count can never ship again).
+
+**Negative test:** the new checks were proven to fire — reverting the four figures to their
+stale values in a throwaway copy (`#416`, watermark `414`, about `450`, median `$18.90`)
+produced exactly four `board-count` errors, i.e. every defect this loop was opened for is
+now caught automatically.
+
+**Offline verification:** the bot's patch functions were applied against the committed
+508-board snapshot — every marker found, patching idempotent — and the whole `main()` was
+then run end to end against a **simulated 600-board market** with the network stubbed:
+the CSV, `data/stats.json` and all four pages moved together (next board **#601**
+everywhere), `unpatchedMarkers` stayed empty and the auditor reported 0/0 against the new
+snapshot — this is what caught the two bugs in pass 3.
+
+**Net result:** 6 stale figures corrected, 5 real bugs fixed (dead watermark, offline
+search regression, auditor crash, auditor deleting `assets/*.js` under `/tmp`, watermark
+patch defeated by a CSS comment), 6 figures moved under bot control, 2 new check
+families, 20 consecutive clean passes.
 
 ## Net result
 

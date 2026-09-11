@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="An entry simulator for the pay-to-rank market: model what board #416 would realistically take, using the measured outcomes of every clone board in the public outoutbid.lol directory.">
+  <meta name="description" data-stat="sim-meta-description" content="An entry simulator for the pay-to-rank market: model what board #509 would realistically take, using the measured outcomes of every clone board in the public outoutbid.lol directory.">
   <meta property="og:title" content="Entry Simulator — Outbid OS">
   <meta property="og:description" content="Outbid OS: market audit, idea lab, simulator, launch checklist and revenue tools for pay-to-rank websites.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="og-image.svg">
   <meta name="twitter:card" content="summary_large_image">
-  <title>Should You Ship Board #416? — Outbid Market Audit</title>
+  <title data-stat="sim-title">Should You Ship Board #509? — Outbid Market Audit</title>
   <style>
     :root {
       --ink: #171714;
@@ -160,7 +160,7 @@
       overflow: hidden;
     }
     .hero::after {
-      content: "414";
+      /* watermark content lives in the simulator's own .hero::after rule below (bot-owned) */
       position: absolute;
       z-index: -1;
       right: -30px;
@@ -528,7 +528,8 @@
     }
 
     /* ---- entry simulator: page-specific components, same tokens ---- */
-    .hero::after { content: "416"; }
+    /* bot-owned: the watermark is inventory + 1, rewritten by patch_hero_number() */
+    .hero::after { content: "509"; }
 
     .sim-layout { display: grid; grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr); gap: 22px; margin-top: 22px; align-items: start; }
 
@@ -971,7 +972,7 @@
       <section class="hero" aria-labelledby="hero-title">
         <div>
           <p class="eyebrow">Companion tool · report 001b</p>
-          <h1 id="hero-title">Should you ship<br><i>board #416?</i></h1>
+          <h1 id="hero-title">Should you ship<br><i>board <span data-stat="next-board-index">#509</span>?</i></h1>
           <p class="deck">The main report counts the market. This page prices your place in it. Choose a category and a number you would call success, and the simulator answers with the only evidence that matters: what the boards that already did it actually took.</p>
           <div class="hero-actions">
             <a class="btn primary" href="#simulator">Run the simulator ↓</a>

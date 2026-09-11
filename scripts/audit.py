@@ -236,7 +236,7 @@ def check_html_structure() -> dict[str, BalanceParser]:
                     f"unclosed tags at EOF: {[(t, ln) for t, ln in parser.stack]}")
         low = text.lower()
         for req, pat in (("charset", r'<meta[^>]+charset'), ("viewport", r'<meta[^>]+name=["\']viewport'),
-                         ("title", r"<title>")):
+                         ("title", r"<title\b[^>]*>")):
             if not re.search(pat, low):
                 finding("ERROR", "html-head", parser.name, f"missing {req}")
         if "lang" not in parser.head:
@@ -295,7 +295,7 @@ def check_links(parsers: dict[str, BalanceParser]) -> None:
 def check_bot_sentinels() -> None:
     bot_src = (REPO / "scripts" / "update_report.py").read_text(encoding="utf-8")
     sentinel_names = set(re.findall(r'replace_block\(\s*\w+,\s*"([a-z-]+)"', bot_src))
-    patched_pages = ["index.html", "entry-simulator.html", "ideas.html"]
+    patched_pages = ["index.html", "entry-simulator.html", "ideas.html", "about.html"]
 
     def sentinel_forms(name: str) -> dict[str, str]:
         return {
@@ -392,6 +392,150 @@ def check_data_consistency() -> None:
 
 
 # --------------------------------------------------------------------------- #
+# 8b. Board counts + the "next board" index must follow data/stats.json
+# --------------------------------------------------------------------------- #
+
+# pages whose figures the bot owns (see scripts/update_report.py)
+COUNT_PAGES = ("index.html", "entry-simulator.html", "ideas.html", "about.html")
+# pages that quote a bot-owned figure but read it from data/stats.json at
+# runtime instead of being patched — their baked-in fallback is checked too
+STAT_READER_PAGES = ("revenue-calculator.html",)
+
+
+def _expected_counts(stats: dict) -> dict:
+    """data-stat key -> the value stats.json says it must carry today."""
+    total = stats.get("boardsTotal")
+    measured = stats.get("boardsMeasured")
+    if not isinstance(total, int):
+        return {}
+    values = {
+        "boards-total": f"{total:,}",
+        "ideas-boards-total": f"{total:,}",
+        "about-boards-total": f"{total:,}",
+        "next-board-index": f"#{total + 1}",
+        "next-clone-index": f"#{total + 1}",
+        "sim-title": f"Should You Ship Board #{total + 1}? — Outbid Market Audit",
+    }
+    if isinstance(measured, int):
+        values["about-measured-count"] = f"{measured:,}"
+    if isinstance(stats.get("boardsMeasured"), int):
+        values["measured-count-note"] = None  # free prose, checked loosely below
+    claimed = stats.get("claimedTotalUsd")
+    if isinstance(claimed, (int, float)):
+        values["about-claimed-total"] = f"${claimed:,.0f}"
+    share = stats.get("originalShare")
+    if isinstance(share, (int, float)):
+        values["about-original-share"] = f"{round(share * 100):.0f}%"
+    median = stats.get("cloneMedianUsd")
+    if isinstance(median, (int, float)):
+        values["clone-median"] = f"${median:,.2f}"
+        values["about-clone-median"] = f"${median:,.2f}"
+    sim = stats.get("entrySimulator") or {}
+    if isinstance(sim.get("measuredClones"), int):
+        values["sim-measured-count"] = f"{sim['measuredClones']:,}"
+    return {k: v for k, v in values.items() if v is not None}
+
+
+def check_board_counts() -> None:
+    """Board totals and the next-board index must equal data/stats.json."""
+    stats_path = REPO / "data" / "stats.json"
+    if not stats_path.exists():
+        return
+    try:
+        stats = json.loads(stats_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return
+    expected = _expected_counts(stats)
+    if not expected:
+        return
+
+    span_re = re.compile(r'(<[^>]*\bdata-stat="(?P<key>[a-z0-9-]+)"[^>]*>)(?P<text>[^<]*)(<)')
+    for pname in COUNT_PAGES + STAT_READER_PAGES:
+        path = REPO / pname
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        for m in span_re.finditer(text):
+            want = expected.get(m.group("key"))
+            if want is None:
+                continue
+            got = m.group("text").strip()
+            if got != want:
+                line = text[:m.start()].count("\n") + 1
+                finding("ERROR", "board-count", pname,
+                        f'data-stat="{m.group("key")}" is {got!r} at line {line}; '
+                        f"stats.json says {want!r}")
+
+        # the "next board" number also lives where an element cannot: the
+        # simulator's <title> (a data-stat element, checked above) and the CSS
+        # hero watermark (.hero::after { content: "509" }) on both report pages.
+        if pname in ("index.html", "entry-simulator.html"):
+            watermarks = re.findall(
+                r'\.hero::after\s*\{[^}]*?content:\s*"([^"]*)"\s*;', text, re.S)
+            if not watermarks:
+                finding("ERROR", "board-count", pname,
+                        "hero watermark rule (.hero::after content) not found — "
+                        "patch_hero_number() cannot refresh it")
+            for value in watermarks:
+                if value != str(stats["boardsTotal"] + 1):
+                    finding("ERROR", "board-count", pname,
+                            f'hero watermark is "{value}"; '
+                            f'stats.json says "{stats["boardsTotal"] + 1}"')
+
+
+def check_hardcoded_counts() -> None:
+    """Catch hand-written board counts / indexes the bot cannot refresh."""
+    stats_path = REPO / "data" / "stats.json"
+    if not stats_path.exists():
+        return
+    try:
+        total = json.loads(stats_path.read_text(encoding="utf-8")).get("boardsTotal")
+    except json.JSONDecodeError:
+        return
+    if not isinstance(total, int):
+        return
+
+    tag_re = re.compile(r"<[^>]*>|<!--[\s\S]*?-->")
+    # "#509" (a board index) or "508-board"/"508 boards" (an inventory count)
+    patterns = (
+        (re.compile(r"(?<![\w#])#(\d{3,4})(?![\w])"), "board index"),
+        (re.compile(r"(?<![\w.])(\d{3,4})-board"), "inventory count"),
+        (re.compile(r"(?<![\w.])(\d{3,4}) verified boards"), "inventory count"),
+    )
+    for pname in COUNT_PAGES:
+        path = REPO / pname
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        # walk tag by tag so we can see which element each literal sits in
+        pos, last_tag, skipping = 0, "", ""
+        for m in tag_re.finditer(text):
+            chunk = text[pos:m.start()]
+            tag = m.group(0)
+            low = tag.lower()
+            if skipping:
+                if low.startswith(f"</{skipping}"):
+                    skipping = ""
+            elif low.startswith("<style") or low.startswith("<script"):
+                skipping = low[1:].split()[0]
+            elif not low.startswith("</"):
+                # only prose between real markup is audited
+                for pattern, kind in patterns:
+                    for hit in pattern.finditer(chunk):
+                        owned = ("data-stat=" in last_tag
+                                 or "data-live-next" in last_tag
+                                 or "data-live-total" in last_tag)
+                        if owned:
+                            continue
+                        line = text[:pos + hit.start()].count("\n") + 1
+                        finding("ERROR", "hardcoded-count", pname,
+                                f"line {line}: bare {kind} {hit.group(0)!r} is not bot-owned "
+                                f"(inventory is {total:,}) — move it into a data-stat span")
+            last_tag = tag if tag.startswith("<") and not tag.startswith("</") else last_tag
+            pos = m.end()
+
+
+# --------------------------------------------------------------------------- #
 # 9. JavaScript syntax: files + inline scripts
 # --------------------------------------------------------------------------- #
 
@@ -401,6 +545,7 @@ def check_js_syntax() -> None:
         finding("WARN", "js-syntax", "*", "node not available — JS syntax check skipped")
         return
     targets: list[tuple[str, Path]] = []
+    temp_files: list[Path] = []  # only these are ever deleted again
     for js in sorted(REPO.glob("assets/*.js")):
         targets.append((str(js.relative_to(REPO)), js))
     for page in html_files():
@@ -415,6 +560,7 @@ def check_js_syntax() -> None:
                                              encoding="utf-8") as fh:
                 fh.write(code)
                 tmp = fh.name
+            temp_files.append(Path(tmp))
             targets.append((f"{rel} (inline script #{i})", Path(tmp)))
     for label, path in targets:
         r = subprocess.run([node, "--check", str(path)], capture_output=True, text=True)
@@ -422,8 +568,14 @@ def check_js_syntax() -> None:
             detail = (r.stderr or "").strip().splitlines()
             msg = " | ".join(detail[-3:]) if detail else "syntax error"
             finding("ERROR", "js-syntax", label, msg)
-        if str(path).startswith(tempfile.gettempdir()):
-            os.unlink(path)
+    # delete only the temp files this check created. (The old test was
+    # "path startswith tempfile.gettempdir()" — a checkout that itself lives
+    # under /tmp lost its real assets/*.js files to it.)
+    for temp_path in temp_files:
+        try:
+            os.unlink(temp_path)
+        except OSError as error:
+            finding("WARN", "js-syntax", str(temp_path), f"temp file not removed: {error}")
 
 
 # --------------------------------------------------------------------------- #
@@ -494,6 +646,8 @@ def main() -> int:
         check_links(parsers)
         check_bot_sentinels()
         check_data_consistency()
+        check_board_counts()
+        check_hardcoded_counts()
         check_js_syntax()
         check_dom()
         check_yaml_svg()
