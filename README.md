@@ -18,10 +18,11 @@ Three layers, one repository:
 - a live, searchable all-site inventory powered by the public `outoutbid.lol` API, including a Free / Freemium / Paid bid-rate filter (with a transparent “Not disclosed” state when the source does not publish enough pricing detail);
 - risks, recommendations, methodology, limitations, and source links.
 
-**`entry-simulator.html` — report 001b, “Should you ship board #509?”:**
+**`entry-simulator.html` — report 001b, “Should you ship the next board?”:**
 
 *(The number in that headline is not written by hand: it is the inventory total plus one, refreshed by the daily
-bot on this page, on the home page and on `about.html`.)*
+bot on this page, on the home page and on `about.html` — and re-checked from the live directory API at page-load
+time, so it stays correct between bot runs.)*
 
 The audit answers *how big is this market*. The companion page answers the question a reader is left holding: *should I build one too?* It turns the same inventory into an interactive model of a new entrant's odds —
 
@@ -162,7 +163,7 @@ request. The full walkthrough is in `grinbid/deploy/RENDER.md`; `grinbid/index.h
 5. **Refreshes `entry-simulator.html`** — the same run recomputes the simulator's baseline figures, outcome bands, percentiles, concentration split, category ladder and both written call-outs, and re-embeds the per-category dataset the page's model runs on. Shared values (clone median, refresh stamps) are copied from the same run so the two pages can never drift apart. The page is skipped gracefully if the file is absent.
 6. **Refreshes `ideas.html`** — only the live counters (`ideas-boards-total`, `ideas-watch-count`, `ideas-collision-count`, last-scan stamp) and the automated `<!--bot:idea-collision-watch-->` block. Idea cards and verification verdicts are never rewritten.
 7. **Refreshes `about.html`** — the “by the numbers” cards (board total, measured boards, claimed total, original’s share, clone median) and the next-board index. Hand-written story text and the principles are never rewritten.
-8. **Refreshes the next-board index everywhere** — `next-board-index` (`#509`) / `next-board-number` (`509`) are always inventory + 1, so the home-page CTA, the simulator headline and `<title>`, its hero watermark and the about page can never quote a board number the market has already passed.
+8. **Refreshes the next-board index everywhere** — `next-board-index` / `next-clone-index` (`#<inventory + 1>`) plus both hero watermarks are always inventory + 1, so the home-page CTA, the simulator headline and `<title>`, and the about page can never quote a board number the market has already passed. Between runs the pages also re-derive inventory + 1 from the live directory API at load time (offline fallback: the last bot-baked value).
 9. **Commits and pushes** only when something actually changed.
 
 Failure behaviour is conservative: if the directory API is unreachable after retries, the run **aborts before writing anything** (previous files stay intact, non-zero exit). If the About-page parse fails, the previous counter values are kept. If a bot marker is missing from a page, the bot logs a warning and records it in `data/stats.json` (`unpatchedMarkers`) without failing the run. Every file is written atomically (temp file + rename), so an interrupted run can never leave a truncated CSV or HTML behind — the worst case is a partially updated tree, fixed by simply running the bot again.
@@ -177,7 +178,7 @@ Failure behaviour is conservative: if the directory API is unreachable after ret
 | outbid.lol route statuses, About counters (revenue, visitors, top bid) | Recommendations and risk register |
 | **001b:** baseline odds, percentiles, outcome bands, category ladder, the two written call-outs and the embedded simulator dataset | **001b:** the readiness checklist weights, the three paths and the assumptions section |
 | **About:** board total, measured-board count, claimed total, original’s share, clone median, next-board index | **About:** the story timeline, the five principles, the colophon |
-| *(nothing — `ideas.html` is excluded by design)* | **002:** the entire idea list — static, human-maintained, never refreshed by the bot |
+| **002:** live counters + the automated collision-watch block | **002:** idea cards and verification verdicts — static, human-maintained, never rewritten by the bot |
 | *(nothing — untouched)* | **The whole site chrome and product:** `assets/nav.css`, `assets/site-enhancements.js`, every tool page, and all of `docs/level0-launch-pack/`. The bot patches only the report files it owns (`index.html`, `entry-simulator.html`, `ideas.html`, `about.html`) and `data/`. |
 
 ### Running the bot yourself

@@ -972,7 +972,7 @@
       <section class="hero" aria-labelledby="hero-title">
         <div>
           <p class="eyebrow">Companion tool · report 001b</p>
-          <h1 id="hero-title">Should you ship<br><i>board <span data-stat="next-board-index">#509</span>?</i></h1>
+          <h1 id="hero-title">Should you ship<br><i>board <span data-live-next data-stat="next-board-index">#509</span>?</i></h1>
           <p class="deck">The main report counts the market. This page prices your place in it. Choose a category and a number you would call success, and the simulator answers with the only evidence that matters: what the boards that already did it actually took.</p>
           <div class="hero-actions">
             <a class="btn primary" href="#simulator">Run the simulator ↓</a>
@@ -1302,6 +1302,40 @@
       </div>
     </main>
   </div>
+
+  <script>
+    // Live next-board index: the headline quotes inventory + 1, so refresh it
+    // from the directory API between bot runs (same pattern as about.html).
+    // The bot-baked value stays as the offline fallback. Only meta.total is
+    // needed, hence pageSize=1.
+    (() => {
+      const els = document.querySelectorAll('[data-live-next]');
+      if (!els.length) return;
+      fetch('https://outoutbid.lol/api/directory.json?pageSize=1&sort=new', {
+        cache: 'no-store',
+        headers: { 'Accept': 'application/json' }
+      })
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(payload => {
+          const total = Number(payload?.meta?.total) || (Array.isArray(payload?.boards) ? payload.boards.length : 0);
+          if (!total) throw new Error('No board total returned');
+          const next = '#' + (total + 1).toLocaleString();
+          els.forEach(el => { el.textContent = next; });
+          // The hero watermark is CSS (.hero::after content), so refresh it
+          // with a runtime override when the live total moved past the snapshot.
+          let liveStyle = document.getElementById('liveHeroNumber');
+          if (!liveStyle) {
+            liveStyle = document.createElement('style');
+            liveStyle.id = 'liveHeroNumber';
+            document.head.appendChild(liveStyle);
+          }
+          liveStyle.textContent = `.hero::after{content:"${total + 1}"}`;
+        })
+        .catch(error => {
+          console.warn('Board count API unavailable; keeping snapshot:', error);
+        });
+    })();
+  </script>
 
   <script>
     (() => {
