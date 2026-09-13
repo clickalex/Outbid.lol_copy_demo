@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-09-12T07:53:46+00:00",
+  "runAt": "2026-09-13T08:16:39+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-09-12T07:53:46.518Z",
+  "apiGeneratedAt": "2026-09-13T08:16:39.874Z",
   "boardsTotal": 511,
   "boardsMeasured": 334,
   "cloneMeasured": 333,
-  "claimedTotalUsd": 347929.87,
-  "cloneTotalUsd": 88679.29,
-  "originalCollectedUsd": 259250.58,
-  "originalShare": 0.7451,
+  "claimedTotalUsd": 604452.35,
+  "cloneTotalUsd": 345118.77,
+  "originalCollectedUsd": 259333.58,
+  "originalShare": 0.429,
   "cloneMedianUsd": 21.0,
-  "top10CloneShareOfCloneMoney": 0.6137,
+  "top10CloneShareOfCloneMoney": 0.8985,
   "categories": {
     "Websites & products": 257,
     "AI tools & agents": 65,
@@ -25,7 +25,12 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$259,250.58"
+      "claimed": "$259,333.58"
+    },
+    {
+      "host": "biddir.lol",
+      "name": "BidDir",
+      "claimed": "$257,376"
     },
     {
       "host": "lamborghini.lol",
@@ -66,11 +71,6 @@
       "host": "outbidnetwork.lol",
       "name": "Outbid Network",
       "claimed": "$1,783"
-    },
-    {
-      "host": "vibewar.lol",
-      "name": "VibeWar",
-      "claimed": "$1,710.66"
     }
   ],
   "primarySite": {
@@ -91,21 +91,21 @@
   },
   "entrySimulator": {
     "measuredClones": 333,
-    "meanUsd": 266.3,
+    "meanUsd": 1036.39,
     "medianUsd": 21.0,
     "percentiles": {
       "p25": 5.0,
       "p50": 21.0,
       "p75": 73.0,
-      "p90": 316.2,
-      "p95": 1317.6,
-      "p99": 3920.44
+      "p90": 364.81,
+      "p95": 1366.6,
+      "p99": 5242.28
     },
-    "shareOver100": 0.2042,
+    "shareOver100": 0.2072,
     "shareOver1000": 0.0601,
-    "shareExactlyZero": 0.0961,
-    "bottomHalfShareOfMoney": 0.0121,
-    "top10ShareOfCloneMoney": 0.6137,
+    "shareExactlyZero": 0.0991,
+    "bottomHalfShareOfMoney": 0.0031,
+    "top10ShareOfCloneMoney": 0.8985,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
       "medianUsd": 82.0,
