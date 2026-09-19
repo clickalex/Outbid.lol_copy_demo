@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-09-18T08:13:11+00:00",
+  "runAt": "2026-09-19T08:00:47+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-09-18T08:13:11.955Z",
+  "apiGeneratedAt": "2026-09-19T08:00:47.642Z",
   "boardsTotal": 513,
   "boardsMeasured": 331,
   "cloneMeasured": 330,
-  "claimedTotalUsd": 657871.47,
-  "cloneTotalUsd": 396767.25,
-  "originalCollectedUsd": 261104.22,
-  "originalShare": 0.3969,
-  "cloneMedianUsd": 20.0,
-  "top10CloneShareOfCloneMoney": 0.9157,
+  "claimedTotalUsd": 404235.4,
+  "cloneTotalUsd": 142799.33,
+  "originalCollectedUsd": 261436.07,
+  "originalShare": 0.6467,
+  "cloneMedianUsd": 20.44,
+  "top10CloneShareOfCloneMoney": 0.7638,
   "categories": {
     "Websites & products": 258,
     "AI tools & agents": 65,
@@ -25,12 +25,7 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$261,104.22"
-    },
-    {
-      "host": "biddir.lol",
-      "name": "BidDir",
-      "claimed": "$257,376"
+      "claimed": "$261,436.07"
     },
     {
       "host": "reigningfor.lol",
@@ -63,6 +58,11 @@
       "claimed": "~$4,395"
     },
     {
+      "host": "biddir.lol",
+      "name": "BidDir",
+      "claimed": "$3,114"
+    },
+    {
       "host": "topapp.lol",
       "name": "topapp.lol",
       "claimed": "$2,912"
@@ -91,21 +91,21 @@
   },
   "entrySimulator": {
     "measuredClones": 330,
-    "meanUsd": 1202.33,
-    "medianUsd": 20.0,
+    "meanUsd": 432.73,
+    "medianUsd": 20.44,
     "percentiles": {
       "p25": 5.0,
-      "p50": 20.0,
-      "p75": 70.22,
-      "p90": 278.53,
+      "p50": 20.44,
+      "p75": 71.58,
+      "p90": 283.0,
       "p95": 1390.49,
-      "p99": 6511.2
+      "p99": 5898.5
     },
-    "shareOver100": 0.203,
+    "shareOver100": 0.2061,
     "shareOver1000": 0.0576,
     "shareExactlyZero": 0.0939,
-    "bottomHalfShareOfMoney": 0.0026,
-    "top10ShareOfCloneMoney": 0.9157,
+    "bottomHalfShareOfMoney": 0.0073,
+    "top10ShareOfCloneMoney": 0.7638,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
       "medianUsd": 82.0,
@@ -114,9 +114,9 @@
     "categoryMedians": {
       "Directories of bid sites": 82.0,
       "Regional & other currencies": 36.26,
-      "AI tools & agents": 34.0,
+      "AI tools & agents": 35.0,
       "Ads & billboards": 26.0,
-      "Websites & products": 23.6,
+      "Websites & products": 24.0,
       "X accounts": 14.5,
       "Crypto & tokens": 7.0,
       "Games & clips": 6.0
