@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-09-19T08:00:47+00:00",
+  "runAt": "2026-09-20T08:33:17+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-09-19T08:00:47.642Z",
+  "apiGeneratedAt": "2026-09-20T08:33:17.942Z",
   "boardsTotal": 513,
-  "boardsMeasured": 331,
-  "cloneMeasured": 330,
-  "claimedTotalUsd": 404235.4,
-  "cloneTotalUsd": 142799.33,
-  "originalCollectedUsd": 261436.07,
-  "originalShare": 0.6467,
-  "cloneMedianUsd": 20.44,
-  "top10CloneShareOfCloneMoney": 0.7638,
+  "boardsMeasured": 328,
+  "cloneMeasured": 327,
+  "claimedTotalUsd": 658278.94,
+  "cloneTotalUsd": 396639.07,
+  "originalCollectedUsd": 261639.87,
+  "originalShare": 0.3975,
+  "cloneMedianUsd": 20.0,
+  "top10CloneShareOfCloneMoney": 0.916,
   "categories": {
     "Websites & products": 258,
     "AI tools & agents": 65,
@@ -25,7 +25,12 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$261,436.07"
+      "claimed": "$261,639.87"
+    },
+    {
+      "host": "biddir.lol",
+      "name": "BidDir",
+      "claimed": "$257,376"
     },
     {
       "host": "reigningfor.lol",
@@ -58,11 +63,6 @@
       "claimed": "~$4,395"
     },
     {
-      "host": "biddir.lol",
-      "name": "BidDir",
-      "claimed": "$3,114"
-    },
-    {
       "host": "topapp.lol",
       "name": "topapp.lol",
       "claimed": "$2,912"
@@ -90,22 +90,22 @@
     "highestBidHost": null
   },
   "entrySimulator": {
-    "measuredClones": 330,
-    "meanUsd": 432.73,
-    "medianUsd": 20.44,
+    "measuredClones": 327,
+    "meanUsd": 1212.96,
+    "medianUsd": 20.0,
     "percentiles": {
       "p25": 5.0,
-      "p50": 20.44,
-      "p75": 71.58,
-      "p90": 283.0,
-      "p95": 1390.49,
-      "p99": 5898.5
+      "p50": 20.0,
+      "p75": 71.15,
+      "p90": 298.35,
+      "p95": 1366.9,
+      "p99": 6532.8
     },
-    "shareOver100": 0.2061,
-    "shareOver1000": 0.0576,
-    "shareExactlyZero": 0.0939,
-    "bottomHalfShareOfMoney": 0.0073,
-    "top10ShareOfCloneMoney": 0.7638,
+    "shareOver100": 0.2049,
+    "shareOver1000": 0.0581,
+    "shareExactlyZero": 0.0948,
+    "bottomHalfShareOfMoney": 0.0026,
+    "top10ShareOfCloneMoney": 0.916,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
       "medianUsd": 82.0,
@@ -118,7 +118,7 @@
       "Ads & billboards": 26.0,
       "Websites & products": 24.0,
       "X accounts": 14.5,
-      "Crypto & tokens": 7.0,
+      "Crypto & tokens": 6.5,
       "Games & clips": 6.0
     }
   },
