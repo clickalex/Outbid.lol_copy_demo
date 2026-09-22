@@ -925,7 +925,7 @@
       <div class="side-note">
         <div id="sideApiState" class="source-state">Waiting for directory API</div>
         <p>The inventory refreshes from the CC BY 4.0 outoutbid.lol dataset when this HTML has internet access. A scheduled bot refreshes the CSV snapshot and the report figures daily.</p>
-        <strong id="sideUpdated" data-stat="side-updated">Snapshot: 08:53 UTC</strong>
+        <strong id="sideUpdated" data-stat="side-updated">Snapshot: 08:30 UTC</strong>
       </div>
     </aside>
 
@@ -959,7 +959,7 @@
             <li><span>/category/* · /product/*</span><b data-stat="route-category-product">429/429</b></li>
             <li><span>/stats — internal route</span><b class="bad" data-stat="route-stats">429</b></li>
           </ul>
-          <p class="micro">Routes re-checked automatically by the daily bot (<span data-stat="routes-checked-date">21 Sep 2026</span>) with plain HTTP requests — an anti-bot wall can mask a live site. The “see stats” control points to an external DataFast page, so the internal /stats 404 is not the linked user journey.</p>
+          <p class="micro">Routes re-checked automatically by the daily bot (<span data-stat="routes-checked-date">22 Sep 2026</span>) with plain HTTP requests — an anti-bot wall can mask a live site. The “see stats” control points to an external DataFast page, so the internal /stats 404 is not the linked user journey.</p>
         </aside>
       </section>
 
@@ -1012,12 +1012,12 @@
             </article>
             <article class="metric">
               <div class="label">Claimed across readable boards</div>
-              <div class="value" data-stat="claimed-total-short">$607.3k</div>
-              <div class="note" data-stat="measured-count-note">326 boards measured at source</div>
+              <div class="value" data-stat="claimed-total-short">$350.1k</div>
+              <div class="note" data-stat="measured-count-note">325 boards measured at source</div>
             </article>
             <article class="metric">
               <div class="label">Original’s measured share</div>
-              <div class="value" data-stat="original-share">43.1%</div>
+              <div class="value" data-stat="original-share">74.8%</div>
               <div class="note" data-stat="original-share-note">$261,779 in the latest directory read</div>
             </article>
             <article class="metric">
@@ -1043,7 +1043,7 @@
             <article class="metric">
               <div class="label">Clone median</div>
               <div class="value" data-stat="clone-median">$20.00</div>
-              <div class="note" data-stat="clone-median-note">325 measurable clones, original excluded</div>
+              <div class="note" data-stat="clone-median-note">324 measurable clones, original excluded</div>
             </article>
           </div>
 
@@ -1134,16 +1134,16 @@
 
             <article class="panel">
               <h3>Economics: a power-law market</h3>
-              <p>The original held <span data-stat="original-share-round">43%</span> of reported value at the latest directory read. Among clones, the richest ten held <span data-stat="top10-clones-share">91.2%</span> of clone money. The typical result is much closer to zero than to the average.</p>
+              <p>The original held <span data-stat="original-share-round">75%</span> of reported value at the latest directory read. Among clones, the richest ten held <span data-stat="top10-clones-share">67.2%</span> of clone money. The typical result is much closer to zero than to the average.</p>
               <div class="concentration" aria-label="Claimed revenue concentration">
-                <div class="original"><b data-stat="original-share-round">43%</b><span>Original</span></div>
-                <div class="top-clones"><b data-stat="top-clones-share">52%</b><span>Approx. top clones</span></div>
-                <div class="tail"><b data-stat="tail-share">5%</b><span>Long tail</span></div>
+                <div class="original"><b data-stat="original-share-round">75%</b><span>Original</span></div>
+                <div class="top-clones"><b data-stat="top-clones-share">17%</b><span>Approx. top clones</span></div>
+                <div class="tail"><b data-stat="tail-share">8%</b><span>Long tail</span></div>
               </div>
               <div class="fact-list">
                 <div class="fact"><b data-stat="zeros-count">33</b><div><strong>Reported $0</strong><span data-stat="zeros-pct-note">10.2% of measurable clones.</span></div></div>
-                <div class="fact"><b data-stat="under10-count">112</b><div><strong>Under $10</strong><span data-stat="under10-pct-note">34.5% of measurable clones.</span></div></div>
-                <div class="fact"><b data-stat="under100-count">259</b><div><strong>Under $100</strong><span data-stat="under100-pct-note">79.7% of measurable clones.</span></div></div>
+                <div class="fact"><b data-stat="under10-count">113</b><div><strong>Under $10</strong><span data-stat="under10-pct-note">34.9% of measurable clones.</span></div></div>
+                <div class="fact"><b data-stat="under100-count">259</b><div><strong>Under $100</strong><span data-stat="under100-pct-note">79.9% of measurable clones.</span></div></div>
               </div>
             </article>
           </div>
@@ -1171,19 +1171,19 @@
               <thead><tr><th>#</th><th>Board</th><th>Category</th><th>Claimed taken</th><th>Observed status*</th></tr></thead>
               <!-- bot:top-table -->
                 <tr><td class="num">01</td><td><strong>outbid.lol</strong><span class="domain">outbid.lol</span></td><td>Websites &amp; products</td><td class="num">$261,779.17</td><td><span class="pill warn">Route check 429</span></td></tr>
-                <tr><td class="num">02</td><td><strong>BidDir</strong><span class="domain">biddir.lol</span></td><td>Directories of bid sites</td><td class="num">$257,376</td><td><span class="pill neutral">Pending</span></td></tr>
-                <tr><td class="num">03</td><td><strong>lamborghini.lol</strong><span class="domain">lamborghini.lol</span></td><td>Ads &amp; billboards</td><td class="num">$25,000</td><td><span class="pill warn">Failed re-check</span></td></tr>
-                <tr><td class="num">04</td><td><strong>Outbid Network</strong><span class="domain">outbidnetwork.lol</span></td><td>AI tools &amp; agents</td><td class="num">$6,720</td><td><span class="pill neutral">Pending</span></td></tr>
-                <tr><td class="num">05</td><td><strong>Big Beautiful Bill</strong><span class="domain">bigbeautifulbill.bid</span></td><td>Websites &amp; products</td><td class="num">$6,000</td><td><span class="pill neutral">Pending</span></td></tr>
-                <tr><td class="num">06</td><td><strong>WARMAP</strong><span class="domain">warmap.lol</span></td><td>Ads &amp; billboards</td><td class="num">$5,650</td><td><span class="pill neutral">Pending</span></td></tr>
-                <tr><td class="num">07</td><td><strong>outbids.lol</strong><span class="domain">outbids.lol</span></td><td>Websites &amp; products</td><td class="num">~$4,395</td><td><span class="pill neutral">Pending</span></td></tr>
-                <tr><td class="num">08</td><td><strong>topapp.lol</strong><span class="domain">topapp.lol</span></td><td>Websites &amp; products</td><td class="num">$2,912</td><td><span class="pill up">Valid</span></td></tr>
-                <tr><td class="num">09</td><td><strong>Socials.win</strong><span class="domain">socials.win</span></td><td>Ads &amp; billboards</td><td class="num">$2,774</td><td><span class="pill neutral">Pending</span></td></tr>
-                <tr><td class="num">10</td><td><strong>1012</strong><span class="domain">1012.lol</span></td><td>Websites &amp; products</td><td class="num">$2,500</td><td><span class="pill neutral">Pending</span></td></tr>
+                <tr><td class="num">02</td><td><strong>lamborghini.lol</strong><span class="domain">lamborghini.lol</span></td><td>Ads &amp; billboards</td><td class="num">$25,000</td><td><span class="pill warn">Failed re-check</span></td></tr>
+                <tr><td class="num">03</td><td><strong>Outbid Network</strong><span class="domain">outbidnetwork.lol</span></td><td>AI tools &amp; agents</td><td class="num">$6,720</td><td><span class="pill neutral">Pending</span></td></tr>
+                <tr><td class="num">04</td><td><strong>Big Beautiful Bill</strong><span class="domain">bigbeautifulbill.bid</span></td><td>Websites &amp; products</td><td class="num">$6,000</td><td><span class="pill neutral">Pending</span></td></tr>
+                <tr><td class="num">05</td><td><strong>WARMAP</strong><span class="domain">warmap.lol</span></td><td>Ads &amp; billboards</td><td class="num">$5,650</td><td><span class="pill neutral">Pending</span></td></tr>
+                <tr><td class="num">06</td><td><strong>outbids.lol</strong><span class="domain">outbids.lol</span></td><td>Websites &amp; products</td><td class="num">~$4,395</td><td><span class="pill neutral">Pending</span></td></tr>
+                <tr><td class="num">07</td><td><strong>topapp.lol</strong><span class="domain">topapp.lol</span></td><td>Websites &amp; products</td><td class="num">$2,912</td><td><span class="pill up">Valid</span></td></tr>
+                <tr><td class="num">08</td><td><strong>Socials.win</strong><span class="domain">socials.win</span></td><td>Ads &amp; billboards</td><td class="num">$2,774</td><td><span class="pill neutral">Pending</span></td></tr>
+                <tr><td class="num">09</td><td><strong>1012</strong><span class="domain">1012.lol</span></td><td>Websites &amp; products</td><td class="num">$2,500</td><td><span class="pill neutral">Pending</span></td></tr>
+                <tr><td class="num">10</td><td><strong>VibeWar</strong><span class="domain">vibewar.lol</span></td><td>AI tools &amp; agents</td><td class="num">$1,710.66</td><td><span class="pill neutral">Pending</span></td></tr>
               <!-- /bot:top-table -->
             </table>
           </div>
-          <p class="micro">*Status labels: outbid.lol from the bot’s live route check; other labels carried over from the 26 Aug 2026 research re-check (“Pending” = not re-checked since). Amounts and ranking refreshed <span data-stat="table-refreshed">21 Sep 2026 · 08:53 UTC</span>.</p>
+          <p class="micro">*Status labels: outbid.lol from the bot’s live route check; other labels carried over from the 26 Aug 2026 research re-check (“Pending” = not re-checked since). Amounts and ranking refreshed <span data-stat="table-refreshed">22 Sep 2026 · 08:30 UTC</span>.</p>
         </section>
 
         <section id="new-sites" aria-labelledby="new-title">
@@ -1364,7 +1364,7 @@
 
         <footer class="footer">
           <span>Outbid market audit · prepared 26 August 2026 · snapshot values are dated and source-linked.</span>
-          <span data-stat="bot-updated">Inventory auto-refreshed 21 Sep 2026 08:53 UTC by the daily bot.</span>
+          <span data-stat="bot-updated">Inventory auto-refreshed 22 Sep 2026 08:30 UTC by the daily bot.</span>
           <span>Directory data attribution: outoutbid.lol (CC BY 4.0).</span>
         </footer>
       </div>
@@ -1380,8 +1380,8 @@
       const fallbackBoards = [
       // bot:fallback-boards
         {"name": "Name the Day", "url": "https://nametheday.lol/", "host": "nametheday.lol", "tagline": "One auction per day: the top bid names the day, sealed at midnight UTC.", "category": {"slug": "websites", "name": "Websites & products"}, "minBid": "$2, then +$1", "payRail": "Stripe", "listedAt": "2026-09-15T20:20:59.622Z", "clicks": 6, "figures": {"collected": "$4", "readAt": "2026-09-16T13:50:10.136Z"}},
-        {"name": "Most Loved Team in Sports", "url": "https://outbidsports.lol/", "host": "outbidsports.lol", "tagline": "Most Loved Team in Sports — the live ranking on outbidsports.lol. Soccer, cricket, rugby, football, tennis — every club, country, and fanbase welcome. New entries start at ₹5.", "category": {"slug": "regional", "name": "Regional & other currencies"}, "minBid": "₹5", "payRail": null, "listedAt": "2026-09-13T22:30:54.456Z", "clicks": 8, "figures": {"collected": null, "readAt": null}},
-        {"name": "stonklist.lol", "url": "https://stonklist.lol/", "host": "stonklist.lol", "tagline": "Highest bag in the treasury takes #1. We hodl. You climb. A pay-to-rank leaderboard for StonkFun tokens.", "category": {"slug": "ai", "name": "AI tools & agents"}, "minBid": null, "payRail": null, "listedAt": "2026-09-12T04:31:02.608Z", "clicks": 9, "figures": {"collected": "$356.44", "readAt": "2026-09-21T08:50:14.851Z"}},
+        {"name": "Most Loved Team in Sports", "url": "https://outbidsports.lol/", "host": "outbidsports.lol", "tagline": "Most Loved Team in Sports — the live ranking on outbidsports.lol. Soccer, cricket, rugby, football, tennis — every club, country, and fanbase welcome. New entries start at ₹5.", "category": {"slug": "regional", "name": "Regional & other currencies"}, "minBid": "₹5", "payRail": null, "listedAt": "2026-09-13T22:30:54.456Z", "clicks": 9, "figures": {"collected": null, "readAt": null}},
+        {"name": "stonklist.lol", "url": "https://stonklist.lol/", "host": "stonklist.lol", "tagline": "Highest bag in the treasury takes #1. We hodl. You climb. A pay-to-rank leaderboard for StonkFun tokens.", "category": {"slug": "ai", "name": "AI tools & agents"}, "minBid": null, "payRail": null, "listedAt": "2026-09-12T04:31:02.608Z", "clicks": 9, "figures": {"collected": "$349.01", "readAt": "2026-09-21T10:50:18.691Z"}},
         {"name": "firstrank.lol", "url": "https://firstrank.lol/", "host": "firstrank.lol", "tagline": "Products, apps, profiles - anything", "category": {"slug": "websites", "name": "Websites & products"}, "minBid": "$5", "payRail": "PayGlocal", "listedAt": "2026-09-11T20:47:35.430Z", "clicks": 9, "figures": {"collected": "$115", "readAt": "2026-09-15T21:50:07.459Z"}},
         {"name": "Big Beautiful Bill", "url": "https://bigbeautifulbill.bid/", "host": "bigbeautifulbill.bid", "tagline": "The biggest bill on the internet. Possibly the most beautiful.", "category": {"slug": "websites", "name": "Websites & products"}, "minBid": null, "payRail": null, "listedAt": "2026-09-10T20:09:15.053Z", "clicks": 12, "figures": {"collected": "$6,000", "readAt": "2026-09-13T16:09:58.958Z"}},
         {"name": "TOPSHELF", "url": "https://topshelf.qubitumai.com/", "host": "topshelf.qubitumai.com", "tagline": "Buy your rank. Take the top.", "category": {"slug": "ads", "name": "Ads & billboards"}, "minBid": "$1", "payRail": null, "listedAt": "2026-09-10T00:16:00.514Z", "clicks": 10, "figures": {"collected": null, "readAt": null}},

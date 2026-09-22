@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-09-21T08:53:52+00:00",
+  "runAt": "2026-09-22T08:30:20+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-09-21T08:53:53.676Z",
+  "apiGeneratedAt": "2026-09-22T08:30:20.887Z",
   "boardsTotal": 513,
-  "boardsMeasured": 326,
-  "cloneMeasured": 325,
-  "claimedTotalUsd": 607260.45,
-  "cloneTotalUsd": 345481.28,
+  "boardsMeasured": 325,
+  "cloneMeasured": 324,
+  "claimedTotalUsd": 350116.92,
+  "cloneTotalUsd": 88337.75,
   "originalCollectedUsd": 261779.17,
-  "originalShare": 0.4311,
+  "originalShare": 0.7477,
   "cloneMedianUsd": 20.0,
-  "top10CloneShareOfCloneMoney": 0.9119,
+  "top10CloneShareOfCloneMoney": 0.6721,
   "categories": {
     "Websites & products": 258,
     "AI tools & agents": 65,
@@ -26,11 +26,6 @@
       "host": "outbid.lol",
       "name": "outbid.lol",
       "claimed": "$261,779.17"
-    },
-    {
-      "host": "biddir.lol",
-      "name": "BidDir",
-      "claimed": "$257,376"
     },
     {
       "host": "lamborghini.lol",
@@ -71,6 +66,11 @@
       "host": "1012.lol",
       "name": "1012",
       "claimed": "$2,500"
+    },
+    {
+      "host": "vibewar.lol",
+      "name": "VibeWar",
+      "claimed": "$1,710.66"
     }
   ],
   "primarySite": {
@@ -90,29 +90,29 @@
     "highestBidHost": null
   },
   "entrySimulator": {
-    "measuredClones": 325,
-    "meanUsd": 1063.02,
+    "measuredClones": 324,
+    "meanUsd": 272.65,
     "medianUsd": 20.0,
     "percentiles": {
       "p25": 5.0,
       "p50": 20.0,
-      "p75": 70.3,
-      "p90": 256.8,
-      "p95": 1010.4,
-      "p99": 5916.0
+      "p75": 70.72,
+      "p90": 255.7,
+      "p95": 897.95,
+      "p99": 5361.35
     },
-    "shareOver100": 0.2031,
-    "shareOver1000": 0.0523,
-    "shareExactlyZero": 0.1015,
-    "bottomHalfShareOfMoney": 0.0028,
-    "top10ShareOfCloneMoney": 0.9119,
+    "shareOver100": 0.2006,
+    "shareOver1000": 0.0494,
+    "shareExactlyZero": 0.1019,
+    "bottomHalfShareOfMoney": 0.0112,
+    "top10ShareOfCloneMoney": 0.6721,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
-      "medianUsd": 82.0,
-      "hitRateOver100": 0.5
+      "medianUsd": 54.5,
+      "hitRateOver100": 0.3333
     },
     "categoryMedians": {
-      "Directories of bid sites": 82.0,
+      "Directories of bid sites": 54.5,
       "Regional & other currencies": 36.26,
       "AI tools & agents": 31.0,
       "Ads & billboards": 26.0,
