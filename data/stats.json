@@ -1,8 +1,8 @@
 {
-  "runAt": "2026-09-23T08:32:23+00:00",
+  "runAt": "2026-09-24T08:25:08+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-09-23T08:32:23.566Z",
-  "boardsTotal": 515,
+  "apiGeneratedAt": "2026-09-24T08:25:08.670Z",
+  "boardsTotal": 526,
   "boardsMeasured": 325,
   "cloneMeasured": 324,
   "claimedTotalUsd": 350116.92,
@@ -12,14 +12,14 @@
   "cloneMedianUsd": 20.0,
   "top10CloneShareOfCloneMoney": 0.6721,
   "categories": {
-    "Websites & products": 258,
-    "AI tools & agents": 67,
-    "X accounts": 64,
+    "Websites & products": 263,
+    "AI tools & agents": 68,
+    "X accounts": 65,
     "Ads & billboards": 38,
-    "Crypto & tokens": 28,
-    "Games & clips": 26,
+    "Crypto & tokens": 29,
+    "Games & clips": 28,
     "Regional & other currencies": 21,
-    "Directories of bid sites": 13
+    "Directories of bid sites": 14
   },
   "top10Boards": [
     {
