@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-10-01T10:05:32+00:00",
+  "runAt": "2026-10-02T09:43:22+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-10-01T10:05:32.906Z",
+  "apiGeneratedAt": "2026-10-02T09:43:22.830Z",
   "boardsTotal": 528,
   "boardsMeasured": 292,
   "cloneMeasured": 291,
-  "claimedTotalUsd": 358136.6,
-  "cloneTotalUsd": 93413.51,
-  "originalCollectedUsd": 264723.09,
-  "originalShare": 0.7392,
+  "claimedTotalUsd": 614915.84,
+  "cloneTotalUsd": 350139.94,
+  "originalCollectedUsd": 264775.9,
+  "originalShare": 0.4306,
   "cloneMedianUsd": 18.0,
-  "top10CloneShareOfCloneMoney": 0.7602,
+  "top10CloneShareOfCloneMoney": 0.9338,
   "categories": {
     "Websites & products": 263,
     "AI tools & agents": 70,
@@ -25,7 +25,12 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$264,723.09"
+      "claimed": "$264,775.90"
+    },
+    {
+      "host": "biddir.lol",
+      "name": "BidDir",
+      "claimed": "$257,376"
     },
     {
       "host": "lamborghini.lol",
@@ -66,11 +71,6 @@
       "host": "stealspot.lol",
       "name": "stealspot.lol",
       "claimed": "$1,693"
-    },
-    {
-      "host": "lugarcito.online",
-      "name": "Lugarcito",
-      "claimed": "$1,565.64"
     }
   ],
   "primarySite": {
@@ -91,28 +91,28 @@
   },
   "entrySimulator": {
     "measuredClones": 291,
-    "meanUsd": 321.01,
+    "meanUsd": 1203.23,
     "medianUsd": 18.0,
     "percentiles": {
       "p25": 4.0,
       "p50": 18.0,
       "p75": 71.15,
       "p90": 251.0,
-      "p95": 824.62,
-      "p99": 5685.0
+      "p95": 890.0,
+      "p99": 7400.45
     },
     "shareOver100": 0.2062,
-    "shareOver1000": 0.0412,
+    "shareOver1000": 0.0447,
     "shareExactlyZero": 0.1168,
-    "bottomHalfShareOfMoney": 0.0081,
-    "top10ShareOfCloneMoney": 0.7602,
+    "bottomHalfShareOfMoney": 0.0022,
+    "top10ShareOfCloneMoney": 0.9338,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
-      "medianUsd": 163.5,
+      "medianUsd": 166.0,
       "hitRateOver100": 0.6667
     },
     "categoryMedians": {
-      "Directories of bid sites": 163.5,
+      "Directories of bid sites": 166.0,
       "Regional & other currencies": 34.0,
       "AI tools & agents": 26.5,
       "Websites & products": 21.0,
