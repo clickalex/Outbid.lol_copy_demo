@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-10-03T09:06:51+00:00",
+  "runAt": "2026-10-04T09:44:40+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-10-03T09:06:52.011Z",
+  "apiGeneratedAt": "2026-10-04T09:44:41.263Z",
   "boardsTotal": 528,
   "boardsMeasured": 292,
   "cloneMeasured": 291,
-  "claimedTotalUsd": 360609.72,
-  "cloneTotalUsd": 95788.12,
-  "originalCollectedUsd": 264821.6,
-  "originalShare": 0.7344,
+  "claimedTotalUsd": 614956.79,
+  "cloneTotalUsd": 350061.9,
+  "originalCollectedUsd": 264894.89,
+  "originalShare": 0.4308,
   "cloneMedianUsd": 18.0,
-  "top10CloneShareOfCloneMoney": 0.7589,
+  "top10CloneShareOfCloneMoney": 0.934,
   "categories": {
     "Websites & products": 263,
     "AI tools & agents": 70,
@@ -25,7 +25,12 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$264,821.60"
+      "claimed": "$264,894.89"
+    },
+    {
+      "host": "biddir.lol",
+      "name": "BidDir",
+      "claimed": "$257,376"
     },
     {
       "host": "lamborghini.lol",
@@ -51,11 +56,6 @@
       "host": "outbids.lol",
       "name": "outbids.lol",
       "claimed": "~$4,395"
-    },
-    {
-      "host": "biddir.lol",
-      "name": "BidDir",
-      "claimed": "$3,114"
     },
     {
       "host": "socials.win",
@@ -91,7 +91,7 @@
   },
   "entrySimulator": {
     "measuredClones": 291,
-    "meanUsd": 329.17,
+    "meanUsd": 1202.96,
     "medianUsd": 18.0,
     "percentiles": {
       "p25": 4.0,
@@ -99,20 +99,20 @@
       "p75": 71.15,
       "p90": 251.0,
       "p95": 890.0,
-      "p99": 5685.0
+      "p99": 7400.45
     },
-    "shareOver100": 0.2027,
+    "shareOver100": 0.2062,
     "shareOver1000": 0.0447,
     "shareExactlyZero": 0.1168,
-    "bottomHalfShareOfMoney": 0.0079,
-    "top10ShareOfCloneMoney": 0.7589,
+    "bottomHalfShareOfMoney": 0.0022,
+    "top10ShareOfCloneMoney": 0.934,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
-      "medianUsd": 183.5,
+      "medianUsd": 187.5,
       "hitRateOver100": 0.6667
     },
     "categoryMedians": {
-      "Directories of bid sites": 183.5,
+      "Directories of bid sites": 187.5,
       "Regional & other currencies": 34.0,
       "AI tools & agents": 26.5,
       "Websites & products": 21.0,
