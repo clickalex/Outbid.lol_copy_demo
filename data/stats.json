@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-10-05T10:22:55+00:00",
+  "runAt": "2026-10-06T10:14:26+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-10-05T10:22:56.629Z",
+  "apiGeneratedAt": "2026-10-06T10:14:26.260Z",
   "boardsTotal": 528,
-  "boardsMeasured": 291,
-  "cloneMeasured": 290,
-  "claimedTotalUsd": 358979.51,
-  "cloneTotalUsd": 93993.52,
-  "originalCollectedUsd": 264985.99,
-  "originalShare": 0.7382,
-  "cloneMedianUsd": 18.45,
-  "top10CloneShareOfCloneMoney": 0.7555,
+  "boardsMeasured": 292,
+  "cloneMeasured": 291,
+  "claimedTotalUsd": 361053.32,
+  "cloneTotalUsd": 96004.03,
+  "originalCollectedUsd": 265049.29,
+  "originalShare": 0.7341,
+  "cloneMedianUsd": 17.0,
+  "top10CloneShareOfCloneMoney": 0.7572,
   "categories": {
     "Websites & products": 263,
     "AI tools & agents": 70,
@@ -25,7 +25,7 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$264,985.99"
+      "claimed": "$265,049.29"
     },
     {
       "host": "lamborghini.lol",
@@ -53,6 +53,11 @@
       "claimed": "~$4,395"
     },
     {
+      "host": "biddir.lol",
+      "name": "BidDir",
+      "claimed": "$3,114"
+    },
+    {
       "host": "socials.win",
       "name": "Socials.win",
       "claimed": "$2,774"
@@ -66,11 +71,6 @@
       "host": "stealspot.lol",
       "name": "stealspot.lol",
       "claimed": "$1,693"
-    },
-    {
-      "host": "lugarcito.online",
-      "name": "Lugarcito",
-      "claimed": "$1,565.64"
     }
   ],
   "primarySite": {
@@ -90,22 +90,22 @@
     "highestBidHost": null
   },
   "entrySimulator": {
-    "measuredClones": 290,
-    "meanUsd": 324.12,
-    "medianUsd": 18.45,
+    "measuredClones": 291,
+    "meanUsd": 329.91,
+    "medianUsd": 17.0,
     "percentiles": {
       "p25": 4.0,
-      "p50": 18.45,
-      "p75": 72.75,
-      "p90": 255.3,
-      "p95": 891.9,
-      "p99": 5688.5
+      "p50": 17.0,
+      "p75": 72.5,
+      "p90": 255.0,
+      "p95": 890.0,
+      "p99": 5685.0
     },
-    "shareOver100": 0.2034,
-    "shareOver1000": 0.0448,
-    "shareExactlyZero": 0.1172,
-    "bottomHalfShareOfMoney": 0.0082,
-    "top10ShareOfCloneMoney": 0.7555,
+    "shareOver100": 0.2027,
+    "shareOver1000": 0.0447,
+    "shareExactlyZero": 0.1168,
+    "bottomHalfShareOfMoney": 0.0079,
+    "top10ShareOfCloneMoney": 0.7572,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
       "medianUsd": 200.0,
@@ -114,7 +114,7 @@
     "categoryMedians": {
       "Directories of bid sites": 200.0,
       "Regional & other currencies": 34.0,
-      "AI tools & agents": 28.0,
+      "AI tools & agents": 26.5,
       "Websites & products": 21.0,
       "Ads & billboards": 20.0,
       "X accounts": 12.5,
