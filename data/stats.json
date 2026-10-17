@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-10-16T08:07:47+00:00",
+  "runAt": "2026-10-17T07:45:04+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-10-16T08:07:47.894Z",
+  "apiGeneratedAt": "2026-10-17T07:45:05.370Z",
   "boardsTotal": 532,
   "boardsMeasured": 291,
   "cloneMeasured": 290,
-  "claimedTotalUsd": 359658.99,
-  "cloneTotalUsd": 93557.7,
-  "originalCollectedUsd": 266101.29,
-  "originalShare": 0.7399,
+  "claimedTotalUsd": 359971.18,
+  "cloneTotalUsd": 93577.49,
+  "originalCollectedUsd": 266393.69,
+  "originalShare": 0.74,
   "cloneMedianUsd": 18.45,
-  "top10CloneShareOfCloneMoney": 0.759,
+  "top10CloneShareOfCloneMoney": 0.7589,
   "categories": {
     "Websites & products": 263,
     "AI tools & agents": 72,
@@ -25,7 +25,7 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$266,101.29"
+      "claimed": "$266,393.69"
     },
     {
       "host": "lamborghini.lol",
@@ -91,21 +91,21 @@
   },
   "entrySimulator": {
     "measuredClones": 290,
-    "meanUsd": 322.61,
+    "meanUsd": 322.68,
     "medianUsd": 18.45,
     "percentiles": {
       "p25": 4.16,
       "p50": 18.45,
       "p75": 71.58,
       "p90": 251.4,
-      "p95": 874.3,
+      "p95": 891.9,
       "p99": 5688.5
     },
     "shareOver100": 0.2034,
     "shareOver1000": 0.0414,
     "shareExactlyZero": 0.1138,
     "bottomHalfShareOfMoney": 0.0083,
-    "top10ShareOfCloneMoney": 0.759,
+    "top10ShareOfCloneMoney": 0.7589,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
       "medianUsd": 149.0,
