@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-10-18T07:59:25+00:00",
+  "runAt": "2026-10-19T08:48:56+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-10-18T07:59:25.901Z",
+  "apiGeneratedAt": "2026-10-19T08:48:57.402Z",
   "boardsTotal": 532,
   "boardsMeasured": 292,
   "cloneMeasured": 291,
-  "claimedTotalUsd": 361003.32,
-  "cloneTotalUsd": 94559.63,
-  "originalCollectedUsd": 266443.69,
-  "originalShare": 0.7381,
+  "claimedTotalUsd": 363246.14,
+  "cloneTotalUsd": 96743.45,
+  "originalCollectedUsd": 266502.69,
+  "originalShare": 0.7337,
   "cloneMedianUsd": 18.0,
-  "top10CloneShareOfCloneMoney": 0.751,
+  "top10CloneShareOfCloneMoney": 0.7514,
   "categories": {
     "Websites & products": 263,
     "AI tools & agents": 72,
@@ -25,7 +25,7 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$266,443.69"
+      "claimed": "$266,502.69"
     },
     {
       "host": "lamborghini.lol",
@@ -53,6 +53,11 @@
       "claimed": "~$4,395"
     },
     {
+      "host": "biddir.lol",
+      "name": "BidDir",
+      "claimed": "$3,114"
+    },
+    {
       "host": "socials.win",
       "name": "Socials.win",
       "claimed": "$2,774"
@@ -66,11 +71,6 @@
       "host": "stealspot.lol",
       "name": "stealspot.lol",
       "claimed": "$1,693"
-    },
-    {
-      "host": "lugarcito.online",
-      "name": "Lugarcito",
-      "claimed": "$1,565.64"
     }
   ],
   "primarySite": {
@@ -91,21 +91,21 @@
   },
   "entrySimulator": {
     "measuredClones": 291,
-    "meanUsd": 324.95,
+    "meanUsd": 332.45,
     "medianUsd": 18.0,
     "percentiles": {
       "p25": 4.0,
       "p50": 18.0,
       "p75": 72.5,
       "p90": 255.0,
-      "p95": 936.0,
+      "p95": 936.5,
       "p99": 5685.0
     },
     "shareOver100": 0.2062,
-    "shareOver1000": 0.0412,
-    "shareExactlyZero": 0.1134,
-    "bottomHalfShareOfMoney": 0.0081,
-    "top10ShareOfCloneMoney": 0.751,
+    "shareOver1000": 0.0481,
+    "shareExactlyZero": 0.1168,
+    "bottomHalfShareOfMoney": 0.0079,
+    "top10ShareOfCloneMoney": 0.7514,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
       "medianUsd": 200.0,
@@ -114,11 +114,11 @@
     "categoryMedians": {
       "Directories of bid sites": 200.0,
       "Regional & other currencies": 34.0,
-      "AI tools & agents": 26.5,
+      "AI tools & agents": 28.0,
       "Websites & products": 21.5,
       "X accounts": 12.5,
       "Ads & billboards": 12.43,
-      "Crypto & tokens": 6.5,
+      "Crypto & tokens": 6.0,
       "Games & clips": 6.0
     }
   },
