@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-11-11T10:53:22+00:00",
+  "runAt": "2026-11-12T11:01:17+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-11-11T10:53:23.251Z",
+  "apiGeneratedAt": "2026-11-12T11:01:18.260Z",
   "boardsTotal": 541,
   "boardsMeasured": 329,
   "cloneMeasured": 328,
-  "claimedTotalUsd": 839692.45,
-  "cloneTotalUsd": 570740.19,
-  "originalCollectedUsd": 268952.26,
-  "originalShare": 0.3203,
-  "cloneMedianUsd": 20.44,
-  "top10CloneShareOfCloneMoney": 0.9477,
+  "claimedTotalUsd": 840227.62,
+  "cloneTotalUsd": 571264.36,
+  "originalCollectedUsd": 268963.26,
+  "originalShare": 0.3201,
+  "cloneMedianUsd": 20.94,
+  "top10CloneShareOfCloneMoney": 0.9469,
   "categories": {
     "Websites & products": 263,
     "AI tools & agents": 76,
@@ -30,7 +30,7 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$268,952.26"
+      "claimed": "$268,963.26"
     },
     {
       "host": "lamborghini.lol",
@@ -91,34 +91,34 @@
   },
   "entrySimulator": {
     "measuredClones": 328,
-    "meanUsd": 1740.06,
-    "medianUsd": 20.44,
+    "meanUsd": 1741.66,
+    "medianUsd": 20.94,
     "percentiles": {
-      "p25": 4.91,
-      "p50": 20.44,
+      "p25": 5.0,
+      "p50": 20.94,
       "p75": 75.55,
-      "p90": 255.9,
+      "p90": 263.7,
       "p95": 944.75,
       "p99": 6346.02
     },
-    "shareOver100": 0.2073,
+    "shareOver100": 0.2104,
     "shareOver1000": 0.0488,
     "shareExactlyZero": 0.1098,
     "bottomHalfShareOfMoney": 0.0018,
-    "top10ShareOfCloneMoney": 0.9477,
+    "top10ShareOfCloneMoney": 0.9469,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
-      "medianUsd": 123.5,
-      "hitRateOver100": 0.5
+      "medianUsd": 200.0,
+      "hitRateOver100": 0.625
     },
     "categoryMedians": {
-      "Directories of bid sites": 123.5,
+      "Directories of bid sites": 200.0,
       "Regional & other currencies": 37.23,
       "AI tools & agents": 34.0,
+      "Ads & billboards": 25.0,
       "Websites & products": 23.0,
-      "Ads & billboards": 20.0,
       "X accounts": 15.0,
-      "Crypto & tokens": 8.5,
+      "Crypto & tokens": 10.0,
       "Games & clips": 6.0
     }
   },
