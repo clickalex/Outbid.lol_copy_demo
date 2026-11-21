@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-11-20T11:33:08+00:00",
+  "runAt": "2026-11-21T10:57:24+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-11-20T11:33:09.674Z",
+  "apiGeneratedAt": "2026-11-21T10:57:25.457Z",
   "boardsTotal": 535,
-  "boardsMeasured": 322,
-  "cloneMeasured": 321,
-  "claimedTotalUsd": 838391.31,
-  "cloneTotalUsd": 569232.3,
-  "originalCollectedUsd": 269159.01,
-  "originalShare": 0.321,
-  "cloneMedianUsd": 20.94,
-  "top10CloneShareOfCloneMoney": 0.9467,
+  "boardsMeasured": 320,
+  "cloneMeasured": 319,
+  "claimedTotalUsd": 838322.43,
+  "cloneTotalUsd": 569083.42,
+  "originalCollectedUsd": 269239.01,
+  "originalShare": 0.3212,
+  "cloneMedianUsd": 20.88,
+  "top10CloneShareOfCloneMoney": 0.947,
   "categories": {
     "Websites & products": 260,
     "AI tools & agents": 76,
@@ -30,7 +30,7 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$269,159.01"
+      "claimed": "$269,239.01"
     },
     {
       "host": "lamborghini.lol",
@@ -90,22 +90,22 @@
     "highestBidHost": null
   },
   "entrySimulator": {
-    "measuredClones": 321,
-    "meanUsd": 1773.31,
-    "medianUsd": 20.94,
+    "measuredClones": 319,
+    "meanUsd": 1783.96,
+    "medianUsd": 20.88,
     "percentiles": {
       "p25": 4.0,
-      "p50": 20.94,
-      "p75": 76.0,
-      "p90": 277.0,
-      "p95": 964.0,
-      "p99": 6379.2
+      "p50": 20.88,
+      "p75": 76.61,
+      "p90": 281.6,
+      "p95": 964.3,
+      "p99": 6388.68
     },
-    "shareOver100": 0.2118,
-    "shareOver1000": 0.0467,
-    "shareExactlyZero": 0.1153,
+    "shareOver100": 0.2132,
+    "shareOver1000": 0.047,
+    "shareExactlyZero": 0.116,
     "bottomHalfShareOfMoney": 0.0017,
-    "top10ShareOfCloneMoney": 0.9467,
+    "top10ShareOfCloneMoney": 0.947,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
       "medianUsd": 200.0,
@@ -113,7 +113,7 @@
     },
     "categoryMedians": {
       "Directories of bid sites": 200.0,
-      "Regional & other currencies": 37.16,
+      "Regional & other currencies": 37.13,
       "AI tools & agents": 34.0,
       "Websites & products": 23.0,
       "Ads & billboards": 19.5,
