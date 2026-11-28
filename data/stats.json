@@ -1,16 +1,16 @@
 {
-  "runAt": "2026-11-27T12:12:16+00:00",
+  "runAt": "2026-11-28T11:40:58+00:00",
   "source": "outoutbid.lol directory API (CC BY 4.0)",
-  "apiGeneratedAt": "2026-11-27T12:12:17.265Z",
+  "apiGeneratedAt": "2026-11-28T11:40:59.159Z",
   "boardsTotal": 533,
   "boardsMeasured": 317,
   "cloneMeasured": 316,
-  "claimedTotalUsd": 837447.97,
-  "cloneTotalUsd": 568018.06,
-  "originalCollectedUsd": 269429.91,
-  "originalShare": 0.3217,
-  "cloneMedianUsd": 20.37,
-  "top10CloneShareOfCloneMoney": 0.9488,
+  "claimedTotalUsd": 838373.75,
+  "cloneTotalUsd": 568901.84,
+  "originalCollectedUsd": 269471.91,
+  "originalShare": 0.3214,
+  "cloneMedianUsd": 20.11,
+  "top10CloneShareOfCloneMoney": 0.9473,
   "categories": {
     "Websites & products": 258,
     "AI tools & agents": 76,
@@ -30,7 +30,7 @@
     {
       "host": "outbid.lol",
       "name": "outbid.lol",
-      "claimed": "$269,429.91"
+      "claimed": "$269,471.91"
     },
     {
       "host": "lamborghini.lol",
@@ -91,29 +91,29 @@
   },
   "entrySimulator": {
     "measuredClones": 316,
-    "meanUsd": 1797.53,
-    "medianUsd": 20.37,
+    "meanUsd": 1800.32,
+    "medianUsd": 20.11,
     "percentiles": {
       "p25": 3.75,
-      "p50": 20.37,
+      "p50": 20.11,
       "p75": 77.91,
-      "p90": 267.5,
-      "p95": 922.75,
+      "p90": 288.5,
+      "p95": 964.75,
       "p99": 6402.9
     },
-    "shareOver100": 0.2152,
+    "shareOver100": 0.2184,
     "shareOver1000": 0.0475,
     "shareExactlyZero": 0.1171,
     "bottomHalfShareOfMoney": 0.0016,
-    "top10ShareOfCloneMoney": 0.9488,
+    "top10ShareOfCloneMoney": 0.9473,
     "bestCategoryByMedian": {
       "name": "Directories of bid sites",
-      "medianUsd": 123.5,
-      "hitRateOver100": 0.5
+      "medianUsd": 200.0,
+      "hitRateOver100": 0.625
     },
     "categoryMedians": {
-      "Directories of bid sites": 123.5,
-      "Regional & other currencies": 37.76,
+      "Directories of bid sites": 200.0,
+      "Regional & other currencies": 37.72,
       "AI tools & agents": 34.0,
       "Ads & billboards": 25.0,
       "Websites & products": 22.13,
